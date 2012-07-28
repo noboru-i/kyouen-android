@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">詰め共円</string>
+
+	<string name="puzzle">スタート</string>
+	<string name="get_more">ステージ取得</string>
+	<string name="create_stage">ステージ作成</string>
+
+	<string name="about">情報</string>
+	
+	<string name="button_prev">前へ</string>
+	<string name="button_next">次へ</string>
+	<string name="check_kyouen">共円！！</string>
+
+	<string name="alert_less_stone">4つの石を選択してください</string>
+	<string name="alert_not_kyouen">共円ではありません</string>
+	<string name="alert_install_kyouenchecker">共円チェッカーをインストールしますか？</string>
+
+	<string name="dialog_title_stage_get">ステージ取得</string>
+	<string name="dialog_title_stage_select">ステージ選択</string>
+	<string name="dialog_stage_count">ステージ数</string>
+	<string name="dialog_stage_no">ステージ番号</string>
+	<string name="dialog_all_check">全件</string>
+	<string name="dialog_first">最初へ</string>
+	<string name="dialog_last">最後へ</string>
+	<string name="dialog_cancel">キャンセル</string>
+	<string name="dialog_get">取得</string>
+	<string name="dialog_select">選択</string>
+
+	<string name="kyouen">共円！！</string>
+
+	<string name="toast_get_stage">%1$d件取得しました。</string>
+	<string name="toast_no_stage">追加ステージが取得できませんでした。</string>
+	<string name="toast_network_error">ネットワークエラーが発生しました。再度実行してください。</string>
+</resources>
