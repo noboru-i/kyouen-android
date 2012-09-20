@@ -9,13 +9,11 @@
 
 	<string name="sound_description"></string>
 
-	<string name="about">About</string>
-	
-	<string name="url_stage_get">http://my-android-server.appspot.com/kyouen/get</string>
-
 	<string name="button_prev">prev</string>
 	<string name="button_next">next</string>
 	<string name="check_kyouen">Check kyouen</string>
+	<string name="text_initializing">initializing&#8230;</string>
+	<string name="text_x10">x10</string>
 
 	<string name="alert_less_stone">Select 4 stones.</string>
 	<string name="alert_not_kyouen">Not kyouen.</string>
@@ -28,7 +26,7 @@
 	<string name="dialog_all_check">All</string>
 	<string name="dialog_first">first</string>
 	<string name="dialog_last">last</string>
-	<string name="dialog_cancel">cancel</string>
+	<string name="dialog_cancel">Cancel</string>
 	<string name="dialog_get">get</string>
 	<string name="dialog_select">select</string>
 
@@ -36,5 +34,6 @@
 
 	<string name="toast_get_stage">get %1$d stage(s).</string>
 	<string name="toast_no_stage">No available data.</string>
-	<string name="toast_network_error">Network error occured. Please retry.</string>
+	
+	<string name="notification_new_stage">New stage added.</string>
 </resources>

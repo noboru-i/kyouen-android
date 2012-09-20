@@ -121,7 +121,7 @@ public class InsertDataTask extends AsyncTask<String, Integer, Integer> {
 	 */
 	private String getStageData(int currentMaxStageNo) {
 		// URLの作成
-		String url = mContext.getString(R.string.url_stage_get) + "?stageNo="
+		String url = mContext.getString(R.string.server_url) + "/kyouen/get?stageNo="
 				+ currentMaxStageNo;
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpGet httpGet = new HttpGet(url);

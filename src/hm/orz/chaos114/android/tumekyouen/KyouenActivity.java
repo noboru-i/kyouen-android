@@ -80,7 +80,6 @@ public class KyouenActivity extends Activity {
 
 		// タイトルバーを非表示
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		hideStatusBar();
 
 		// 音量ボタンの動作変更
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -316,14 +315,6 @@ public class KyouenActivity extends Activity {
 
 		TextView stageNoView = (TextView) findViewById(R.id.stage_no);
 		stageNoView.setTextColor(getResources().getColor(R.color.text_clear));
-	}
-
-	/**
-	 * ステータスバーを非表示状態にします。
-	 */
-	private void hideStatusBar() {
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	}
 
 	/**

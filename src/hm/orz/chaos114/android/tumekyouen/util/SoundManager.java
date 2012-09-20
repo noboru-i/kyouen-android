@@ -1,16 +1,13 @@
 package hm.orz.chaos114.android.tumekyouen.util;
 
 import hm.orz.chaos114.android.tumekyouen.R;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.preference.PreferenceManager;
+import android.util.SparseIntArray;
 
 public class SoundManager {
 
@@ -21,7 +18,7 @@ public class SoundManager {
 	private SoundPool soundPool;
 
 	/** サウンドのID */
-	private Map<Integer, Integer> soundIds;
+	private SparseIntArray soundIds;
 
 	/** コンテキスト */
 	private Context context;
@@ -40,7 +37,7 @@ public class SoundManager {
 	public void init(Context paramContext) {
 		context = paramContext;
 		soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
-		soundIds = new HashMap<Integer, Integer>();
+		soundIds = new SparseIntArray();
 		soundIds.put(R.raw.se_maoudamashii_se_finger01,
 				soundPool.load(context, R.raw.se_maoudamashii_se_finger01, 1));
 		soundIds.put(R.raw.se_maoudamashii_onepoint23,

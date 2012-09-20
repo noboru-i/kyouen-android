@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.AttributeSet;
 import android.view.View;
 
 /**
@@ -24,9 +25,29 @@ public class OverlayView extends View {
 	/** 共円の情報 */
 	private KyouenData data;
 
+	/** 描画用オブジェクト */
+	private Paint paint;
+
 	public OverlayView(Context context, int maxScrnWidth) {
 		super(context);
 		this.maxScrnWidth = maxScrnWidth;
+
+		paint = new Paint();
+		paint.setColor(Color.rgb(128, 128, 128));
+		paint.setStyle(Paint.Style.STROKE);
+		paint.setStrokeWidth(3);
+	}
+
+	public OverlayView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		// layoutファイルからの呼び出しを想定していない
+		throw new UnsupportedOperationException();
+	}
+
+	public OverlayView(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+		// layoutファイルからの呼び出しを想定していない
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -35,11 +56,6 @@ public class OverlayView extends View {
 		if (data == null) {
 			return;
 		}
-
-		Paint paint = new Paint();
-		paint.setColor(Color.rgb(128, 128, 128));
-		paint.setStyle(Paint.Style.STROKE);
-		paint.setStrokeWidth(3);
 
 		double offset = maxScrnWidth / size;
 		if (data.isLine()) {

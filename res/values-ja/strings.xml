@@ -4,13 +4,16 @@
 
 	<string name="puzzle">スタート</string>
 	<string name="get_more">ステージ取得</string>
+	<string name="get_more_loading">loading</string>
 	<string name="create_stage">ステージ作成</string>
 
-	<string name="about">情報</string>
-	
+	<string name="sound_description"></string>
+
 	<string name="button_prev">前へ</string>
 	<string name="button_next">次へ</string>
 	<string name="check_kyouen">共円！！</string>
+	<string name="text_initializing">initializing&#8230;</string>
+	<string name="text_x10">x10</string>
 
 	<string name="alert_less_stone">4つの石を選択してください</string>
 	<string name="alert_not_kyouen">共円ではありません</string>
@@ -31,5 +34,6 @@
 
 	<string name="toast_get_stage">%1$d件取得しました。</string>
 	<string name="toast_no_stage">追加ステージが取得できませんでした。</string>
-	<string name="toast_network_error">ネットワークエラーが発生しました。再度実行してください。</string>
+	
+	<string name="notification_new_stage">新規ステージが追加されました。</string>
 </resources>
