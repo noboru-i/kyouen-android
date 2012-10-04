@@ -15,7 +15,6 @@ import android.view.View;
  * @author noboru
  */
 public class OverlayView extends View {
-
 	/** スクリーンの幅 */
 	private int maxScrnWidth;
 
@@ -28,9 +27,12 @@ public class OverlayView extends View {
 	/** 描画用オブジェクト */
 	private Paint paint;
 
-	public OverlayView(Context context, int maxScrnWidth) {
-		super(context);
-		this.maxScrnWidth = maxScrnWidth;
+	public OverlayView(Context context, AttributeSet attrs) {
+		this(context, attrs, 0);
+	}
+
+	public OverlayView(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
 
 		paint = new Paint();
 		paint.setColor(Color.rgb(128, 128, 128));
@@ -38,16 +40,13 @@ public class OverlayView extends View {
 		paint.setStrokeWidth(3);
 	}
 
-	public OverlayView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		// layoutファイルからの呼び出しを想定していない
-		throw new UnsupportedOperationException();
-	}
-
-	public OverlayView(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-		// layoutファイルからの呼び出しを想定していない
-		throw new UnsupportedOperationException();
+	@Override
+	public void onWindowFocusChanged(boolean hasWindowFocus) {
+		super.onWindowFocusChanged(hasWindowFocus);
+		this.maxScrnWidth = getWidth();
+		if (getWidth() != getHeight()) {
+			getLayoutParams().height = getWidth();
+		}
 	}
 
 	@Override

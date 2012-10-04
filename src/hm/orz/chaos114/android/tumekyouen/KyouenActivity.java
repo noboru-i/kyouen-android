@@ -2,50 +2,30 @@ package hm.orz.chaos114.android.tumekyouen;
 
 import hm.orz.chaos114.android.tumekyouen.app.StageSelectDialog;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
-import hm.orz.chaos114.android.tumekyouen.model.GameModel;
+import hm.orz.chaos114.android.tumekyouen.fragment.TumeKyouenFragment;
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.Display;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
-public class KyouenActivity extends Activity {
-
-	/** ボタン色を表すenum */
-	enum ButtonState {
-		NONE, BLACK, WHITE,
-	}
-
+public class KyouenActivity extends FragmentActivity {
 	/** 方向を表すenum */
 	enum Direction {
 		PREV, NEXT
@@ -54,20 +34,11 @@ public class KyouenActivity extends Activity {
 	/** DBアクセスオブジェクト */
 	private KyouenDb kyouenDb;
 
-	/** ボタンリスト */
-	private List<Button> buttons;
-
-	/** スクリーンの幅 */
-	private int maxScrnWidth;
-
-	/** 背景描画用Bitmap */
-	private Bitmap background;
-
-	/** ゲーム情報保持用オブジェクト */
-	private GameModel gameModel;
-
 	/** ステージ情報オブジェクト */
 	private TumeKyouenModel stageModel;
+
+	/** 共円描画用view */
+	private TumeKyouenFragment tumeKyouenFragment;
 
 	/** 共円描画用View */
 	private OverlayView overlayView;
@@ -90,50 +61,38 @@ public class KyouenActivity extends Activity {
 
 		setContentView(R.layout.main);
 
-		// ディスプレイサイズの取得
-		Display disp = ((WindowManager) this
-				.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-		maxScrnWidth = disp.getWidth();
-
-		// 広告の設定
-		AdUtil.addAdView(this, (LinearLayout) findViewById(R.id.ad_layout));
-
 		// オーバーレイ領域の設定
-		overlayView = new OverlayView(this, maxScrnWidth);
+		overlayView = (OverlayView) findViewById(R.id.kyouen_overlay);
 		overlayView.setVisibility(View.INVISIBLE);
-		FrameLayout frameLayout = (FrameLayout) findViewById(R.id.frame_layout);
-		frameLayout.addView(overlayView, new LinearLayout.LayoutParams(
-				ViewGroup.LayoutParams.FILL_PARENT, maxScrnWidth));
 
-		// チェックボタンの設定
+		// 詰め共円領域の追加
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager
+				.beginTransaction();
+		tumeKyouenFragment = TumeKyouenFragment.newInstance(stageModel);
+		fragmentTransaction.add(R.id.fragment_container, tumeKyouenFragment);
+		fragmentTransaction.commit();
+
+		// 共円チェックボタンの設定
 		Button kyouenButton = (Button) findViewById(R.id.kyouen_button);
 		kyouenButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (gameModel.getWhiteStoneCount() != 4) {
+				if (tumeKyouenFragment.getGameModel().getWhiteStoneCount() != 4) {
 					// 4つの石が選択されていない場合
 					new AlertDialog.Builder(KyouenActivity.this)
 							.setTitle(R.string.alert_less_stone)
 							.setPositiveButton("OK", null).create().show();
 					return;
 				}
-				KyouenData data = gameModel.isKyouen();
+				KyouenData data = tumeKyouenFragment.getGameModel().isKyouen();
 				if (data == null) {
 					// 共円でない場合
 					new AlertDialog.Builder(KyouenActivity.this)
 							.setTitle(R.string.alert_not_kyouen)
 							.setPositiveButton("OK", null).create().show();
-					// 全ての石を未選択状態に変更
-					for (int i = 0; i < buttons.size(); i++) {
-						Button button = buttons.get(i);
-						if (button.getTag() == ButtonState.WHITE) {
-							// 色の反転
-							int col = i % gameModel.getSize();
-							int row = i / gameModel.getSize();
-							switchStoneColor(button);
-							gameModel.switchColor(col, row);
-						}
-					}
+					// 全ての石を未選択状態に戻す
+					tumeKyouenFragment.reset();
 					return;
 				}
 
@@ -211,9 +170,6 @@ public class KyouenActivity extends Activity {
 	}
 
 	private void init() {
-		gameModel = new GameModel(stageModel.getSize(), stageModel.getStage());
-		buttons = new ArrayList<Button>();
-
 		// プリファレンスに設定
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
@@ -251,52 +207,6 @@ public class KyouenActivity extends Activity {
 		Button kyouenButton = (Button) findViewById(R.id.kyouen_button);
 		kyouenButton.setClickable(true);
 
-		// ボタン表示領域の設定
-		resetBackgroundBitmap();
-		TableLayout layout = (TableLayout) findViewById(R.id.layout);
-		layout.removeAllViews();
-		TableRow row = null;
-		for (int i = 0; i < gameModel.getSize(); i++) {
-			row = new TableRow(this);
-			layout.addView(row);
-			for (int j = 0; j < gameModel.getSize(); j++) {
-				Button button = new Button(this);
-				button.setBackgroundDrawable(new BitmapDrawable(
-						createBackgroundBitmap()));
-				button.setWidth(maxScrnWidth / gameModel.getSize());
-				button.setHeight(maxScrnWidth / gameModel.getSize());
-				if (gameModel.hasStone(i, j)) {
-					button.setTag(ButtonState.BLACK);
-					setBlack(button);
-				} else {
-					button.setTag(ButtonState.NONE);
-				}
-				buttons.add(button);
-				row.addView(button);
-				button.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						int index = buttons.indexOf(v);
-						Button button = (Button) v;
-						if (v.getTag() == ButtonState.NONE) {
-							// 石が設定されていない場合
-							return;
-						}
-
-						// 効果音の再生
-						SoundManager.getInstance(KyouenActivity.this).play(
-								R.raw.se_maoudamashii_se_finger01);
-
-						// 色の反転
-						int col = index % gameModel.getSize();
-						int row = index / gameModel.getSize();
-						switchStoneColor(button);
-						gameModel.switchColor(col, row);
-					}
-				});
-			}
-		}
-
 		overlayView.setVisibility(View.INVISIBLE);
 	}
 
@@ -306,78 +216,13 @@ public class KyouenActivity extends Activity {
 	private void setKyouen() {
 		Button kyouenButton = (Button) findViewById(R.id.kyouen_button);
 		kyouenButton.setClickable(false);
-		for (Button b : buttons) {
-			b.setClickable(false);
-		}
+		tumeKyouenFragment.setClickable(false);
 
 		stageModel.setClearFlag(TumeKyouenModel.CLEAR);
 		kyouenDb.updateClearFlag(stageModel);
 
 		TextView stageNoView = (TextView) findViewById(R.id.stage_no);
 		stageNoView.setTextColor(getResources().getColor(R.color.text_clear));
-	}
-
-	/**
-	 * 石の色を変更する。 <br>
-	 * 白を黒に、黒を白に変更する。
-	 * 
-	 * @param b 変更するボタン
-	 */
-	private void switchStoneColor(Button b) {
-		ButtonState state = (ButtonState) b.getTag();
-		switch (state) {
-		case WHITE:
-			setBlack(b);
-			b.setTag(ButtonState.BLACK);
-			break;
-		case BLACK:
-			setWhite(b);
-			b.setTag(ButtonState.WHITE);
-			break;
-		}
-	}
-
-	private void setBlack(Button b) {
-		b.setBackgroundResource(R.drawable.circle_black);
-	}
-
-	private void setWhite(Button b) {
-		b.setBackgroundResource(R.drawable.circle_white);
-	}
-
-	/**
-	 * 背景に表示するBitmapを返します。<br>
-	 * インスタンス変数に保持されていない場合、作成し、返却します。
-	 * 
-	 * @return 背景用Bitmap
-	 */
-	private Bitmap createBackgroundBitmap() {
-		if (background == null) {
-			resetBackgroundBitmap();
-		}
-
-		return background;
-	}
-
-	private void resetBackgroundBitmap() {
-		int bitmapSize = maxScrnWidth / gameModel.getSize();
-		Bitmap bitmap = Bitmap.createBitmap(bitmapSize, bitmapSize,
-				Bitmap.Config.ARGB_8888);
-		Canvas canvas = new Canvas(bitmap);
-
-		Paint paint = new Paint();
-		paint.setColor(Color.rgb(128, 128, 128));
-		paint.setStrokeWidth(2);
-
-		canvas.drawLine(bitmapSize / 2, 0, bitmapSize / 2, bitmapSize, paint);
-		canvas.drawLine(0, bitmapSize / 2, bitmapSize, bitmapSize / 2, paint);
-
-		paint.setColor(Color.rgb(32, 32, 32));
-		paint.setStrokeWidth(1);
-
-		canvas.drawLine(bitmapSize / 2, 0, bitmapSize / 2, bitmapSize, paint);
-		canvas.drawLine(0, bitmapSize / 2, bitmapSize, bitmapSize / 2, paint);
-		background = bitmap;
 	}
 
 	/**
@@ -434,6 +279,13 @@ public class KyouenActivity extends Activity {
 		}
 
 		stageModel = newModel;
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		tumeKyouenFragment = TumeKyouenFragment.newInstance(stageModel);
+
+		ft.replace(R.id.fragment_container, tumeKyouenFragment);
+		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+		ft.commit();
+
 		init();
 		return true;
 	}

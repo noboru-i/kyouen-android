@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="server_url" translatable="false">http://my-android-server.appspot.com</string>
+	<string name="unit_id" translatable="false">a14e2eb76fbaa7d</string>
 </resources>

@@ -8,7 +8,6 @@ import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,12 +20,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gcm.GCMRegistrar;
@@ -36,7 +35,7 @@ import com.google.android.gcm.GCMRegistrar;
  * 
  * @author noboru
  */
-public class TitleActivity extends Activity {
+public class TitleActivity extends FragmentActivity {
 
 	/** DBオブジェクト */
 	private KyouenDb kyouenDb;
@@ -201,9 +200,6 @@ public class TitleActivity extends Activity {
 
 		// 描画内容を更新
 		refresh();
-
-		// 広告の表示
-		AdUtil.addAdView(this, (LinearLayout) findViewById(R.id.ad_layout));
 	}
 
 	/**
