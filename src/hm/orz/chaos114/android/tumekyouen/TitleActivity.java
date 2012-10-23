@@ -269,49 +269,48 @@ public class TitleActivity extends FragmentActivity {
 
 	@Override
 	protected void onDestroy() {
-		GCMRegistrar.onDestroy(this);
+		GCMRegistrar.onDestroy(getApplicationContext());
 		super.onDestroy();
 	}
 
 	private void registGcm() {
 		try {
-			GCMRegistrar.checkDevice(this);
-			GCMRegistrar.checkManifest(this);
+			GCMRegistrar.checkDevice(getApplicationContext());
+			GCMRegistrar.checkManifest(getApplicationContext());
 		} catch (UnsupportedOperationException e) {
 			Log.e("kyouen", "unsupported gcm.", e);
 			return;
 		}
-		final String regId = GCMRegistrar.getRegistrationId(this);
+		final String regId = GCMRegistrar.getRegistrationId(getApplicationContext());
 		Log.i("kyouen", "regId=" + regId);
 		if (regId.equals("")) {
-			// Automatically registers application on startup.
-			GCMRegistrar.register(this, SERVER_ID);
-		} else {
-			final Context context = this;
-			AsyncTask<Void, Void, Void> registerTask = new AsyncTask<Void, Void, Void>() {
-
-				@Override
-				protected Void doInBackground(Void... params) {
-					boolean registered = ServerUtil.regist(context, regId);
-					// At this point all attempts to register with the app
-					// server failed, so we need to unregister the device
-					// from GCM - the app will try to register again when
-					// it is restarted. Note that GCM will send an
-					// unregistered callback upon completion, but
-					// GCMIntentService.onUnregistered() will ignore it.
-					if (!registered) {
-						GCMRegistrar.unregister(context);
-					}
-					return null;
-				}
-
-				@Override
-				protected void onPostExecute(Void result) {
-				}
-
-			};
-			registerTask.execute(null, null, null);
+			// GCMに登録
+			GCMRegistrar.register(getApplicationContext(), SERVER_ID);
+			return;
 		}
+		if (GCMRegistrar.isRegisteredOnServer(getApplicationContext())) {
+			// 既に登録されている場合、終了
+			return;
+		}
+		
+		final Context context = this;
+		AsyncTask<Void, Void, Void> registerTask = new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				boolean registered = ServerUtil.regist(context, regId);
+				// At this point all attempts to register with the app
+				// server failed, so we need to unregister the device
+				// from GCM - the app will try to register again when
+				// it is restarted. Note that GCM will send an
+				// unregistered callback upon completion, but
+				// GCMIntentService.onUnregistered() will ignore it.
+				if (!registered) {
+					GCMRegistrar.unregister(context);
+				}
+				return null;
+			}
+		};
+		registerTask.execute(null, null, null);
 	}
 
 	/**
