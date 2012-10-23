@@ -28,7 +28,7 @@ import android.widget.TextView;
 public class KyouenActivity extends FragmentActivity {
 	/** 方向を表すenum */
 	enum Direction {
-		PREV, NEXT
+		PREV, NEXT, NONE
 	}
 
 	/** DBアクセスオブジェクト */
@@ -157,7 +157,7 @@ public class KyouenActivity extends FragmentActivity {
 								TumeKyouenModel newModel = kyouenDb
 										.selectCurrentStage(nextStageNo);
 								stageModel = newModel;
-								init();
+								showOtherStage(Direction.NONE);
 							}
 						}, null);
 				dialog.setStageNo(stageModel.getStageNo());
@@ -231,7 +231,7 @@ public class KyouenActivity extends FragmentActivity {
 	 * @param direction 移動するステージの方向（PREV/NEXT）
 	 * @return 移動が成功した場合true
 	 */
-	private boolean moveStage(Direction direction) {
+	private boolean moveStage(final Direction direction) {
 		if (direction == null) {
 			throw new IllegalArgumentException("引数がnull");
 		}
@@ -246,6 +246,9 @@ public class KyouenActivity extends FragmentActivity {
 			// next選択時
 			newModel = kyouenDb.selectNextStage(stageModel.getStageNo());
 			break;
+		case NONE:
+			// 想定外の引数
+			throw new IllegalArgumentException("引数がNONE");
 		}
 
 		if (newModel == null) {
@@ -269,7 +272,7 @@ public class KyouenActivity extends FragmentActivity {
 					}
 
 					stageModel = newModel;
-					init();
+					showOtherStage(direction);
 				}
 			});
 			long maxStageNo = kyouenDb.selectMaxStageNo();
@@ -279,15 +282,39 @@ public class KyouenActivity extends FragmentActivity {
 		}
 
 		stageModel = newModel;
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		tumeKyouenFragment = TumeKyouenFragment.newInstance(stageModel);
-
-		ft.replace(R.id.fragment_container, tumeKyouenFragment);
-		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-		ft.commit();
-
-		init();
+		showOtherStage(direction);
 		return true;
 	}
 
+	/**
+	 * {@link stageModel}のデータに合わせて画面を変更する。
+	 * 
+	 * @param direction 移動するステージの方向（PREV/NEXT/NONE）
+	 */
+	private void showOtherStage(Direction direction) {
+		if (direction == null) {
+			throw new IllegalArgumentException("引数がnull");
+		}
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		tumeKyouenFragment = TumeKyouenFragment.newInstance(stageModel);
+
+		switch (direction) {
+		case PREV:
+			ft.setCustomAnimations(
+					R.anim.fragment_slide_right_enter,
+					R.anim.fragment_slide_right_exit);
+			break;
+		case NEXT:
+			ft.setCustomAnimations(R.anim.fragment_slide_left_enter,
+					R.anim.fragment_slide_left_exit);
+			break;
+		case NONE:
+			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+			break;
+		}
+		ft.replace(R.id.fragment_container, tumeKyouenFragment);
+		ft.commit();
+
+		init();
+	}
 }
