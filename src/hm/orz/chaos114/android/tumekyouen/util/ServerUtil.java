@@ -1,6 +1,7 @@
 package hm.orz.chaos114.android.tumekyouen.util;
 
 import hm.orz.chaos114.android.tumekyouen.R;
+import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -11,11 +12,13 @@ import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.util.EntityUtils;
 
 import android.content.Context;
@@ -35,6 +38,9 @@ public final class ServerUtil {
 	/** 次の送信までの待ち時間初期値 */
 	private static final int BACKOFF_MILLI_SECONDS = 2000;
 
+	/** cookie情報を保持 */
+	private static List<Cookie> cookies = new ArrayList<Cookie>();
+
 	/**
 	 * GCM用の登録IDをAPサーバに登録する。
 	 * 
@@ -42,7 +48,7 @@ public final class ServerUtil {
 	 * @param regId 登録ID
 	 * @return 登録に成功した場合true
 	 */
-	public static boolean regist(final Context context, final String regId) {
+	public static boolean registGcm(final Context context, final String regId) {
 		Log.i(TAG, "#regist regId = " + regId);
 		String url = context.getString(R.string.server_url) + "/gcm/regist";
 		Map<String, String> params = new HashMap<String, String>();
@@ -80,7 +86,7 @@ public final class ServerUtil {
 	 * @param context コンテキスト
 	 * @param regId 登録ID
 	 */
-	public static void unregist(final Context context, final String regId) {
+	public static void unregistGcm(final Context context, final String regId) {
 		String url = context.getString(R.string.server_url) + "/gcm/unregist";
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("regId", regId);
@@ -94,22 +100,88 @@ public final class ServerUtil {
 	}
 
 	/**
+	 * ユーザ登録を行う。
+	 * 
+	 * @param context コンテキスト
+	 * @param token twitterトークン
+	 * @param tokenSecret twitter秘密鍵
+	 * @throws IOException ネットワーク例外
+	 */
+	public static void registUser(final Context context, final String token,
+			final String tokenSecret) throws IOException {
+		String url = context.getString(R.string.server_url) + "/page/api_login";
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("token", token);
+		params.put("token_secret", tokenSecret);
+
+		post(url, params);
+	}
+
+	public static void addStageUser(final Context context,
+			final TumeKyouenModel stageModel) {
+		String url = context.getString(R.string.server_url) + "/page/add";
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("stageNo", Integer.toString(stageModel.getStageNo()));
+
+		try {
+			post(url, params);
+		} catch (Exception e) {
+			Log.e(TAG, "test", e);
+		}
+	}
+
+	private static void get(final String endpoint,
+			final Map<String, String> params) throws IOException {
+		Log.i(TAG, "endpoint = " + endpoint);
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+		HttpGet httpGet = new HttpGet(endpoint);
+		BasicHttpParams getParams = new BasicHttpParams();
+		for (String name : params.keySet()) {
+			String value = params.get(name);
+			getParams.setParameter(name, value);
+		}
+		httpGet.setParams(getParams);
+
+		// Cookieの登録
+		for (Cookie c : cookies) {
+			httpClient.getCookieStore().addCookie(c);
+		}
+
+		HttpResponse response = httpClient.execute(httpGet);
+		Log.i(TAG, "response = " + EntityUtils.toString(response.getEntity()));
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (statusCode != 200) {
+			throw new IOException("Post failed. statusCode=" + statusCode);
+		}
+
+		// Cookie取得
+		cookies = httpClient.getCookieStore().getCookies();
+		Log.d(TAG, "cookies = " + cookies);
+	}
+
+	/**
 	 * APサーバにPOSTリクエストを発行する。
 	 * 
 	 * @param endpoint リクエストURL
 	 * @param params リクエストパラメータ
 	 * @throws IOException 通信例外
 	 */
-	private static void post(final String endpoint, final Map<String, String> params)
-			throws IOException {
+	private static void post(final String endpoint,
+			final Map<String, String> params) throws IOException {
 		Log.i(TAG, "endpoint = " + endpoint);
-		HttpClient httpClient = new DefaultHttpClient();
+		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpPost httpPost = new HttpPost(endpoint);
 		List<NameValuePair> post_params = new ArrayList<NameValuePair>();
 		for (String name : params.keySet()) {
 			String value = params.get(name);
 			post_params.add(new BasicNameValuePair(name, value));
 		}
+
+		// Cookieの登録
+		for (Cookie c : cookies) {
+			httpClient.getCookieStore().addCookie(c);
+		}
+
 		try {
 			// 送信パラメータのエンコードを指定
 			httpPost.setEntity(new UrlEncodedFormEntity(post_params, "UTF-8"));
@@ -122,5 +194,9 @@ public final class ServerUtil {
 		if (statusCode != 200) {
 			throw new IOException("Post failed. statusCode=" + statusCode);
 		}
+
+		// Cookie取得
+		cookies = httpClient.getCookieStore().getCookies();
+		Log.d(TAG, "cookies = " + cookies);
 	}
 }

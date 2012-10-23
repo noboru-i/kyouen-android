@@ -6,20 +6,30 @@ import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
+import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
+import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
+
+import java.io.IOException;
+
+import twitter4j.TwitterException;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.OAuthAuthorization;
+import twitter4j.auth.RequestToken;
+import twitter4j.conf.Configuration;
+import twitter4j.conf.ConfigurationContext;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -36,6 +46,10 @@ import com.google.android.gcm.GCMRegistrar;
  * @author noboru
  */
 public class TitleActivity extends FragmentActivity {
+	private static final String TAG = TitleActivity.class.getSimpleName();
+
+	public RequestToken _req = null;
+	public OAuthAuthorization _oauth = null;
 
 	/** DBオブジェクト */
 	private KyouenDb kyouenDb;
@@ -68,6 +82,63 @@ public class TitleActivity extends FragmentActivity {
 		@Override
 		public void onCancel(DialogInterface dialog) {
 			refresh();
+		}
+	};
+
+	/** twitter接続ボタン押下後の処理 */
+	private View.OnClickListener mTwitterButtonListener = new View.OnClickListener() {
+		/** ローディングダイアログ */
+		private ProgressDialog dialog;
+
+		@Override
+		public void onClick(View v) {
+			AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+				@Override
+				protected void onPreExecute() {
+					dialog = new ProgressDialog(TitleActivity.this);
+					dialog.setMessage("Now Loading...");
+					dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+					dialog.show();
+				}
+
+				@Override
+				protected void onPostExecute(Void result) {
+					// twitterボタンの無効化
+					setTwitterConnectButtonEnabled(false);
+
+					dialog.dismiss();
+				}
+
+				@Override
+				protected Void doInBackground(Void... params) {
+					Configuration conf = ConfigurationContext.getInstance();
+					_oauth = new OAuthAuthorization(conf);
+					// Oauth認証オブジェクトにconsumerKeyとconsumerSecretを設定
+					_oauth.setOAuthConsumer(getString(R.string.twitter_key),
+							getString(R.string.twitter_secret));
+					// アプリの認証オブジェクト作成
+					try {
+						_req = _oauth
+								.getOAuthRequestToken("tumekyouen://TitleActivity");
+					} catch (TwitterException e) {
+						throw new RuntimeException(e);
+					}
+					String _uri = _req.getAuthorizationURL();
+					startActivityForResult(
+							new Intent(Intent.ACTION_VIEW, Uri.parse(_uri)), 0);
+					return null;
+				}
+			};
+			task.execute((Void) null);
+		}
+	};
+
+	AsyncTask<Void, Void, Void> sendAllStageTask = new AsyncTask<Void, Void, Void>() {
+		@Override
+		protected Void doInBackground(Void... params) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	};
 
@@ -109,6 +180,67 @@ public class TitleActivity extends FragmentActivity {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		Log.d(TAG, "onNewIntent!!!");
+		super.onNewIntent(intent);
+		// twitter連携
+		Uri uri = intent.getData();
+		if (uri != null
+				&& uri.toString().startsWith("tumekyouen://TitleActivity")) {
+			// oauth_verifierを取得する
+			final String verifier = uri.getQueryParameter("oauth_verifier");
+			AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
+				@Override
+				protected Boolean doInBackground(Void... params) {
+					if (verifier == null) {
+						// 認証をキャンセルされた場合
+						return false;
+					}
+
+					AccessToken token;
+					// AccessTokenオブジェクトを取得
+					try {
+						Log.d(TAG, "_oauth = " + TitleActivity.this._oauth);
+						Log.d(TAG, "_req = " + TitleActivity.this._req);
+						Log.d(TAG, "verifier = " + verifier);
+						token = TitleActivity.this._oauth.getOAuthAccessToken(
+								TitleActivity.this._req, verifier);
+					} catch (TwitterException e) {
+						return false;
+					}
+
+					// サーバに認証情報を送信
+					try {
+						ServerUtil.registUser(TitleActivity.this,
+								token.getToken(), token.getTokenSecret());
+					} catch (IOException e) {
+						return false;
+					}
+
+					// ログイン情報を保存
+					LoginUtil loginUtil = new LoginUtil(TitleActivity.this);
+					loginUtil.saveLoginInfo(token);
+					return true;
+				}
+
+				@Override
+				protected void onPostExecute(Boolean result) {
+					if (!result) {
+						// 失敗時
+						new AlertDialog.Builder(TitleActivity.this)
+								.setMessage(
+										R.string.alert_error_authenticate_twitter)
+								.setPositiveButton(android.R.string.ok, null)
+								.show();
+					}
+				}
+
+			};
+			task.execute((Void) null);
+		}
 	}
 
 	/**
@@ -188,6 +320,42 @@ public class TitleActivity extends FragmentActivity {
 			}
 		});
 
+		// twitter接続ボタンの設定
+		Button twitterButton = (Button) findViewById(R.id.twitter_connect_button);
+		twitterButton.setOnClickListener(mTwitterButtonListener);
+
+		AsyncTask<AccessToken, Void, Boolean> task = new AsyncTask<AccessToken, Void, Boolean>() {
+			@Override
+			protected Boolean doInBackground(AccessToken... params) {
+				AccessToken token = params[0];
+
+				// サーバに認証情報を送信
+				try {
+					ServerUtil.registUser(TitleActivity.this, token.getToken(),
+							token.getTokenSecret());
+				} catch (IOException e) {
+					return false;
+				}
+				return true;
+			}
+
+			@Override
+			protected void onPostExecute(Boolean result) {
+				if (!result) {
+					// 失敗した場合
+					return;
+				}
+				// 成功した場合
+				setTwitterConnectButtonEnabled(false);
+			}
+		};
+		LoginUtil loginUtil = new LoginUtil(this);
+		AccessToken loginInfo = loginUtil.loadLoginInfo();
+		if (loginInfo != null) {
+			// 認証情報が存在する場合
+			task.execute(loginInfo);
+		}
+
 		// 音量領域の設定
 		ImageView soundImageView = (ImageView) findViewById(R.id.sound_button);
 		soundImageView.setOnClickListener(new View.OnClickListener() {
@@ -208,9 +376,14 @@ public class TitleActivity extends FragmentActivity {
 	 * @return ステージ番号
 	 */
 	private int getLastStageNo() {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(getApplicationContext());
-		int lastStageNo = sp.getInt("last_stage_no", 1);
+		PreferenceUtil preferenceUtil = new PreferenceUtil(
+				getApplicationContext());
+		int lastStageNo = preferenceUtil
+				.getInt(PreferenceUtil.KEY_LAST_STAGE_NO);
+		if (lastStageNo == 0) {
+			// デフォルト値を設定
+			lastStageNo = 1;
+		}
 
 		return lastStageNo;
 	}
@@ -262,6 +435,16 @@ public class TitleActivity extends FragmentActivity {
 		}
 	}
 
+	/**
+	 * Twitter接続ボタンの有効無効を変更する。
+	 * 
+	 * @param enabled 有効・無効フラグ
+	 */
+	private void setTwitterConnectButtonEnabled(boolean enabled) {
+		Button button = (Button) findViewById(R.id.twitter_connect_button);
+		button.setEnabled(enabled);
+	}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		refresh();
@@ -269,8 +452,21 @@ public class TitleActivity extends FragmentActivity {
 
 	@Override
 	protected void onDestroy() {
-		GCMRegistrar.onDestroy(this);
+		GCMRegistrar.onDestroy(this.getApplicationContext());
 		super.onDestroy();
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		outState.putSerializable("oauth", _oauth);
+		outState.putSerializable("req", _req);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		_oauth = (OAuthAuthorization) savedInstanceState
+				.getSerializable("oauth");
+		_req = (RequestToken) savedInstanceState.getSerializable("req");
 	}
 
 	private void registGcm() {
@@ -292,7 +488,7 @@ public class TitleActivity extends FragmentActivity {
 
 				@Override
 				protected Void doInBackground(Void... params) {
-					boolean registered = ServerUtil.regist(context, regId);
+					boolean registered = ServerUtil.registGcm(context, regId);
 					// At this point all attempts to register with the app
 					// server failed, so we need to unregister the device
 					// from GCM - the app will try to register again when
@@ -310,7 +506,8 @@ public class TitleActivity extends FragmentActivity {
 				}
 
 			};
-			registerTask.execute(null, null, null);
+			// TODO 処理を元に戻す必要がある？呼び過ぎ？
+			// registerTask.execute(null, null, null);
 		}
 	}
 

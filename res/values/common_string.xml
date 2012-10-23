@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="server_url" translatable="false">http://my-android-server.appspot.com</string>
+	<string name="server_url" translatable="false">https://2-0b.my-android-server.appspot.com</string>
 	<string name="unit_id" translatable="false">a14e2eb76fbaa7d</string>
+	
+	<string name="twitter_key" translatable="false">7o7Mn96LxBHSPomoXdK8Yw</string>
+	<string name="twitter_secret" translatable="false">zN2xVBE7QqjS3tJLEH8MPmzIpa9FQ3gWDclSALCMBE</string>
 </resources>

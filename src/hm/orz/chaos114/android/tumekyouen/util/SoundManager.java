@@ -2,11 +2,8 @@ package hm.orz.chaos114.android.tumekyouen.util;
 
 import hm.orz.chaos114.android.tumekyouen.R;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.preference.PreferenceManager;
 import android.util.SparseIntArray;
 
 public class SoundManager {
@@ -63,25 +60,20 @@ public class SoundManager {
 	 * @return 音再生フラグ
 	 */
 	public boolean isPlayable() {
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(context.getApplicationContext());
-		boolean playable = preferences.getBoolean("sound", true);
-		return playable;
+		PreferenceUtil preferenceUtil = new PreferenceUtil(context);
+		return preferenceUtil.getBoolean(PreferenceUtil.KEY_SOUND);
 	}
-	
+
 	/**
 	 * 音再生フラグを設定します。
 	 * 
 	 * @param playable 音再生フラグ
 	 */
 	public void setPlayable(boolean playable) {
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(context.getApplicationContext());
-		Editor edit = preferences.edit();
-		edit.putBoolean("sound", playable);
-		edit.commit();
+		PreferenceUtil preferenceUtil = new PreferenceUtil(context);
+		preferenceUtil.putBoolean(PreferenceUtil.KEY_SOUND, playable);
 	}
-	
+
 	/**
 	 * 音再生フラグを変更します。
 	 * 
@@ -92,7 +84,7 @@ public class SoundManager {
 		setPlayable(!playable);
 		return !playable;
 	}
-	
+
 	/**
 	 * 音を再生します。
 	 * 

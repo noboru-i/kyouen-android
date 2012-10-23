@@ -1,5 +1,7 @@
 package hm.orz.chaos114.android.tumekyouen.db;
 
+import java.util.Date;
+
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import android.content.ContentValues;
@@ -35,6 +37,9 @@ public class KyouenDb {
 
 		/** クリアフラグ */
 		String CLEAR_FLAG = "clear_flag";
+		
+		/** クリア日付 */
+		String CLEAR_DATE = "clear_date";
 	}
 
 	/** ヘルパークラス */
@@ -48,7 +53,7 @@ public class KyouenDb {
 	class IroKaeDbOpenHelper extends SQLiteOpenHelper {
 
 		/** DBのバージョン */
-		private static final int DB_VERSION = 1;
+		private static final int DB_VERSION = 2;
 
 		/** DB名 */
 		private static final String DB_NAME = "irokae.db";
@@ -74,14 +79,24 @@ public class KyouenDb {
 			sql.append(TumeKyouenDataColumns.CREATOR);
 			sql.append(" TEXT, ");
 			sql.append(TumeKyouenDataColumns.CLEAR_FLAG);
-			sql.append(" INTEGER DEFAULT 0");
+			sql.append(" INTEGER DEFAULT 0, ");
+			sql.append(TumeKyouenDataColumns.CLEAR_DATE);
+			sql.append(" INTEGER DEFAULT 0 ");
 			sql.append(");");
 			db.execSQL(sql.toString());
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			// no-op
+			if (oldVersion == 1 && newVersion == 2) {
+				StringBuilder sql = new StringBuilder();
+				sql.append("ALTER TABLE ");
+				sql.append(TABLE_NAME);
+				sql.append(" ADD COLUMN ");
+				sql.append(TumeKyouenDataColumns.CLEAR_DATE);
+				sql.append(";");
+				db.execSQL(sql.toString());
+			}
 		}
 	}
 
@@ -157,6 +172,9 @@ public class KyouenDb {
 
 		ContentValues values = new ContentValues();
 		values.put(TumeKyouenDataColumns.CLEAR_FLAG, item.getClearFlag());
+		if (item.getClearFlag() == TumeKyouenModel.CLEAR) {
+			values.put(TumeKyouenDataColumns.CLEAR_DATE, new Date().getTime());
+		}
 
 		SQLiteDatabase database = null;
 		try {

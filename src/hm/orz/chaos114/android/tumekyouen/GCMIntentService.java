@@ -29,13 +29,13 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@Override
 	public void onRegistered(Context context, String registrationId) {
 		Log.i(TAG, "#onRegistered registration id:" + registrationId);
-		ServerUtil.regist(context, registrationId);
+		ServerUtil.registGcm(context, registrationId);
 	}
 
 	@Override
 	protected void onUnregistered(Context context, String registrationId) {
 		Log.i(TAG, "#onUnregistered registration id:" + registrationId);
-		ServerUtil.unregist(context, registrationId);
+		ServerUtil.unregistGcm(context, registrationId);
 	}
 
 	@Override
