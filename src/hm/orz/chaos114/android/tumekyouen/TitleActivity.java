@@ -12,12 +12,7 @@ import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import twitter4j.TwitterException;
 import twitter4j.auth.AccessToken;
@@ -175,7 +170,6 @@ public class TitleActivity extends FragmentActivity {
 				@Override
 				protected void onPostExecute(Void result) {
 					// twitterボタンの無効化
-					setConnectButtonConnected();
 					dialog.dismiss();
 				}
 			};
@@ -344,14 +338,19 @@ public class TitleActivity extends FragmentActivity {
 
 				@Override
 				protected void onPostExecute(Boolean result) {
+					setConnectButtonEnabled(true);
 					if (!result) {
 						// 失敗時
+						LoginUtil loginUtil = new LoginUtil(TitleActivity.this);
+						loginUtil.saveLoginInfo(null);
 						new AlertDialog.Builder(TitleActivity.this)
 								.setMessage(
 										R.string.alert_error_authenticate_twitter)
 								.setPositiveButton(android.R.string.ok, null)
 								.show();
+						return;
 					}
+					setConnectButtonConnected();
 				}
 
 			};
