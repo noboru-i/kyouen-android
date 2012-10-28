@@ -67,6 +67,16 @@
             android:text="@string/create_stage"
             android:textSize="32sp" />
 
+        <Button
+            android:id="@+id/connect_button"
+            android:layout_width="260dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"
+            android:padding="20dp"
+            android:text="@string/twitter_connect"
+            android:textSize="32sp" />
+
         <ImageView
             android:id="@+id/sound_button"
             android:layout_width="36dp"

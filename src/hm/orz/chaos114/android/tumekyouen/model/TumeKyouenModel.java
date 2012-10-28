@@ -1,10 +1,16 @@
 package hm.orz.chaos114.android.tumekyouen.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
+/**
+ * 詰め共円のステージ情報モデル
+ * 
+ * @author noboru
+ */
 @SuppressWarnings("serial")
 public class TumeKyouenModel implements Serializable {
-	
+
 	public static final Integer CLEAR = 1;
 
 	/** ステージ番号 */
@@ -21,6 +27,9 @@ public class TumeKyouenModel implements Serializable {
 
 	/** クリアフラグ（クリア時に1、それ以外は0） */
 	private int clearFlag;
+
+	/** クリア日付 */
+	private Date clearDate;
 
 	public int getStageNo() {
 		return stageNo;
@@ -62,4 +71,11 @@ public class TumeKyouenModel implements Serializable {
 		this.clearFlag = clearFlag;
 	}
 
+	public Date getClearDate() {
+		return clearDate;
+	}
+
+	public void setClearDate(Date clearDate) {
+		this.clearDate = clearDate;
+	}
 }

@@ -2,6 +2,11 @@ package hm.orz.chaos114.android.tumekyouen.db;
 
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -15,7 +20,6 @@ import android.provider.BaseColumns;
  * @author noboru
  */
 public class KyouenDb {
-
 	/** テーブル名 */
 	private static final String TABLE_NAME = "tume_kyouen";
 
@@ -35,6 +39,9 @@ public class KyouenDb {
 
 		/** クリアフラグ */
 		String CLEAR_FLAG = "clear_flag";
+
+		/** クリア日付 */
+		String CLEAR_DATE = "clear_date";
 	}
 
 	/** ヘルパークラス */
@@ -45,15 +52,15 @@ public class KyouenDb {
 	 * 
 	 * @author noboru
 	 */
-	class IroKaeDbOpenHelper extends SQLiteOpenHelper {
+	class KyouenDbOpenHelper extends SQLiteOpenHelper {
 
 		/** DBのバージョン */
-		private static final int DB_VERSION = 1;
+		private static final int DB_VERSION = 2;
 
 		/** DB名 */
 		private static final String DB_NAME = "irokae.db";
 
-		private IroKaeDbOpenHelper(Context context) {
+		private KyouenDbOpenHelper(Context context) {
 			super(context, DB_NAME, null, DB_VERSION);
 		}
 
@@ -74,14 +81,25 @@ public class KyouenDb {
 			sql.append(TumeKyouenDataColumns.CREATOR);
 			sql.append(" TEXT, ");
 			sql.append(TumeKyouenDataColumns.CLEAR_FLAG);
-			sql.append(" INTEGER DEFAULT 0");
+			sql.append(" INTEGER DEFAULT 0, ");
+			sql.append(TumeKyouenDataColumns.CLEAR_DATE);
+			sql.append(" INTEGER DEFAULT 0 ");
 			sql.append(");");
 			db.execSQL(sql.toString());
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			// no-op
+			if (oldVersion == 1 && newVersion == 2) {
+				StringBuilder sql = new StringBuilder();
+				sql.append("ALTER TABLE ");
+				sql.append(TABLE_NAME);
+				sql.append(" ADD COLUMN ");
+				sql.append(TumeKyouenDataColumns.CLEAR_DATE);
+				sql.append(" INTEGER DEFAULT 0 ");
+				sql.append(";");
+				db.execSQL(sql.toString());
+			}
 		}
 	}
 
@@ -91,7 +109,7 @@ public class KyouenDb {
 	 * @param context コンテキスト
 	 */
 	public KyouenDb(Context context) {
-		mHelper = new IroKaeDbOpenHelper(context);
+		mHelper = new KyouenDbOpenHelper(context);
 	}
 
 	/**
@@ -154,9 +172,23 @@ public class KyouenDb {
 	 * @return 更新件数
 	 */
 	public int updateClearFlag(TumeKyouenModel item) {
+		return updateClearFlag(item, new Date());
+	}
+
+	/**
+	 * クリアフラグを更新する。
+	 * 
+	 * @param item 更新オブジェクト
+	 * @return 更新件数
+	 */
+	public int updateClearFlag(TumeKyouenModel item, Date date) {
 
 		ContentValues values = new ContentValues();
 		values.put(TumeKyouenDataColumns.CLEAR_FLAG, item.getClearFlag());
+		if (item.getClearFlag() == TumeKyouenModel.CLEAR) {
+			// クリア日付を設定
+			values.put(TumeKyouenDataColumns.CLEAR_DATE, date.getTime());
+		}
 
 		SQLiteDatabase database = null;
 		try {
@@ -252,6 +284,9 @@ public class KyouenDb {
 		int clearFlag = cursor.getInt(cursor
 				.getColumnIndex(KyouenDb.TumeKyouenDataColumns.CLEAR_FLAG));
 		item.setClearFlag(clearFlag);
+		long clearDate = cursor.getLong(cursor
+				.getColumnIndex(KyouenDb.TumeKyouenDataColumns.CLEAR_DATE));
+		item.setClearDate(new Date(clearDate));
 
 		return item;
 	}
@@ -326,6 +361,55 @@ public class KyouenDb {
 			if (database != null) {
 				database.close();
 			}
+		}
+	}
+
+	/**
+	 * クリア済みのステージリストを取得する。
+	 * 
+	 * @return クリア済みステージリスト
+	 */
+	public List<TumeKyouenModel> selectAllClearStage() {
+		SQLiteDatabase database = null;
+		Cursor cursor = null;
+		try {
+			database = mHelper.getReadableDatabase();
+
+			// レコード取得
+			cursor = database.query(TABLE_NAME, null,
+					TumeKyouenDataColumns.CLEAR_FLAG + " = 1", null, null,
+					null, null, null);
+
+			List<TumeKyouenModel> list = new ArrayList<TumeKyouenModel>();
+			while (cursor.moveToNext()) {
+				list.add(cursorToTumeKyouenModel(cursor));
+			}
+
+			return list;
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+			if (database != null) {
+				database.close();
+			}
+		}
+	}
+
+	/**
+	 * クリア情報を同期する。登録されていないステージ情報は無視する。
+	 * 
+	 * @param clearList クリア情報リスト
+	 */
+	public void updateSyncClearData(List<TumeKyouenModel> clearList) {
+		for (TumeKyouenModel model : clearList) {
+			TumeKyouenModel dbModel = selectCurrentStage(model.getStageNo());
+			if (dbModel == null) {
+				continue;
+			}
+			dbModel.setClearFlag(TumeKyouenModel.CLEAR);
+			dbModel.setClearDate(model.getClearDate());
+			updateClearFlag(dbModel, model.getClearDate());
 		}
 	}
 }

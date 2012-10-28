@@ -6,20 +6,36 @@ import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
+import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
+import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import twitter4j.TwitterException;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.OAuthAuthorization;
+import twitter4j.auth.RequestToken;
+import twitter4j.conf.Configuration;
+import twitter4j.conf.ConfigurationContext;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -28,6 +44,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.google.android.gcm.GCMRegistrar;
 
 /**
@@ -36,6 +53,10 @@ import com.google.android.gcm.GCMRegistrar;
  * @author noboru
  */
 public class TitleActivity extends FragmentActivity {
+	private static final String TAG = TitleActivity.class.getSimpleName();
+
+	public RequestToken _req = null;
+	public OAuthAuthorization _oauth = null;
 
 	/** DBオブジェクト */
 	private KyouenDb kyouenDb;
@@ -71,9 +92,177 @@ public class TitleActivity extends FragmentActivity {
 		}
 	};
 
+	/** ステージ作成ボタン押下時の処理 */
+	private View.OnClickListener mCreateStageListener = new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			boolean hasKyouenChecker;
+			try {
+				// 共円チェッカーの存在有無チェック
+				PackageManager pm = getPackageManager();
+				pm.getApplicationInfo("hm.orz.chaos114.android.kyouenchecker",
+						0);
+				hasKyouenChecker = true;
+			} catch (NameNotFoundException e) {
+				// 存在しない場合
+				hasKyouenChecker = false;
+			}
+			if (hasKyouenChecker) {
+				// 共円チェッカーの起動
+				Intent intent = new Intent();
+				intent.setClassName("hm.orz.chaos114.android.kyouenchecker",
+						"hm.orz.chaos114.android.kyouenchecker.KyouenActivity");
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+			} else {
+				// マーケットへの導線を表示
+				new AlertDialog.Builder(TitleActivity.this)
+						.setMessage(R.string.alert_install_kyouenchecker)
+						.setPositiveButton("YES",
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										// マーケットを開く
+										Uri uri = Uri
+												.parse("market://details?id=hm.orz.chaos114.android.kyouenchecker");
+										Intent intent = new Intent(
+												Intent.ACTION_VIEW, uri);
+										startActivity(intent);
+									}
+								}).setNegativeButton("NO", null).show();
+			}
+		}
+	};
+
+	/** twitter接続ボタン押下後の処理 */
+	private View.OnClickListener mTwitterButtonListener = new View.OnClickListener() {
+		/** ローディングダイアログ */
+		private ProgressDialog dialog;
+
+		@Override
+		public void onClick(View v) {
+			AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+				@Override
+				protected void onPreExecute() {
+					// ローディングダイアログの表示
+					dialog = new ProgressDialog(TitleActivity.this);
+					dialog.setMessage("Now Loading...");
+					dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+					dialog.show();
+				}
+
+				@Override
+				protected Void doInBackground(Void... params) {
+					Configuration conf = ConfigurationContext.getInstance();
+					_oauth = new OAuthAuthorization(conf);
+					// Oauth認証オブジェクトにconsumerKeyとconsumerSecretを設定
+					_oauth.setOAuthConsumer(getString(R.string.twitter_key),
+							getString(R.string.twitter_secret));
+					// アプリの認証オブジェクト作成
+					try {
+						_req = _oauth
+								.getOAuthRequestToken("tumekyouen://TitleActivity");
+					} catch (TwitterException e) {
+						throw new RuntimeException(e);
+					}
+					String _uri = _req.getAuthorizationURL();
+					startActivityForResult(
+							new Intent(Intent.ACTION_VIEW, Uri.parse(_uri)), 0);
+					return null;
+				}
+
+				@Override
+				protected void onPostExecute(Void result) {
+					// twitterボタンの無効化
+					setConnectButtonConnected();
+					dialog.dismiss();
+				}
+			};
+			task.execute((Void) null);
+		}
+	};
+
+	/** クリア情報を同期ボタン押下時の処理 */
+	private View.OnClickListener mSyncStageListener = new View.OnClickListener() {
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void onClick(View v) {
+			/** ステージクリア情報を同期するタスク */
+			AsyncTask<List<TumeKyouenModel>, Void, Void> task = new AsyncTask<List<TumeKyouenModel>, Void, Void>() {
+				@Override
+				protected void onPreExecute() {
+					// ボタンを無効化
+					setConnectButtonEnabled(false);
+				};
+
+				@Override
+				protected Void doInBackground(List<TumeKyouenModel>... params) {
+					List<TumeKyouenModel> stages = params[0];
+					// ステージデータを送信
+					List<TumeKyouenModel> clearList = ServerUtil.addAllStageUser(TitleActivity.this, stages);
+					if (clearList == null) {
+						return null;
+					}
+					kyouenDb.updateSyncClearData(clearList);
+					return null;
+				}
+
+				@Override
+				protected void onPostExecute(Void result) {
+					// ボタンを有効化
+					setConnectButtonEnabled(true);
+					refresh();
+				};
+			};
+
+			// クリア済みステージ情報を取得
+			List<TumeKyouenModel> stages = kyouenDb.selectAllClearStage();
+			task.execute(stages);
+		}
+	};
+
+	/** サーバに認証情報を送信するタスク */
+	class ServerRegistTask extends AsyncTask<AccessToken, Void, Boolean> {
+
+		@Override
+		protected void onPreExecute() {
+			setConnectButtonEnabled(false);
+		}
+
+		@Override
+		protected Boolean doInBackground(AccessToken... params) {
+			AccessToken token = params[0];
+
+			// サーバに認証情報を送信
+			try {
+				ServerUtil.registUser(TitleActivity.this, token.getToken(),
+						token.getTokenSecret());
+			} catch (IOException e) {
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			if (!result) {
+				// 失敗した場合
+				setConnectButtonEnabled(true);
+				return;
+			}
+			// 成功した場合
+			setConnectButtonEnabled(true);
+			setConnectButtonConnected();
+		}
+	};
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		BugSenseHandler.initAndStartSession(getApplication(),
+				getString(R.string.bug_sense_api_key));
 
 		kyouenDb = new KyouenDb(this);
 
@@ -109,6 +298,65 @@ public class TitleActivity extends FragmentActivity {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		// twitter連携
+		Uri uri = intent.getData();
+		if (uri != null
+				&& uri.toString().startsWith("tumekyouen://TitleActivity")) {
+			// oauth_verifierを取得する
+			final String verifier = uri.getQueryParameter("oauth_verifier");
+			AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
+				@Override
+				protected Boolean doInBackground(Void... params) {
+					if (verifier == null) {
+						// 認証をキャンセルされた場合
+						return false;
+					}
+
+					AccessToken token;
+					// AccessTokenオブジェクトを取得
+					try {
+						Log.d(TAG, "_oauth = " + TitleActivity.this._oauth);
+						Log.d(TAG, "_req = " + TitleActivity.this._req);
+						Log.d(TAG, "verifier = " + verifier);
+						token = TitleActivity.this._oauth.getOAuthAccessToken(
+								TitleActivity.this._req, verifier);
+					} catch (TwitterException e) {
+						return false;
+					}
+
+					// サーバに認証情報を送信
+					try {
+						ServerUtil.registUser(TitleActivity.this,
+								token.getToken(), token.getTokenSecret());
+					} catch (IOException e) {
+						return false;
+					}
+
+					// ログイン情報を保存
+					LoginUtil loginUtil = new LoginUtil(TitleActivity.this);
+					loginUtil.saveLoginInfo(token);
+					return true;
+				}
+
+				@Override
+				protected void onPostExecute(Boolean result) {
+					if (!result) {
+						// 失敗時
+						new AlertDialog.Builder(TitleActivity.this)
+								.setMessage(
+										R.string.alert_error_authenticate_twitter)
+								.setPositiveButton(android.R.string.ok, null)
+								.show();
+					}
+				}
+
+			};
+			task.execute((Void) null);
+		}
 	}
 
 	/**
@@ -150,43 +398,19 @@ public class TitleActivity extends FragmentActivity {
 
 		// ステージ作成ボタンの設定
 		Button createStageButton = (Button) findViewById(R.id.create_stage_button);
-		createStageButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				boolean hasKyouenChecker = false;
-				try {
-					PackageManager pm = getPackageManager();
-					pm.getApplicationInfo(
-							"hm.orz.chaos114.android.kyouenchecker", 0);
-					hasKyouenChecker = true;
-				} catch (NameNotFoundException e) {
-				}
-				if (hasKyouenChecker) {
-					Intent intent = new Intent();
-					intent.setClassName(
-							"hm.orz.chaos114.android.kyouenchecker",
-							"hm.orz.chaos114.android.kyouenchecker.KyouenActivity");
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					startActivity(intent);
-				} else {
-					new AlertDialog.Builder(TitleActivity.this)
-							.setMessage(R.string.alert_install_kyouenchecker)
-							.setPositiveButton("YES",
-									new DialogInterface.OnClickListener() {
-										@Override
-										public void onClick(
-												DialogInterface dialog,
-												int which) {
-											Uri uri = Uri
-													.parse("market://details?id=hm.orz.chaos114.android.kyouenchecker");
-											Intent intent = new Intent(
-													Intent.ACTION_VIEW, uri);
-											startActivity(intent);
-										}
-									}).setNegativeButton("NO", null).show();
-				}
-			}
-		});
+		createStageButton.setOnClickListener(mCreateStageListener);
+
+		// twitter接続ボタンの設定
+		Button connectButton = (Button) findViewById(R.id.connect_button);
+		connectButton.setOnClickListener(mTwitterButtonListener);
+
+		LoginUtil loginUtil = new LoginUtil(this);
+		AccessToken loginInfo = loginUtil.loadLoginInfo();
+		if (loginInfo != null) {
+			// 認証情報が存在する場合
+			ServerRegistTask task = new ServerRegistTask();
+			task.execute(loginInfo);
+		}
 
 		// 音量領域の設定
 		ImageView soundImageView = (ImageView) findViewById(R.id.sound_button);
@@ -208,9 +432,14 @@ public class TitleActivity extends FragmentActivity {
 	 * @return ステージ番号
 	 */
 	private int getLastStageNo() {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(getApplicationContext());
-		int lastStageNo = sp.getInt("last_stage_no", 1);
+		PreferenceUtil preferenceUtil = new PreferenceUtil(
+				getApplicationContext());
+		int lastStageNo = preferenceUtil
+				.getInt(PreferenceUtil.KEY_LAST_STAGE_NO);
+		if (lastStageNo == 0) {
+			// デフォルト値を設定
+			lastStageNo = 1;
+		}
 
 		return lastStageNo;
 	}
@@ -262,6 +491,26 @@ public class TitleActivity extends FragmentActivity {
 		}
 	}
 
+	/**
+	 * 接続ボタンの有効無効を変更する。
+	 * 
+	 * @param enabled 有効・無効フラグ
+	 */
+	private void setConnectButtonEnabled(boolean enabled) {
+		Button button = (Button) findViewById(R.id.connect_button);
+		button.setEnabled(enabled);
+	}
+
+	/**
+	 * 接続ボタンを同期ボタンに変更する。
+	 */
+	private void setConnectButtonConnected() {
+		Button button = (Button) findViewById(R.id.connect_button);
+		// ステージ同期ボタンに変更する
+		button.setText(R.string.sync_stage_user);
+		button.setOnClickListener(mSyncStageListener);
+	}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		refresh();
@@ -273,6 +522,19 @@ public class TitleActivity extends FragmentActivity {
 		super.onDestroy();
 	}
 
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		outState.putSerializable("oauth", _oauth);
+		outState.putSerializable("req", _req);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		_oauth = (OAuthAuthorization) savedInstanceState
+				.getSerializable("oauth");
+		_req = (RequestToken) savedInstanceState.getSerializable("req");
+	}
+
 	private void registGcm() {
 		try {
 			GCMRegistrar.checkDevice(getApplicationContext());
@@ -281,7 +543,8 @@ public class TitleActivity extends FragmentActivity {
 			Log.e("kyouen", "unsupported gcm.", e);
 			return;
 		}
-		final String regId = GCMRegistrar.getRegistrationId(getApplicationContext());
+		final String regId = GCMRegistrar
+				.getRegistrationId(getApplicationContext());
 		Log.i("kyouen", "regId=" + regId);
 		if (regId.equals("")) {
 			// GCMに登録
@@ -292,12 +555,12 @@ public class TitleActivity extends FragmentActivity {
 			// 既に登録されている場合、終了
 			return;
 		}
-		
+
 		final Context context = this;
 		AsyncTask<Void, Void, Void> registerTask = new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(Void... params) {
-				boolean registered = ServerUtil.regist(context, regId);
+				boolean registered = ServerUtil.registGcm(context, regId);
 				// At this point all attempts to register with the app
 				// server failed, so we need to unregister the device
 				// from GCM - the app will try to register again when

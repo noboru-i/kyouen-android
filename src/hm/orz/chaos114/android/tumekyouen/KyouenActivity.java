@@ -6,16 +6,16 @@ import hm.orz.chaos114.android.tumekyouen.fragment.TumeKyouenFragment;
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
+import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
+import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.media.AudioManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -171,11 +171,8 @@ public class KyouenActivity extends FragmentActivity {
 
 	private void init() {
 		// プリファレンスに設定
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(getApplicationContext());
-		Editor editor = sp.edit();
-		editor.putInt("last_stage_no", stageModel.getStageNo());
-		editor.commit();
+		PreferenceUtil preferenceUtil = new PreferenceUtil(getApplicationContext());
+		preferenceUtil.putInt(PreferenceUtil.KEY_LAST_STAGE_NO, stageModel.getStageNo());
 
 		// ステージ名表示領域の設定
 		TextView stageNoView = (TextView) findViewById(R.id.stage_no);
@@ -220,6 +217,10 @@ public class KyouenActivity extends FragmentActivity {
 
 		stageModel.setClearFlag(TumeKyouenModel.CLEAR);
 		kyouenDb.updateClearFlag(stageModel);
+		
+		// サーバに送信
+		AddStageUserTask task = new AddStageUserTask();
+		task.execute(stageModel);
 
 		TextView stageNoView = (TextView) findViewById(R.id.stage_no);
 		stageNoView.setTextColor(getResources().getColor(R.color.text_clear));
@@ -317,4 +318,16 @@ public class KyouenActivity extends FragmentActivity {
 
 		init();
 	}
+	/**
+	 * クリア情報を送信するタスククラス
+	 * 
+	 * @author ishikuranoboru
+	 */
+	final class AddStageUserTask extends AsyncTask<TumeKyouenModel, Void, Void> {
+		@Override
+		protected Void doInBackground(TumeKyouenModel... params) {
+			ServerUtil.addStageUser(KyouenActivity.this, params[0]);
+			return null;
+		}
+	};
 }
