@@ -31,10 +31,9 @@
             android:layout_width="260dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:gravity="center_horizontal"
-            android:padding="20dp"
-            android:text="@string/puzzle"
-            android:textSize="32sp" />
+            android:background="@drawable/title_button"
+            android:gravity="center"
+            android:text="@string/puzzle" />
 
         <TextView
             android:id="@+id/stage_count"
@@ -51,31 +50,28 @@
             android:id="@+id/get_stage_button"
             android:layout_width="260dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center_horizontal"
-            android:padding="20dp"
-            android:text="@string/get_more"
-            android:textSize="32sp" />
+            android:layout_marginTop="10dp"
+            android:background="@drawable/title_button"
+            android:gravity="center"
+            android:text="@string/get_more" />
 
         <Button
             android:id="@+id/create_stage_button"
             android:layout_width="260dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:gravity="center_horizontal"
-            android:padding="20dp"
-            android:text="@string/create_stage"
-            android:textSize="32sp" />
+            android:background="@drawable/title_button"
+            android:gravity="center"
+            android:text="@string/create_stage" />
 
         <Button
             android:id="@+id/connect_button"
             android:layout_width="260dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:gravity="center_horizontal"
-            android:padding="20dp"
-            android:text="@string/twitter_connect"
-            android:textSize="32sp" />
+            android:background="@drawable/title_button"
+            android:gravity="center"
+            android:text="@string/twitter_connect" />
 
         <ImageView
             android:id="@+id/sound_button"
