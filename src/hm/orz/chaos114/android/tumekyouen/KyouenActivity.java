@@ -101,7 +101,6 @@ public class KyouenActivity extends FragmentActivity {
 						R.raw.se_maoudamashii_onepoint23);
 				new AlertDialog.Builder(KyouenActivity.this)
 						.setTitle(R.string.kyouen)
-						.setPositiveButton("OK", null)
 						.setNeutralButton("Next",
 								new DialogInterface.OnClickListener() {
 									@Override
