@@ -137,7 +137,7 @@ public class TitleActivity extends FragmentActivity {
 
 		@Override
 		public void onClick(View v) {
-			AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+			AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
 				@Override
 				protected void onPreExecute() {
 					// ローディングダイアログの表示
@@ -148,7 +148,7 @@ public class TitleActivity extends FragmentActivity {
 				}
 
 				@Override
-				protected Void doInBackground(Void... params) {
+				protected Boolean doInBackground(Void... params) {
 					Configuration conf = ConfigurationContext.getInstance();
 					_oauth = new OAuthAuthorization(conf);
 					// Oauth認証オブジェクトにconsumerKeyとconsumerSecretを設定
@@ -159,17 +159,23 @@ public class TitleActivity extends FragmentActivity {
 						_req = _oauth
 								.getOAuthRequestToken("tumekyouen://TitleActivity");
 					} catch (TwitterException e) {
-						throw new RuntimeException(e);
+						return false;
 					}
 					String _uri = _req.getAuthorizationURL();
 					startActivityForResult(
 							new Intent(Intent.ACTION_VIEW, Uri.parse(_uri)), 0);
-					return null;
+					return true;
 				}
 
 				@Override
-				protected void onPostExecute(Void result) {
-					// twitterボタンの無効化
+				protected void onPostExecute(Boolean result) {
+					if (!result) {
+						new AlertDialog.Builder(TitleActivity.this)
+								.setMessage(
+										R.string.alert_error_authenticate_twitter)
+								.setPositiveButton(android.R.string.ok, null)
+								.show();
+					}
 					dialog.dismiss();
 				}
 			};
@@ -195,7 +201,8 @@ public class TitleActivity extends FragmentActivity {
 				protected Void doInBackground(List<TumeKyouenModel>... params) {
 					List<TumeKyouenModel> stages = params[0];
 					// ステージデータを送信
-					List<TumeKyouenModel> clearList = ServerUtil.addAllStageUser(TitleActivity.this, stages);
+					List<TumeKyouenModel> clearList = ServerUtil
+							.addAllStageUser(TitleActivity.this, stages);
 					if (clearList == null) {
 						return null;
 					}
