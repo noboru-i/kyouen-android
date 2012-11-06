@@ -10,20 +10,27 @@
         android:id="@+id/stage_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="2dp"
         android:orientation="horizontal" >
 
         <Button
             android:id="@+id/prev_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/title_button"
             android:text="@string/button_prev" />
 
         <LinearLayout
             android:id="@+id/stage_no_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="2dp"
             android:layout_weight="1"
             android:orientation="vertical" >
 
@@ -32,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:textSize="32sp" />
+                android:textSize="28sp" />
 
             <TextView
                 android:id="@+id/stage_creator"
@@ -46,6 +53,7 @@
             android:id="@+id/next_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/title_button"
             android:text="@string/button_next" />
     </LinearLayout>
 
@@ -72,7 +80,11 @@
         android:id="@+id/kyouen_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/title_button"
         android:text="@string/check_kyouen" />
 
     <com.google.ads.AdView
