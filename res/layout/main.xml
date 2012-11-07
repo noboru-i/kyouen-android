@@ -20,8 +20,11 @@
             android:id="@+id/prev_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:background="@drawable/title_button"
-            android:text="@string/button_prev" />
+            android:padding="5dp"
+            android:text="@string/button_prev"
+            android:textColor="#eeeeee" />
 
         <LinearLayout
             android:id="@+id/stage_no_layout"
@@ -53,8 +56,11 @@
             android:id="@+id/next_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:background="@drawable/title_button"
-            android:text="@string/button_next" />
+            android:padding="5dp"
+            android:text="@string/button_next"
+            android:textColor="#eeeeee" />
     </LinearLayout>
 
     <FrameLayout
@@ -85,7 +91,9 @@
         android:layout_marginRight="20dp"
         android:layout_marginTop="5dp"
         android:background="@drawable/title_button"
-        android:text="@string/check_kyouen" />
+        android:padding="5dp"
+        android:text="@string/check_kyouen"
+        android:textColor="#eeeeee" />
 
     <com.google.ads.AdView
         android:id="@+id/adView"

@@ -33,7 +33,9 @@
             android:layout_marginTop="10dp"
             android:background="@drawable/title_button"
             android:gravity="center"
-            android:text="@string/puzzle" />
+            android:padding="5dp"
+            android:text="@string/puzzle"
+            android:textColor="#eeeeee" />
 
         <TextView
             android:id="@+id/stage_count"
@@ -53,7 +55,9 @@
             android:layout_marginTop="10dp"
             android:background="@drawable/title_button"
             android:gravity="center"
-            android:text="@string/get_more" />
+            android:padding="5dp"
+            android:text="@string/get_more"
+            android:textColor="#eeeeee" />
 
         <Button
             android:id="@+id/create_stage_button"
@@ -62,7 +66,9 @@
             android:layout_marginTop="10dp"
             android:background="@drawable/title_button"
             android:gravity="center"
-            android:text="@string/create_stage" />
+            android:padding="5dp"
+            android:text="@string/create_stage"
+            android:textColor="#eeeeee" />
 
         <Button
             android:id="@+id/connect_button"
@@ -71,7 +77,9 @@
             android:layout_marginTop="10dp"
             android:background="@drawable/title_button"
             android:gravity="center"
-            android:text="@string/twitter_connect" />
+            android:padding="5dp"
+            android:text="@string/twitter_connect"
+            android:textColor="#eeeeee" />
 
         <ImageView
             android:id="@+id/sound_button"
