@@ -1,6 +1,5 @@
 package hm.orz.chaos114.android.tumekyouen;
 
-import static hm.orz.chaos114.android.tumekyouen.constants.GcmConstants.SERVER_ID;
 import hm.orz.chaos114.android.tumekyouen.util.NotificationUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import android.content.Context;
@@ -17,13 +16,18 @@ import com.google.android.gcm.GCMBaseIntentService;
 public class GCMIntentService extends GCMBaseIntentService {
 
 	private static final String TAG = GCMIntentService.class.getSimpleName();
-	
+
 	/**
 	 * コンストラクタ。
 	 */
 	public GCMIntentService() {
-		super(SERVER_ID);
+		super();
 		Log.i("kyouen", "GCMIntentService init");
+	}
+
+	@Override
+	protected String[] getSenderIds(Context context) {
+		return new String[] { getSenderId(this) };
 	}
 
 	@Override
@@ -49,5 +53,10 @@ public class GCMIntentService extends GCMBaseIntentService {
 		Log.i(TAG, "#onMessage message = " + intent.getStringExtra("message"));
 		NotificationUtil.notify(context, getString(R.string.app_name),
 				getString(R.string.notification_new_stage));
+	}
+
+	public static String getSenderId(Context context) {
+		String senderId = context.getString(R.string.gcm_sender_id);
+		return senderId;
 	}
 }

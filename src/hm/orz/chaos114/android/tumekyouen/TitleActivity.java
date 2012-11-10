@@ -1,6 +1,5 @@
 package hm.orz.chaos114.android.tumekyouen;
 
-import static hm.orz.chaos114.android.tumekyouen.constants.GcmConstants.SERVER_ID;
 import hm.orz.chaos114.android.tumekyouen.app.StageGetDialog;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
@@ -554,7 +553,8 @@ public class TitleActivity extends FragmentActivity {
 		Log.i("kyouen", "regId=" + regId);
 		if (regId.equals("")) {
 			// GCMに登録
-			GCMRegistrar.register(getApplicationContext(), SERVER_ID);
+			GCMRegistrar.register(getApplicationContext(),
+					GCMIntentService.getSenderId(this));
 			return;
 		}
 		if (GCMRegistrar.isRegisteredOnServer(getApplicationContext())) {
