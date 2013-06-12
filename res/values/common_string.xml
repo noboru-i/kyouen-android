@@ -7,4 +7,6 @@
 	<string name="twitter_secret" translatable="false"></string>
 	
 	<string name="bug_sense_api_key" translatable="false"></string>
+	
+	<string name="gcm_sender_id" translatable="false"></string>
 </resources>
