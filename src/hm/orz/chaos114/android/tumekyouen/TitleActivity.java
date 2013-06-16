@@ -33,23 +33,42 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gcm.GCMRegistrar;
+import com.googlecode.androidannotations.annotations.Background;
+import com.googlecode.androidannotations.annotations.Click;
+import com.googlecode.androidannotations.annotations.EActivity;
+import com.googlecode.androidannotations.annotations.NoTitle;
+import com.googlecode.androidannotations.annotations.UiThread;
+import com.googlecode.androidannotations.annotations.ViewById;
 
 /**
  * タイトル画面を表示するアクティビティ。
- * 
+ *
  * @author noboru
  */
+@NoTitle
+@EActivity
 public class TitleActivity extends FragmentActivity {
 	private static final String TAG = TitleActivity.class.getSimpleName();
 
-	public RequestToken _req = null;
-	public OAuthAuthorization _oauth = null;
+	RequestToken _req = null;
+	OAuthAuthorization _oauth = null;
+
+	@ViewById(R.id.get_stage_button)
+	Button mGetStageButton;
+
+	@ViewById(R.id.connect_button)
+	Button mConnectButton;
+
+	@ViewById(R.id.sync_button)
+	Button mSyncButton;
+
+	@ViewById(R.id.sound_button)
+	ImageView mSoundImageView;
 
 	/** DBオブジェクト */
 	private KyouenDb kyouenDb;
@@ -69,7 +88,7 @@ public class TitleActivity extends FragmentActivity {
 					taskCount, new Runnable() {
 						@Override
 						public void run() {
-							refresh();
+							refreshAll();
 						}
 					});
 			final long maxStageNo = kyouenDb.selectMaxStageNo();
@@ -81,181 +100,47 @@ public class TitleActivity extends FragmentActivity {
 	private final DialogInterface.OnCancelListener mCancelListener = new DialogInterface.OnCancelListener() {
 		@Override
 		public void onCancel(final DialogInterface dialog) {
-			refresh();
+			refreshAll();
 		}
 	};
 
-	/** ステージ作成ボタン押下時の処理 */
-	private final View.OnClickListener mCreateStageListener = new View.OnClickListener() {
-		@Override
-		public void onClick(final View v) {
-			boolean hasKyouenChecker;
-			try {
-				// 共円チェッカーの存在有無チェック
-				final PackageManager pm = getPackageManager();
-				pm.getApplicationInfo("hm.orz.chaos114.android.kyouenchecker",
-						0);
-				hasKyouenChecker = true;
-			} catch (final NameNotFoundException e) {
-				// 存在しない場合
-				hasKyouenChecker = false;
-			}
-			if (hasKyouenChecker) {
-				// 共円チェッカーの起動
-				final Intent intent = new Intent();
-				intent.setClassName("hm.orz.chaos114.android.kyouenchecker",
-						"hm.orz.chaos114.android.kyouenchecker.KyouenActivity");
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
-			} else {
-				// マーケットへの導線を表示
-				new AlertDialog.Builder(TitleActivity.this)
-						.setMessage(R.string.alert_install_kyouenchecker)
-						.setPositiveButton("YES",
-								new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(final DialogInterface dialog,
-											final int which) {
-										// マーケットを開く
-										final Uri uri = Uri
-												.parse("market://details?id=hm.orz.chaos114.android.kyouenchecker");
-										final Intent intent = new Intent(
-												Intent.ACTION_VIEW, uri);
-										startActivity(intent);
-									}
-								}).setNegativeButton("NO", null).show();
-			}
+	/**
+	 * クリア情報を同期ボタン押下時の処理
+	 */
+	@Click(R.id.sync_button)
+	void onClickSyncButton() {
+		// ボタンを無効化
+		mSyncButton.setEnabled(false);
+
+		// クリア情報を同期
+		syncClearDataInBackground();
+	}
+
+	/**
+	 * クリアステージデータの同期を行う。
+	 */
+	@Background
+	void syncClearDataInBackground() {
+		// クリアした情報を取得
+		final List<TumeKyouenModel> stages = kyouenDb.selectAllClearStage();
+		// ステージデータを送信
+		final List<TumeKyouenModel> clearList = ServerUtil.addAllStageUser(
+				this, stages);
+		if (clearList == null) {
+			syncClearDataPostExecute();
+			return;
 		}
-	};
+		kyouenDb.updateSyncClearData(clearList);
+		syncClearDataPostExecute();
+		return;
+	}
 
-	/** twitter接続ボタン押下後の処理 */
-	private final View.OnClickListener mTwitterButtonListener = new View.OnClickListener() {
-		/** ローディングダイアログ */
-		private ProgressDialog dialog;
-
-		@Override
-		public void onClick(final View v) {
-			final AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
-				@Override
-				protected void onPreExecute() {
-					// ローディングダイアログの表示
-					dialog = new ProgressDialog(TitleActivity.this);
-					dialog.setMessage("Now Loading...");
-					dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-					dialog.show();
-				}
-
-				@Override
-				protected Boolean doInBackground(final Void... params) {
-					final Configuration conf = ConfigurationContext.getInstance();
-					_oauth = new OAuthAuthorization(conf);
-					// Oauth認証オブジェクトにconsumerKeyとconsumerSecretを設定
-					_oauth.setOAuthConsumer(getString(R.string.twitter_key),
-							getString(R.string.twitter_secret));
-					// アプリの認証オブジェクト作成
-					try {
-						_req = _oauth
-								.getOAuthRequestToken("tumekyouen://TitleActivity");
-					} catch (final TwitterException e) {
-						return false;
-					}
-					final String _uri = _req.getAuthorizationURL();
-					startActivityForResult(
-							new Intent(Intent.ACTION_VIEW, Uri.parse(_uri)), 0);
-					return true;
-				}
-
-				@Override
-				protected void onPostExecute(final Boolean result) {
-					if (!result) {
-						new AlertDialog.Builder(TitleActivity.this)
-								.setMessage(
-										R.string.alert_error_authenticate_twitter)
-								.setPositiveButton(android.R.string.ok, null)
-								.show();
-					}
-					dialog.dismiss();
-				}
-			};
-			task.execute((Void) null);
-		}
-	};
-
-	/** クリア情報を同期ボタン押下時の処理 */
-	private final View.OnClickListener mSyncStageListener = new View.OnClickListener() {
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void onClick(final View v) {
-			/** ステージクリア情報を同期するタスク */
-			final AsyncTask<List<TumeKyouenModel>, Void, Void> task = new AsyncTask<List<TumeKyouenModel>, Void, Void>() {
-				@Override
-				protected void onPreExecute() {
-					// ボタンを無効化
-					setConnectButtonEnabled(false);
-				};
-
-				@Override
-				protected Void doInBackground(final List<TumeKyouenModel>... params) {
-					final List<TumeKyouenModel> stages = params[0];
-					// ステージデータを送信
-					final List<TumeKyouenModel> clearList = ServerUtil
-							.addAllStageUser(TitleActivity.this, stages);
-					if (clearList == null) {
-						return null;
-					}
-					kyouenDb.updateSyncClearData(clearList);
-					return null;
-				}
-
-				@Override
-				protected void onPostExecute(final Void result) {
-					// ボタンを有効化
-					setConnectButtonEnabled(true);
-					refresh();
-				};
-			};
-
-			// クリア済みステージ情報を取得
-			final List<TumeKyouenModel> stages = kyouenDb.selectAllClearStage();
-			task.execute(stages);
-		}
-	};
-
-	/** サーバに認証情報を送信するタスク */
-	class ServerRegistTask extends AsyncTask<AccessToken, Void, Boolean> {
-
-		@Override
-		protected void onPreExecute() {
-			setConnectButtonEnabled(false);
-		}
-
-		@Override
-		protected Boolean doInBackground(final AccessToken... params) {
-			final AccessToken token = params[0];
-
-			// サーバに認証情報を送信
-			try {
-				ServerUtil.registUser(TitleActivity.this, token.getToken(),
-						token.getTokenSecret());
-			} catch (final IOException e) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		protected void onPostExecute(final Boolean result) {
-			if (!result) {
-				// 失敗した場合
-				setConnectButtonEnabled(true);
-				return;
-			}
-			// 成功した場合
-			setConnectButtonEnabled(true);
-			setConnectButtonConnected();
-		}
-	};
+	@UiThread
+	void syncClearDataPostExecute() {
+		// ボタンを有効化
+		mSyncButton.setEnabled(true);
+		refreshAll();
+	}
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -263,148 +148,30 @@ public class TitleActivity extends FragmentActivity {
 
 		kyouenDb = new KyouenDb(this);
 
-		// タイトルバーを非表示
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-
 		// 音量ボタンの動作変更
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 		// GCMへの登録
 		registGcm();
 
-		if (!hasStageData()) {
+		if (kyouenDb.selectMaxStageNo() == 0) {
 			// データが存在しない場合
 			// ローディングを表示
 			setContentView(R.layout.loading);
-			final InitDataTask task = new InitDataTask();
-			task.execute((Void) null);
+			inserInitialDatatInBackground();
 		} else {
 			// タイトルを表示
-			initTitle();
-		}
-	}
-
-	/**
-	 * DB上のデータが存在するかをチェックします。
-	 * 
-	 * @return データが存在する場合、true
-	 */
-	private boolean hasStageData() {
-		final long count = kyouenDb.selectMaxStageNo();
-		if (count == 0) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	protected void onNewIntent(final Intent intent) {
-		// twitter連携
-		final Uri uri = intent.getData();
-		if (uri != null
-				&& uri.toString().startsWith("tumekyouen://TitleActivity")) {
-			// oauth_verifierを取得する
-			final String verifier = uri.getQueryParameter("oauth_verifier");
-			final AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
-				@Override
-				protected Boolean doInBackground(final Void... params) {
-					if (verifier == null) {
-						// 認証をキャンセルされた場合
-						return false;
-					}
-
-					AccessToken token;
-					// AccessTokenオブジェクトを取得
-					try {
-						Log.d(TAG, "_oauth = " + _oauth);
-						Log.d(TAG, "_req = " + _req);
-						Log.d(TAG, "verifier = " + verifier);
-						token = _oauth.getOAuthAccessToken(
-								_req, verifier);
-					} catch (final TwitterException e) {
-						return false;
-					}
-
-					// サーバに認証情報を送信
-					try {
-						ServerUtil.registUser(TitleActivity.this,
-								token.getToken(), token.getTokenSecret());
-					} catch (final IOException e) {
-						return false;
-					}
-
-					// ログイン情報を保存
-					final LoginUtil loginUtil = new LoginUtil(TitleActivity.this);
-					loginUtil.saveLoginInfo(token);
-					return true;
-				}
-
-				@Override
-				protected void onPostExecute(final Boolean result) {
-					setConnectButtonEnabled(true);
-					if (!result) {
-						// 失敗時
-						final LoginUtil loginUtil = new LoginUtil(TitleActivity.this);
-						loginUtil.saveLoginInfo(null);
-						new AlertDialog.Builder(TitleActivity.this)
-								.setMessage(
-										R.string.alert_error_authenticate_twitter)
-								.setPositiveButton(android.R.string.ok, null)
-								.show();
-						return;
-					}
-					setConnectButtonConnected();
-				}
-
-			};
-			task.execute((Void) null);
+			showTitle();
 		}
 	}
 
 	/**
 	 * タイトル画面を初期化する。
 	 */
-	void initTitle() {
+	@UiThread
+	void showTitle() {
 		// タイトル画面を設定
 		setContentView(R.layout.title);
-
-		// パズルボタンの設定
-		final Button puzzleButton = (Button) findViewById(R.id.start_puzzle_button);
-		puzzleButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				final int stageNo = getLastStageNo();
-				final TumeKyouenModel item = kyouenDb.selectCurrentStage(stageNo);
-				final Intent intent = new Intent(TitleActivity.this,
-						KyouenActivity.class);
-				intent.putExtra("item", item);
-				startActivityForResult(intent, 0);
-			}
-		});
-
-		// ステージ取得ボタンの設定
-		final Button getStageButton = (Button) findViewById(R.id.get_stage_button);
-		getStageButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				final Button button = (Button) v;
-				button.setClickable(false);
-				button.setText(TitleActivity.this
-						.getString(R.string.get_more_loading));
-
-				final StageGetDialog dialog = new StageGetDialog(TitleActivity.this,
-						mSuccessListener, mCancelListener);
-				dialog.show();
-			}
-		});
-
-		// ステージ作成ボタンの設定
-		final Button createStageButton = (Button) findViewById(R.id.create_stage_button);
-		createStageButton.setOnClickListener(mCreateStageListener);
-
-		// twitter接続ボタンの設定
-		final Button connectButton = (Button) findViewById(R.id.connect_button);
-		connectButton.setOnClickListener(mTwitterButtonListener);
 
 		final LoginUtil loginUtil = new LoginUtil(this);
 		final AccessToken loginInfo = loginUtil.loadLoginInfo();
@@ -414,23 +181,213 @@ public class TitleActivity extends FragmentActivity {
 			task.execute(loginInfo);
 		}
 
-		// 音量領域の設定
-		final ImageView soundImageView = (ImageView) findViewById(R.id.sound_button);
-		soundImageView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				SoundManager.getInstance(TitleActivity.this).switchPlayable();
-				refreshSoundState();
-			}
-		});
-
 		// 描画内容を更新
-		refresh();
+		refreshAll();
+	}
+
+	@Override
+	protected void onNewIntent(final Intent intent) {
+		final Uri uri = intent.getData();
+		if (uri != null
+				&& uri.toString().startsWith("tumekyouen://TitleActivity")) {
+			// twitter連携
+
+			// oauth_verifierを取得する
+			final String verifier = uri.getQueryParameter("oauth_verifier");
+			authTwitterInBackground(verifier);
+		}
+	}
+
+	@Background
+	void authTwitterInBackground(final String verifier) {
+		if (verifier == null) {
+			// 認証をキャンセルされた場合
+			onFailedTwitterAuth();
+			return;
+		}
+
+		AccessToken token;
+		// AccessTokenオブジェクトを取得
+		try {
+			Log.d(TAG, "_oauth = " + _oauth);
+			Log.d(TAG, "_req = " + _req);
+			Log.d(TAG, "verifier = " + verifier);
+			token = _oauth.getOAuthAccessToken(_req, verifier);
+		} catch (final TwitterException e) {
+			onFailedTwitterAuth();
+			return;
+		}
+
+		// サーバに認証情報を送信
+		try {
+			ServerUtil.registUser(this, token.getToken(),
+					token.getTokenSecret());
+		} catch (final IOException e) {
+			onFailedTwitterAuth();
+			return;
+		}
+
+		// ログイン情報を保存
+		final LoginUtil loginUtil = new LoginUtil(this);
+		loginUtil.saveLoginInfo(token);
+		onSuccessTwitterAuth();
+	}
+
+	/**
+	 * twitter連携に成功した場合の処理。
+	 * ボタンを切り替える。
+	 */
+	@UiThread
+	void onSuccessTwitterAuth() {
+		mConnectButton.setEnabled(false);
+		mConnectButton.setVisibility(View.INVISIBLE);
+		mSyncButton.setVisibility(View.VISIBLE);
+	}
+
+	/**
+	 * twitter連携に失敗した場合の処理
+	 */
+	@UiThread
+	void onFailedTwitterAuth() {
+		mConnectButton.setEnabled(true);
+		final LoginUtil loginUtil = new LoginUtil(this);
+		loginUtil.saveLoginInfo(null);
+		new AlertDialog.Builder(this)
+				.setMessage(R.string.alert_error_authenticate_twitter)
+				.setPositiveButton(android.R.string.ok, null).show();
+	}
+
+	/**
+	 * スタートボタンの設定
+	 */
+	@Click(R.id.start_puzzle_button)
+	void startTumeKyouen() {
+		final int stageNo = getLastStageNo();
+		final TumeKyouenModel item = kyouenDb.selectCurrentStage(stageNo);
+		final Intent intent = new Intent(this, KyouenActivity_.class);
+		intent.putExtra("item", item);
+		startActivityForResult(intent, 0);
+	}
+
+	/**
+	 * ステージ取得ボタンの設定
+	 */
+	@Click(R.id.get_stage_button)
+	void getStage() {
+		mGetStageButton.setClickable(false);
+		mGetStageButton.setText(getString(R.string.get_more_loading));
+
+		final StageGetDialog dialog = new StageGetDialog(this,
+				mSuccessListener, mCancelListener);
+		dialog.show();
+	}
+
+	/**
+	 * ステージ作成ボタン押下時の処理
+	 */
+	@Click(R.id.create_stage_button)
+	void createStage() {
+		boolean hasKyouenChecker;
+		try {
+			// 共円チェッカーの存在有無チェック
+			final PackageManager pm = getPackageManager();
+			pm.getApplicationInfo("hm.orz.chaos114.android.kyouenchecker", 0);
+			hasKyouenChecker = true;
+		} catch (final NameNotFoundException e) {
+			// 存在しない場合
+			hasKyouenChecker = false;
+		}
+		if (hasKyouenChecker) {
+			// 共円チェッカーの起動
+			final Intent intent = new Intent();
+			intent.setClassName("hm.orz.chaos114.android.kyouenchecker",
+					"hm.orz.chaos114.android.kyouenchecker.KyouenActivity");
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+		} else {
+			// マーケットへの導線を表示
+			new AlertDialog.Builder(this)
+					.setMessage(R.string.alert_install_kyouenchecker)
+					.setPositiveButton("YES",
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(
+										final DialogInterface dialog,
+										final int which) {
+									// マーケットを開く
+									final Uri uri = Uri
+											.parse("market://details?id=hm.orz.chaos114.android.kyouenchecker");
+									final Intent intent = new Intent(
+											Intent.ACTION_VIEW, uri);
+									startActivity(intent);
+								}
+							}).setNegativeButton("NO", null).show();
+		}
+	}
+
+	/**
+	 * 音量領域の設定
+	 */
+	@Click(R.id.sound_button)
+	void changeSound() {
+		SoundManager.getInstance(this).switchPlayable();
+		refreshSoundState();
+	}
+
+	/** twitter接続ボタン押下後の処理 */
+	@Click(R.id.connect_button)
+	public void onClickConnectButton(final View v) {
+		final AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
+			ProgressDialog dialog;
+
+			@Override
+			protected void onPreExecute() {
+				// ローディングダイアログの表示
+				dialog = new ProgressDialog(TitleActivity.this);
+				dialog.setMessage("Now Loading...");
+				dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+				dialog.show();
+			}
+
+			@Override
+			protected Boolean doInBackground(final Void... params) {
+				final Configuration conf = ConfigurationContext.getInstance();
+				_oauth = new OAuthAuthorization(conf);
+				// Oauth認証オブジェクトにconsumerKeyとconsumerSecretを設定
+				_oauth.setOAuthConsumer(getString(R.string.twitter_key),
+						getString(R.string.twitter_secret));
+				// アプリの認証オブジェクト作成
+				try {
+					_req = _oauth
+							.getOAuthRequestToken("tumekyouen://TitleActivity");
+				} catch (final TwitterException e) {
+					Log.e(TAG, "TwitterException", e);
+					return false;
+				}
+				final String _uri = _req.getAuthorizationURL();
+				startActivityForResult(
+						new Intent(Intent.ACTION_VIEW, Uri.parse(_uri)), 0);
+				return true;
+			}
+
+			@Override
+			protected void onPostExecute(final Boolean result) {
+				if (!result) {
+					new AlertDialog.Builder(TitleActivity.this)
+							.setMessage(
+									R.string.alert_error_authenticate_twitter)
+							.setPositiveButton(android.R.string.ok, null)
+							.show();
+				}
+				dialog.dismiss();
+			}
+		};
+		task.execute((Void) null);
 	}
 
 	/**
 	 * 最後に表示していたステージ番号を返します。
-	 * 
+	 *
 	 * @return ステージ番号
 	 */
 	private int getLastStageNo() {
@@ -449,7 +406,7 @@ public class TitleActivity extends FragmentActivity {
 	/**
 	 * 描画内容を再設定します。
 	 */
-	private void refresh() {
+	private void refreshAll() {
 		refreshGetStageButton();
 		refreshStageCount();
 		refreshSoundState();
@@ -459,15 +416,12 @@ public class TitleActivity extends FragmentActivity {
 	 * ステージ取得ボタンを再設定します。
 	 */
 	private void refreshGetStageButton() {
-		final Button getStageButton = (Button) findViewById(R.id.get_stage_button);
 		if (InsertDataTask.isRunning()) {
-			getStageButton.setClickable(false);
-			getStageButton.setText(TitleActivity.this
-					.getString(R.string.get_more_loading));
+			mGetStageButton.setClickable(false);
+			mGetStageButton.setText(getString(R.string.get_more_loading));
 		} else {
-			getStageButton.setClickable(true);
-			getStageButton.setText(TitleActivity.this
-					.getString(R.string.get_more));
+			mGetStageButton.setClickable(true);
+			mGetStageButton.setText(getString(R.string.get_more));
 		}
 	}
 
@@ -485,37 +439,17 @@ public class TitleActivity extends FragmentActivity {
 	 * 音量領域を再設定します。
 	 */
 	private void refreshSoundState() {
-		final ImageView soundImageView = (ImageView) findViewById(R.id.sound_button);
 		if (SoundManager.getInstance(this).isPlayable()) {
-			soundImageView.setImageResource(R.drawable.sound_on);
+			mSoundImageView.setImageResource(R.drawable.sound_on);
 		} else {
-			soundImageView.setImageResource(R.drawable.sound_off);
+			mSoundImageView.setImageResource(R.drawable.sound_off);
 		}
 	}
 
-	/**
-	 * 接続ボタンの有効無効を変更する。
-	 * 
-	 * @param enabled 有効・無効フラグ
-	 */
-	private void setConnectButtonEnabled(final boolean enabled) {
-		final Button button = (Button) findViewById(R.id.connect_button);
-		button.setEnabled(enabled);
-	}
-
-	/**
-	 * 接続ボタンを同期ボタンに変更する。
-	 */
-	private void setConnectButtonConnected() {
-		final Button button = (Button) findViewById(R.id.connect_button);
-		// ステージ同期ボタンに変更する
-		button.setText(R.string.sync_stage_user);
-		button.setOnClickListener(mSyncStageListener);
-	}
-
 	@Override
-	protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-		refresh();
+	protected void onActivityResult(final int requestCode,
+			final int resultCode, final Intent data) {
+		refreshAll();
 	}
 
 	@Override
@@ -580,34 +514,58 @@ public class TitleActivity extends FragmentActivity {
 	}
 
 	/**
-	 * 初期データ登録用のタスク。
-	 * 
-	 * @author noboru
+	 * 初期データを登録する。
 	 */
-	class InitDataTask extends AsyncTask<Void, Void, Void> {
-
-		@Override
-		protected Void doInBackground(final Void... params) {
-			final String[] initData = new String[] {
-					"1,6,000000010000001100001100000000001000,noboru",
-					"2,6,000000000000000100010010001100000000,noboru",
-					"3,6,000000001000010000000100010010001000,noboru",
-					"4,6,001000001000000010010000010100000000,noboru",
-					"5,6,000000001011010000000010001000000010,noboru",
-					"6,6,000100000000101011010000000000000000,noboru",
-					"7,6,000000001010000000010010000000001010,noboru",
-					"8,6,001000000001010000010010000001000000,noboru",
-					"9,6,000000001000010000000010000100001000,noboru",
-					"10,6,000100000010010000000100000010010000,noboru" };
-			for (final String data : initData) {
-				kyouenDb.insert(data);
-			}
-			return null;
+	@Background
+	void inserInitialDatatInBackground() {
+		final String[] initData = new String[] {
+				"1,6,000000010000001100001100000000001000,noboru",
+				"2,6,000000000000000100010010001100000000,noboru",
+				"3,6,000000001000010000000100010010001000,noboru",
+				"4,6,001000001000000010010000010100000000,noboru",
+				"5,6,000000001011010000000010001000000010,noboru",
+				"6,6,000100000000101011010000000000000000,noboru",
+				"7,6,000000001010000000010010000000001010,noboru",
+				"8,6,001000000001010000010010000001000000,noboru",
+				"9,6,000000001000010000000010000100001000,noboru",
+				"10,6,000100000010010000000100000010010000,noboru" };
+		for (final String data : initData) {
+			kyouenDb.insert(data);
 		}
-
-		@Override
-		protected void onPostExecute(final Void result) {
-			initTitle();
-		}
+		showTitle();
 	}
+
+	/** サーバに認証情報を送信するタスク */
+	class ServerRegistTask extends AsyncTask<AccessToken, Void, Boolean> {
+
+		@Override
+		protected void onPreExecute() {
+			mConnectButton.setEnabled(false);
+		}
+
+		@Override
+		protected Boolean doInBackground(final AccessToken... params) {
+			final AccessToken token = params[0];
+
+			// サーバに認証情報を送信
+			try {
+				ServerUtil.registUser(TitleActivity.this, token.getToken(),
+						token.getTokenSecret());
+			} catch (final IOException e) {
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		protected void onPostExecute(final Boolean result) {
+			mConnectButton.setEnabled(true);
+			if (!result) {
+				// 失敗した場合
+				return;
+			}
+			// 成功した場合
+			onSuccessTwitterAuth();
+		}
+	};
 }

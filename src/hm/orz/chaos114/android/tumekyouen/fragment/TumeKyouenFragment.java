@@ -31,7 +31,7 @@ public class TumeKyouenFragment extends Fragment {
 		NONE, BLACK, WHITE,
 	}
 
-	private Context context;
+	Context context;
 	/** メインのレイアウト */
 	private TableLayout layout;
 
@@ -47,9 +47,9 @@ public class TumeKyouenFragment extends Fragment {
 	/** ゲーム情報保持用オブジェクト */
 	private GameModel gameModel;
 
-	public static TumeKyouenFragment newInstance(TumeKyouenModel stageModel) {
-		TumeKyouenFragment tumeKyouenFragment = new TumeKyouenFragment();
-		Bundle bundle = new Bundle();
+	public static TumeKyouenFragment newInstance(final TumeKyouenModel stageModel) {
+		final TumeKyouenFragment tumeKyouenFragment = new TumeKyouenFragment();
+		final Bundle bundle = new Bundle();
 		bundle.putSerializable("stage", stageModel);
 		tumeKyouenFragment.setArguments(bundle);
 
@@ -63,16 +63,16 @@ public class TumeKyouenFragment extends Fragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
+			final Bundle savedInstanceState) {
 		context = getActivity().getApplicationContext();
 
-		TumeKyouenModel stageModel = (TumeKyouenModel) getArguments()
+		final TumeKyouenModel stageModel = (TumeKyouenModel) getArguments()
 				.getSerializable("stage");
 		gameModel = new GameModel(stageModel.getSize(), stageModel.getStage());
 
 		// ディスプレイサイズの取得
-		Display disp = ((WindowManager) context
+		final Display disp = ((WindowManager) context
 				.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 		maxScrnWidth = disp.getWidth();
 
@@ -86,13 +86,13 @@ public class TumeKyouenFragment extends Fragment {
 
 	private void init() {
 		for (int i = 0; i < gameModel.getSize(); i++) {
-			TableRow row = new TableRow(context);
+			final TableRow row = new TableRow(context);
 			layout.addView(row);
 			for (int j = 0; j < gameModel.getSize(); j++) {
-				Button button = new Button(context);
+				final Button button = new Button(context);
 				button.setBackgroundDrawable(new BitmapDrawable(
 						createBackgroundBitmap()));
-				int stoneSize = maxScrnWidth / gameModel.getSize();
+				final int stoneSize = maxScrnWidth / gameModel.getSize();
 				button.setWidth(stoneSize);
 				button.setHeight(stoneSize);
 				if (gameModel.hasStone(i, j)) {
@@ -105,9 +105,9 @@ public class TumeKyouenFragment extends Fragment {
 				row.addView(button, stoneSize, stoneSize);
 				button.setOnClickListener(new View.OnClickListener() {
 					@Override
-					public void onClick(View v) {
-						int index = buttons.indexOf(v);
-						Button button = (Button) v;
+					public void onClick(final View v) {
+						final int index = buttons.indexOf(v);
+						final Button button = (Button) v;
 						if (v.getTag() == ButtonState.NONE) {
 							// 石が設定されていない場合
 							return;
@@ -118,8 +118,8 @@ public class TumeKyouenFragment extends Fragment {
 								R.raw.se_maoudamashii_se_finger01);
 
 						// 色の反転
-						int col = index % gameModel.getSize();
-						int row = index / gameModel.getSize();
+						final int col = index % gameModel.getSize();
+						final int row = index / gameModel.getSize();
 						switchStoneColor(button);
 						gameModel.switchColor(col, row);
 					}
@@ -133,19 +133,19 @@ public class TumeKyouenFragment extends Fragment {
 	 */
 	public void reset() {
 		for (int i = 0; i < buttons.size(); i++) {
-			Button button = buttons.get(i);
+			final Button button = buttons.get(i);
 			if (button.getTag() == ButtonState.WHITE) {
 				// 色の反転
-				int col = i % gameModel.getSize();
-				int row = i / gameModel.getSize();
+				final int col = i % gameModel.getSize();
+				final int row = i / gameModel.getSize();
 				switchStoneColor(button);
 				gameModel.switchColor(col, row);
 			}
 		}
 	}
 
-	public void setClickable(boolean clickable) {
-		for (Button b : buttons) {
+	public void setClickable(final boolean clickable) {
+		for (final Button b : buttons) {
 			b.setClickable(clickable);
 		}
 	}
@@ -153,7 +153,7 @@ public class TumeKyouenFragment extends Fragment {
 	/**
 	 * 背景に表示するBitmapを返す。<br>
 	 * インスタンス変数に保持されていない場合、作成し、返す。
-	 * 
+	 *
 	 * @return 背景用Bitmap
 	 */
 	private Bitmap createBackgroundBitmap() {
@@ -168,12 +168,12 @@ public class TumeKyouenFragment extends Fragment {
 	 * 背景に表示するbitmapを作成する。
 	 */
 	private void resetBackgroundBitmap() {
-		int bitmapSize = maxScrnWidth / gameModel.getSize();
-		Bitmap bitmap = Bitmap.createBitmap(bitmapSize, bitmapSize,
+		final int bitmapSize = maxScrnWidth / gameModel.getSize();
+		final Bitmap bitmap = Bitmap.createBitmap(bitmapSize, bitmapSize,
 				Bitmap.Config.ARGB_8888);
-		Canvas canvas = new Canvas(bitmap);
+		final Canvas canvas = new Canvas(bitmap);
 
-		Paint paint = new Paint();
+		final Paint paint = new Paint();
 		paint.setColor(Color.rgb(128, 128, 128));
 		paint.setStrokeWidth(2);
 
@@ -188,22 +188,22 @@ public class TumeKyouenFragment extends Fragment {
 		background = bitmap;
 	}
 
-	private void setBlack(Button b) {
+	private void setBlack(final Button b) {
 		b.setBackgroundResource(R.drawable.circle_black);
 	}
 
-	private void setWhite(Button b) {
+	private void setWhite(final Button b) {
 		b.setBackgroundResource(R.drawable.circle_white);
 	}
 
 	/**
 	 * 石の色を変更する。 <br>
 	 * 白を黒に、黒を白に変更する。
-	 * 
+	 *
 	 * @param b 変更するボタン
 	 */
-	private void switchStoneColor(Button b) {
-		ButtonState state = (ButtonState) b.getTag();
+	private void switchStoneColor(final Button b) {
+		final ButtonState state = (ButtonState) b.getTag();
 		switch (state) {
 		case WHITE:
 			setBlack(b);
@@ -220,7 +220,7 @@ public class TumeKyouenFragment extends Fragment {
 
 	/**
 	 * ゲーム情報保持用オブジェクトを返す。
-	 * 
+	 *
 	 * @return ゲーム情報保持用オブジェクト
 	 */
 	public GameModel getGameModel() {

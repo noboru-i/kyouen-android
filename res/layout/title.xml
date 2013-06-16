@@ -70,16 +70,33 @@
             android:text="@string/create_stage"
             android:textColor="#eeeeee" />
 
-        <Button
-            android:id="@+id/connect_button"
+        <FrameLayout
             android:layout_width="260dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/title_button"
-            android:gravity="center"
-            android:padding="5dp"
-            android:text="@string/twitter_connect"
-            android:textColor="#eeeeee" />
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/connect_button"
+                android:layout_width="260dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/title_button"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="@string/twitter_connect"
+                android:textColor="#eeeeee" />
+
+            <Button
+                android:id="@+id/sync_button"
+                android:layout_width="260dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/title_button"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="@string/sync_stage_user"
+                android:textColor="#eeeeee"
+                android:visibility="invisible" />
+        </FrameLayout>
 
         <ImageView
             android:id="@+id/sound_button"
