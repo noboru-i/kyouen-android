@@ -10,33 +10,36 @@ import android.content.Intent;
 
 /**
  * ステータスバーに通知するためのユーティリティクラス。
+ * 
  * @author noboru
  */
 public class NotificationUtil {
 
 	/**
 	 * 通知を表示する。
+	 * 
 	 * @param context コンテキスト
 	 * @param title タイトル（ex.アプリ名）
 	 * @param message メッセージ
 	 */
-	public static void notify(Context context, CharSequence title,
-			CharSequence message) {
+	public static void notify(final Context context, final CharSequence title,
+			final CharSequence message) {
 
 		// 通知をタップされたときのintentを作成
-		Intent newIntent = new Intent(context, TitleActivity.class);
+		final Intent newIntent = new Intent(context, TitleActivity.class);
 		newIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
-				newIntent, 0);
+		final PendingIntent contentIntent = PendingIntent.getActivity(context,
+				0, newIntent, 0);
 
 		// Notificationオブジェクトの作成
-		Notification notification = new Notification(R.drawable.icon, message,
+		final Notification notification = new Notification(
+				R.drawable.ic_launcher_kyouen, message,
 				System.currentTimeMillis());
 		notification.setLatestEventInfo(context, title, message, contentIntent);
 		notification.flags = Notification.FLAG_AUTO_CANCEL;
 
 		// Managerオブジェクトの取得
-		NotificationManager notificationManager = (NotificationManager) context
+		final NotificationManager notificationManager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 
 		// 通知
