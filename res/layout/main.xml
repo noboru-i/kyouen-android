@@ -42,14 +42,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:textSize="28sp" />
+                android:textSize="28sp"
+                android:textColor="#eeeeee" />
 
             <TextView
                 android:id="@+id/stage_creator"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="right"
-                android:textSize="10sp" />
+                android:textSize="10sp"
+                android:textColor="#666666" />
         </LinearLayout>
 
         <Button
@@ -67,7 +69,7 @@
         android:id="@+id/frame_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#00FF00" >
+        android:background="#4A9E3D" >
 
         <LinearLayout
             android:id="@+id/fragment_container"
