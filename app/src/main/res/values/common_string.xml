@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="server_url" translatable="false">https://my-android-server.appspot.com</string>
+    <string name="unit_id" translatable="false"></string>
+
+    <string name="twitter_key" translatable="false"></string>
+    <string name="twitter_secret" translatable="false"></string>
+
+    <string name="bug_sense_api_key" translatable="false"></string>
+
+    <string name="gcm_sender_id" translatable="false"></string>
+</resources>

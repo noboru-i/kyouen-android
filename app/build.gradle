@@ -1,0 +1,45 @@
+apply plugin: 'com.android.application'
+apply plugin: 'android-apt'
+def AAVersion = '3.0.1'
+
+android {
+    // Error:duplicate files during packaging of APK /XXX/app-debug-unaligned.apk 対策
+    packagingOptions {
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/notice.txt'
+    }
+
+    compileSdkVersion 19
+    buildToolsVersion "20.0.0"
+
+    defaultConfig {
+        applicationId "hm.orz.chaos114.android.tumekyouen"
+        minSdkVersion 12
+        targetSdkVersion 19
+        versionCode 18
+        versionName "0.10.0"
+    }
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:support-v4:19.0.+'
+    compile 'com.android.support:appcompat-v7:19.+'
+    apt "org.androidannotations:androidannotations:$AAVersion"
+    compile "org.androidannotations:androidannotations-api:$AAVersion"
+
+    // AdMob
+    compile 'com.google.android.gms:play-services:4.0.30'
+}
+apt {
+    arguments {
+        androidManifestFile variant.processResources.manifestFile
+        resourcePackageName 'hm.orz.chaos114.android.tumekyouen'
+    }
+}
