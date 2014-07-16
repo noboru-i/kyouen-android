@@ -33,7 +33,27 @@ public class TitleActivity extends FragmentActivity {
     }
 
     @Click(R.id.start_button)
-    void start() {
+    void clickStart() {
         Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
+    }
+
+    @Click(R.id.get_stage_button)
+    void clickGetStage() {
+        Toast.makeText(this, "ステージ取得", Toast.LENGTH_SHORT).show();
+    }
+
+    @Click(R.id.create_stage_button)
+    void clickCreateStage() {
+        Toast.makeText(this, "ステージ作成", Toast.LENGTH_SHORT).show();
+    }
+
+    @Click(R.id.connect_button)
+    void clickConnect() {
+        Toast.makeText(this, "twitterでログイン", Toast.LENGTH_SHORT).show();
+    }
+
+    @Click(R.id.sync_button)
+    void clickSync() {
+        Toast.makeText(this, "同期", Toast.LENGTH_SHORT).show();
     }
 }
