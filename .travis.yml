@@ -6,6 +6,11 @@ env:
 android:
   update_sdk: true
   components:
+    - platform-tools
+    - tools
     - build-tools-19.1.0
+    - android-19
+    - extra-android-m2repository
+    - extra-google-m2repository
 script:
   - ./gradlew uploadDeployGateDebug
