@@ -4,6 +4,7 @@ env:
     - DEPLOYGATE_USER=noboru-i
     - secure: "deWo5doc+JgIQYh7KoqF+E1eOUVcoH0Iob/gYGoTGbt5xvEdrjfqtV0c/flwEla3Z38aHAyOMq52m4ZQheaEIy7TpenAZ3Dwi0tQmuV1BSQ+u1uoQBlWOAjNojPHPJUoEL4vItBMkJz6k5ts6UXUz2r0ekaUp1lmZXyBsBuGUGA="
 android:
+  update_sdk: true
   components:
     - build-tools-19.1.0
 script:
