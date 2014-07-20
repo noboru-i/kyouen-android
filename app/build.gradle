@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
+apply plugin: 'deploygate'
 def AAVersion = '3.0.1'
 
 android {
@@ -43,3 +44,16 @@ apt {
         resourcePackageName 'hm.orz.chaos114.android.tumekyouen'
     }
 }
+
+deploygate {
+    userName = "$System.env.DEPLOYGATE_USER"
+    token = "$System.env.DEPLOYGATE_TOKEN"
+
+    apks {
+        debug {
+            sourceFile = file("${project.buildDir}/apk/app-debug-unaligned.apk")
+        }
+    }
+}
+
+uploadDeployGateDebug.dependsOn assembleDebug
