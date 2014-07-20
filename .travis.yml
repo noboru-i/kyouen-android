@@ -3,6 +3,9 @@ env:
   global:
     - DEPLOYGATE_USER=noboru-i
     - secure: "deWo5doc+JgIQYh7KoqF+E1eOUVcoH0Iob/gYGoTGbt5xvEdrjfqtV0c/flwEla3Z38aHAyOMq52m4ZQheaEIy7TpenAZ3Dwi0tQmuV1BSQ+u1uoQBlWOAjNojPHPJUoEL4vItBMkJz6k5ts6UXUz2r0ekaUp1lmZXyBsBuGUGA="
+before_install:
+  - export ANDROID_HOME=$PWD/android-sdk-linux
+  - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
 android:
   update_sdk: true
   components:
