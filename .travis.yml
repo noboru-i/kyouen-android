@@ -2,7 +2,7 @@ language: android
 env:
   global:
     - DEPLOYGATE_USER=noboru-i
-    - secure: "deWo5doc+JgIQYh7KoqF+E1eOUVcoH0Iob/gYGoTGbt5xvEdrjfqtV0c/flwEla3Z38aHAyOMq52m4ZQheaEIy7TpenAZ3Dwi0tQmuV1BSQ+u1uoQBlWOAjNojPHPJUoEL4vItBMkJz6k5ts6UXUz2r0ekaUp1lmZXyBsBuGUGA="
+    - secure: "iVQfDDOx27b42SMS+YVxOvtPujRS/Xw1OdiKhmqNAc9n1GTU8n08iqLD7TqFon/VkOHleft3PA3tJV+Pmemq264qMwt7Uw36aUWFhw+QQFboWyKxtIqFySv0JwAjGrvMBPeaeJllwF25UlmsIMGIbyNFwBh5/2STasO5RdBBzLk="
 
 android:
   components:
