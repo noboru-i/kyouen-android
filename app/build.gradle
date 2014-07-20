@@ -23,7 +23,7 @@ android {
     buildTypes {
         release {
             runProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -51,7 +51,7 @@ deploygate {
 
     apks {
         debug {
-            sourceFile = file("${project.buildDir}/apk/app-debug-unaligned.apk")
+            sourceFile = file("${project.buildDir}/outputs/apk/app-debug-unaligned.apk")
         }
     }
 }
