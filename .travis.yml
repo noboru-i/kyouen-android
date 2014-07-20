@@ -12,5 +12,8 @@ android:
     - android-19
     - extra-android-m2repository
     - extra-google-m2repository
+  licenses:
+    - android-sdk-license-5be876d5
+    - '.*intel.+'
 script:
   - ./gradlew uploadDeployGateDebug
