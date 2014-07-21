@@ -44,6 +44,8 @@ dependencies {
     // spring for android
     compile "org.springframework.android:spring-android-core:$SpringVersion"
     compile "org.springframework.android:spring-android-rest-template:$SpringVersion"
+    // deploygate
+    compile 'com.deploygate:sdk:3.1'
 }
 apt {
     arguments {
