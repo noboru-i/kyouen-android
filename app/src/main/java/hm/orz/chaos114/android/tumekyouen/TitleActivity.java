@@ -57,8 +57,13 @@ public class TitleActivity extends FragmentActivity {
 
     @Background
     void getGcmRegistrationId() {
+        Log.d("TEST", "unit_id=" + getString(R.string.unit_id));
+        Log.d("TEST", "twitter_key=" + getString(R.string.twitter_key));
+        Log.d("TEST", "twitter_secret=" + getString(R.string.twitter_secret));
+        Log.d("TEST", "bug_sense_api_key=" + getString(R.string.bug_sense_api_key));
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
         try {
+            Log.d("TEST", "sender_id="+ getString(R.string.gcm_sender_id));
             String regId = gcm.register(getString(R.string.gcm_sender_id));
             Log.d("TEST", "regId = " + regId);
             RegistrationId registrationId = new RegistrationId(regId);
