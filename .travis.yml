@@ -3,7 +3,8 @@ env:
   global:
     - DEPLOYGATE_USER=noboru-i
     - secure: "SOev0rrhdJ6fp5CkJeQAh6mm6EmmWEWCVrSt7hn3mvjSbaz/yKdmiGsHp8NcTeLZrXuk6ay6mFee3TVqsT17Xn5+cGG5nnWFPqI2Os3AlSWdHkhLrv8f3KdfwJeTiBSymw4TDWSd/kVCB42q51BdnODda+GozCymA6qoZpf/GQs="
-
+notifications:
+  email: false
 android:
   components:
     - build-tools-19.1.0
