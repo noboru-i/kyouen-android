@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
 apply plugin: 'deploygate'
 def AAVersion = '3.0.1'
+def SpringVersion = '1.0.1.RELEASE'
 
 android {
     // Error:duplicate files during packaging of APK /XXX/app-debug-unaligned.apk 対策
@@ -40,6 +41,9 @@ dependencies {
 
     // AdMob
     compile 'com.google.android.gms:play-services:4.0.30'
+    // spring for android
+    compile "org.springframework.android:spring-android-core:$SpringVersion"
+    compile "org.springframework.android:spring-android-rest-template:$SpringVersion"
 }
 apt {
     arguments {
