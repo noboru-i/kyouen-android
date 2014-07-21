@@ -1,8 +1,15 @@
 language: android
 env:
   global:
+    # deploygate
     - DEPLOYGATE_USER=noboru-i
     - secure: "SOev0rrhdJ6fp5CkJeQAh6mm6EmmWEWCVrSt7hn3mvjSbaz/yKdmiGsHp8NcTeLZrXuk6ay6mFee3TVqsT17Xn5+cGG5nnWFPqI2Os3AlSWdHkhLrv8f3KdfwJeTiBSymw4TDWSd/kVCB42q51BdnODda+GozCymA6qoZpf/GQs="
+    # secret_strings.xml
+    - secure: "ZXnouETJ67n/DCjCFPdWoIm3eo0WsYhfuy9Y25IjYn6gij4F8v038bjYr+Z5QBsnLri1mU0QQeNy14cPaaYBoblTsmPm0cZ+Vv0wmYgAkVc2C+E67k/YUAD0puvUzUGsQ1z6N7gQ0tFjL4l4map/4iEkGtney6OYdyuljE75D2g="
+    - secure: "Sqi+dwZcd6qGpBLYUq+deqQBSX056N0eoQ9RfMjWB7gG/WfQn4XQaTF13jKdqp0MKzRj8P61uunoxZIpHNYNWeqzxfIpXKrzOdGv85r8PnbjDgH87N22ufqwPdbfAVydUEPP8hEEJ5vbCN2Fyoq1CHPNjwBpMIiD27LMVjiytn8="
+    - secure: "iUO0ldYPT3jYjoRafH0Milc3DNhgqzZQGk7tFkvg7WPF+YPEYDOMjwmhY0kTDjbxU+iqkHE7WOL66MtJSlvTJjNfs2uWqrXrmgMAXLusbRukscJmL2ZwGhNwBi4tOOl4V1FO8NRqYcdRkkHgJRUXyKAafLrdNePVm7uWUwjl2e0="
+    - secure: "PCeJAQ8/XrDWktlTbKtJLCcjhjOfsw/tcPPCrG1urvQMJrgzi6m6pTWo62RSpWVo1iYePiqvDgPGACrT082vtnoJ7TJ3FZEhty1xsDUhDBJ9qvmHEPpxLrtLGwZ1+doT/yxinQAqqucx8vsFJcTh8zOrGLknwEvqxhNj5HHKzkg="
+    - secure: "Bbs5aRc2/DUHHHzNs+H2CmY2pbIEctHqXSB1H5HenWl20XoMPunJpMOoGpVrulOp2APftU+rjBjkPtO8AyWtV62NvVsDlRMekURv2cjA8fXD77pgbdg86OJiADUI9sTLEIB+gTR9yIPUU/vVWEdD2BpyXNwZepPuSxuaHsVIzPs="
 notifications:
   email: false
 android:

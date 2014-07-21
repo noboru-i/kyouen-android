@@ -26,6 +26,9 @@ android {
 //            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -57,3 +60,44 @@ deploygate {
 }
 
 uploadDeployGateDebug.dependsOn assembleDebug
+
+task secretKeyReplace {
+    description 'Replace secret keys from system environment.'
+    doLast {
+        def filePath = "app/src/main/res/values/secret_strings.xml"
+        def br = new BufferedReader(new FileReader(filePath))
+        def lines = br.readLines()
+        br.close()
+
+        // key情報の抽出
+        def secretKeys = new HashSet()
+        def rExpression = /INPUT_YOUR_([A-Z_]+)/
+        for (String line : lines) {
+            if (line.contains("INPUT_YOUR_")) {
+                def matcher = (line =~ rExpression)
+                secretKeys << matcher[0][1]
+            }
+        }
+
+        // 文字列の置換
+        def newLines = new ArrayList<String>()
+        for (String line : lines) {
+            String newLine = line
+            for (String key : secretKeys) {
+                if (!System.getenv()[key]) {
+                    continue
+                }
+                newLine.replace("INPUT_YOUR_" + key, System.getenv()[key])
+            }
+            newLines << newLine
+        }
+
+        def pw = new PrintWriter(new BufferedWriter(new FileWriter(filePath)))
+        for (def line : newLines) {
+            pw.println(line)
+        }
+        pw.close()
+    }
+}
+
+preBuild.dependsOn secretKeyReplace
