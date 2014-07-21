@@ -93,7 +93,7 @@ task secretKeyReplace {
                 if (!System.getenv()[key]) {
                     continue
                 }
-                newLine.replace("INPUT_YOUR_" + key, System.getenv()[key])
+                newLine = newLine.replace("INPUT_YOUR_" + key, System.getenv()[key])
             }
             newLines << newLine
         }
