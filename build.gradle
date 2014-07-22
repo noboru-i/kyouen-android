@@ -10,6 +10,8 @@ buildscript {
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.+'
         // deploygate
         classpath 'com.deploygate:gradle:0.6'
+        // robolectric
+        classpath 'org.robolectric:robolectric-gradle-plugin:0.11.+'
     }
 }
 

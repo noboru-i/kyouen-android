@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
 apply plugin: 'deploygate'
+apply plugin: 'robolectric'
 def AAVersion = '3.0.1'
 def SpringVersion = '1.0.1.RELEASE'
 
@@ -11,13 +12,13 @@ android {
         exclude 'META-INF/notice.txt'
     }
 
-    compileSdkVersion 19
+    compileSdkVersion 18
     buildToolsVersion "19.1.0"
 
     defaultConfig {
         applicationId "hm.orz.chaos114.android.tumekyouen"
         minSdkVersion 12
-        targetSdkVersion 19
+        targetSdkVersion 18
         versionCode 18
         versionName "0.10.0"
     }
@@ -46,12 +47,25 @@ dependencies {
     compile "org.springframework.android:spring-android-rest-template:$SpringVersion"
     // deploygate
     compile 'com.deploygate:sdk:3.1'
+    // test
+    androidTestCompile 'junit:junit:4.10'
+    androidTestCompile 'org.robolectric:robolectric:2.3'
+    androidTestCompile 'com.squareup:fest-android:1.0.+'
 }
 apt {
     arguments {
         androidManifestFile variant.processResources.manifestFile
         resourcePackageName 'hm.orz.chaos114.android.tumekyouen'
     }
+}
+
+robolectric {
+    // configure the set of classes for JUnit tests
+    include '**/*Test.class'
+    exclude '**/espresso/**/*.class'
+
+    // configure max heap size of the test JVM
+    maxHeapSize = '2048m'
 }
 
 deploygate {
