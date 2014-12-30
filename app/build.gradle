@@ -36,7 +36,7 @@ android {
         }
     }
     lintOptions {
-
+        disable 'InvalidPackage' // lombokなどでAndroidに含まれていないパッケージを利用しているため
     }
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
