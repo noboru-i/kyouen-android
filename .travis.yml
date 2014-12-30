@@ -25,4 +25,4 @@ android:
 before_install:
 - android list sdk --no-ui --all --extended
 script:
-- "./gradlew app:uploadDeployGateDebug"
+- "./gradlew app:check app:uploadDeployGateDebug"

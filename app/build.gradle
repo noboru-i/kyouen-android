@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'deploygate'
+apply plugin: 'robolectric'
 
 android {
     compileSdkVersion 21
@@ -68,6 +69,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.3.1'
     // test
     androidTestCompile 'junit:junit:4.10'
+    androidTestCompile 'org.robolectric:robolectric:2.3'
     androidTestCompile 'com.squareup:fest-android:1.0.+'
 }
 
