@@ -26,3 +26,5 @@ proguard/
 *.log
 
 .idea
+
+app/src/debug/res/values/secret_strings.xml
