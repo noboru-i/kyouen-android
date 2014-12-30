@@ -14,12 +14,12 @@ notifications:
     secure: XhGhlr7SGGXJv2p8+GtHWo4ggkb7o9LpTpUaTIinpKoQy3BKtI6LrUxjZQs+lm4ruD4ZCxAeBQuwfXEWIjO6Q1MWLewdXjMDw6c5HAPs/4HU5yQjvFaJ6RxHtiV/I0xlTt3+ITF6RKZSfGsiJkJC+Sa66lxL5ku1F4IwhEafpfM=
 android:
   components:
-  - build-tools-21.1.1
+  - build-tools-21.1.2
   - android-21
   - sysimg-21
-  - extra-android-support
+  - extra-android-m2repository
   licenses:
-  - android-sdk-license-5be876d5
+  - 'android-sdk-license-.+'
   - ".*intel.+"
 before_install:
 - android list sdk --no-ui --all --extended
