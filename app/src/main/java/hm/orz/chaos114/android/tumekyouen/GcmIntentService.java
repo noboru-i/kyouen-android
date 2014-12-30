@@ -7,9 +7,6 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
-/**
- * Created by ishikuranoboru on 2014/07/18.
- */
 public class GcmIntentService extends IntentService {
     private static final String TAG = "GcmIntentService";
 

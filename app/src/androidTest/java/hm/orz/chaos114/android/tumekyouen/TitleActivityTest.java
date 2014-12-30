@@ -21,7 +21,7 @@ public class TitleActivityTest {
 
     @Test
     public void clickButton() throws Exception {
-        Activity activity = Robolectric.buildActivity(TitleActivity_.class).create().get();
+        Activity activity = Robolectric.buildActivity(TitleActivity.class).create().get();
 
         Button startButton = (Button) activity.findViewById(R.id.start_button);
         startButton.performClick();

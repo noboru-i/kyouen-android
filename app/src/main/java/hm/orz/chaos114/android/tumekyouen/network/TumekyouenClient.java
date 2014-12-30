@@ -1,13 +1,13 @@
 package hm.orz.chaos114.android.tumekyouen.network;
 
-import org.androidannotations.annotations.rest.Post;
-import org.androidannotations.annotations.rest.Rest;
-import org.springframework.http.converter.FormHttpMessageConverter;
+import hm.orz.chaos114.android.tumekyouen.network.entity.Response;
+import retrofit.Callback;
+import retrofit.http.Field;
+import retrofit.http.FormUrlEncoded;
+import retrofit.http.POST;
 
-import hm.orz.chaos114.android.tumekyouen.network.entity.RegistrationId;
-
-@Rest(rootUrl = "http://my-android-server.appspot.com", converters = {FormHttpMessageConverter.class})
 public interface TumekyouenClient {
-    @Post("/gcm/regist")
-    void registGcm(RegistrationId registrationId);
+    @FormUrlEncoded
+    @POST("/gcm/regist")
+    void registGcm(@Field("regId") String registrationId, Callback<Response> cb);
 }

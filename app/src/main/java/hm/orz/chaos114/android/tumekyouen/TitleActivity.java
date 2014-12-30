@@ -1,62 +1,82 @@
 package hm.orz.chaos114.android.tumekyouen;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.Window;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Background;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ViewById;
-import org.androidannotations.annotations.WindowFeature;
-import org.androidannotations.annotations.rest.RestService;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
 import hm.orz.chaos114.android.tumekyouen.network.TumekyouenClient;
-import hm.orz.chaos114.android.tumekyouen.network.entity.RegistrationId;
+import hm.orz.chaos114.android.tumekyouen.network.entity.Response;
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.converter.GsonConverter;
 
-@WindowFeature({Window.FEATURE_NO_TITLE, Window.FEATURE_INDETERMINATE_PROGRESS})
-@EActivity(R.layout.activity_title)
 public class TitleActivity extends FragmentActivity {
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
-    @ViewById
-    AdView adView;
+    @InjectView(R.id.title_ad_view)
+    AdView mAdView;
 
-    @RestService
     TumekyouenClient tumekyouenClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_title);
+
+        ButterKnife.inject(this);
+
+        Gson gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .create();
+
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint("http://my-android-server.appspot.com")
+                .setConverter(new GsonConverter(gson))
+                .build();
+
+        tumekyouenClient = restAdapter.create(TumekyouenClient.class);
+
+        loadAd();
+        getGcm();
     }
 
-    @AfterViews
     void loadAd() {
         AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
+        mAdView.loadAd(adRequest);
     }
 
-    @AfterViews
     void getGcm() {
         if (checkPlayServices()) {
-            getGcmRegistrationId();
+            new AsyncTask<Void, Void, Void>() {
+
+                @Override
+                protected Void doInBackground(Void... params) {
+                    getGcmRegistrationId();
+                    return null;
+                }
+            }.execute();
         }
     }
 
-    @Background
     void getGcmRegistrationId() {
         Log.d("TEST", "unit_id=" + getString(R.string.unit_id));
         Log.d("TEST", "twitter_key=" + getString(R.string.twitter_key));
@@ -64,37 +84,46 @@ public class TitleActivity extends FragmentActivity {
         Log.d("TEST", "bug_sense_api_key=" + getString(R.string.bug_sense_api_key));
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
         try {
-            Log.d("TEST", "sender_id="+ getString(R.string.gcm_sender_id));
+            Log.d("TEST", "sender_id=" + getString(R.string.gcm_sender_id));
             String regId = gcm.register(getString(R.string.gcm_sender_id));
             Log.d("TEST", "regId = " + regId);
-            RegistrationId registrationId = new RegistrationId(regId);
-            tumekyouenClient.registGcm(registrationId);
+            tumekyouenClient.registGcm(regId, new Callback<Response>() {
+                @Override
+                public void success(Response response, retrofit.client.Response response2) {
+                    Log.d("TEST", "response = " + response);
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("TEST", "/gcm/regist is faled.");
+                }
+            });
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @Click(R.id.start_button)
+    @OnClick(R.id.start_button)
     void clickStart() {
         Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
     }
 
-    @Click(R.id.get_stage_button)
+    @OnClick(R.id.get_stage_button)
     void clickGetStage() {
         Toast.makeText(this, "ステージ取得", Toast.LENGTH_SHORT).show();
     }
 
-    @Click(R.id.create_stage_button)
+    @OnClick(R.id.create_stage_button)
     void clickCreateStage() {
         Toast.makeText(this, "ステージ作成", Toast.LENGTH_SHORT).show();
     }
 
-    @Click(R.id.connect_button)
+    @OnClick(R.id.connect_button)
     void clickConnect() {
         Toast.makeText(this, "twitterでログイン", Toast.LENGTH_SHORT).show();
     }
 
-    @Click(R.id.sync_button)
+    @OnClick(R.id.sync_button)
     void clickSync() {
         Toast.makeText(this, "同期", Toast.LENGTH_SHORT).show();
     }
