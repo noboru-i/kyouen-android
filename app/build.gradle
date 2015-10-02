@@ -8,13 +8,13 @@ buildscript {
     }
     dependencies {
         // The latest version of the android-apt plugin
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 
 apt {
     arguments {
-        androidManifestFile variant.outputs[0].processResources.manifestFile
+        androidManifestFile variant.outputs[0]?.processResources?.manifestFile
     }
 }
 
@@ -28,8 +28,8 @@ android {
         applicationId "hm.orz.chaos114.android.tumekyouen"
         minSdkVersion 17
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 17
+        versionName "0.9.5"
     }
     buildTypes {
         release {
@@ -46,6 +46,7 @@ dependencies {
     compile 'com.android.support:design:23.0.1'
     compile 'com.google.android.gms:play-services-ads:8.1.0'
 
-    apt "org.androidannotations:androidannotations:3.0"
-    compile 'org.androidannotations:androidannotations-api:3.0'
+    apt "org.androidannotations:androidannotations:3.3.2"
+    compile 'org.androidannotations:androidannotations-api:3.3.2'
+    compile 'org.twitter4j:twitter4j-core:4.0.4'
 }
