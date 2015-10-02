@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
-    android:id="@+id/layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/title_background"
-    android:baselineAligned="false"
-    android:orientation="vertical" >
+<LinearLayout android:id="@+id/layout"
+              xmlns:ads="http://schemas.android.com/apk/res-auto"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@drawable/title_background"
+              android:baselineAligned="false"
+              android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center_horizontal"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
@@ -24,7 +24,7 @@
             android:shadowRadius="5.0"
             android:text="@string/app_name"
             android:textColor="#FFFFFF"
-            android:textSize="42sp" />
+            android:textSize="42sp"/>
 
         <Button
             android:id="@+id/start_puzzle_button"
@@ -35,7 +35,7 @@
             android:gravity="center"
             android:padding="5dp"
             android:text="@string/puzzle"
-            android:textColor="#eeeeee" />
+            android:textColor="#eeeeee"/>
 
         <TextView
             android:id="@+id/stage_count"
@@ -46,7 +46,7 @@
             android:shadowColor="#000000"
             android:shadowRadius="5.0"
             android:textColor="#FFFFFF"
-            android:textSize="16sp" />
+            android:textSize="16sp"/>
 
         <Button
             android:id="@+id/get_stage_button"
@@ -57,7 +57,7 @@
             android:gravity="center"
             android:padding="5dp"
             android:text="@string/get_more"
-            android:textColor="#eeeeee" />
+            android:textColor="#eeeeee"/>
 
         <Button
             android:id="@+id/create_stage_button"
@@ -68,11 +68,11 @@
             android:gravity="center"
             android:padding="5dp"
             android:text="@string/create_stage"
-            android:textColor="#eeeeee" />
+            android:textColor="#eeeeee"/>
 
         <FrameLayout
             android:layout_width="260dp"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content">
 
             <Button
                 android:id="@+id/connect_button"
@@ -83,7 +83,7 @@
                 android:gravity="center"
                 android:padding="5dp"
                 android:text="@string/twitter_connect"
-                android:textColor="#eeeeee" />
+                android:textColor="#eeeeee"/>
 
             <Button
                 android:id="@+id/sync_button"
@@ -95,7 +95,7 @@
                 android:padding="5dp"
                 android:text="@string/sync_stage_user"
                 android:textColor="#eeeeee"
-                android:visibility="invisible" />
+                android:visibility="invisible"/>
         </FrameLayout>
 
         <ImageView
@@ -104,17 +104,14 @@
             android:layout_height="36dp"
             android:layout_marginLeft="90dp"
             android:contentDescription="@string/sound_description"
-            android:src="@drawable/sound_on" />
+            android:src="@drawable/sound_on"/>
     </LinearLayout>
 
-    <com.google.ads.AdView
+    <com.google.android.gms.ads.AdView
         android:id="@+id/adView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         ads:adSize="BANNER"
-        ads:adUnitId="@string/unit_id"
-        ads:loadAdOnCreate="true"
-        ads:testDevices="TEST_EMULATOR, TEST_DEVICE_ID" />
-
+        ads:adUnitId="@string/unit_id"/>
 </LinearLayout>

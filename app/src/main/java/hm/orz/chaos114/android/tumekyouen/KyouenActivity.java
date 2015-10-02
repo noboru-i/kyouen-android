@@ -22,6 +22,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
@@ -77,6 +80,11 @@ public class KyouenActivity extends FragmentActivity {
 		tumeKyouenFragment = TumeKyouenFragment.newInstance(stageModel);
 		fragmentTransaction.add(R.id.fragment_container, tumeKyouenFragment);
 		fragmentTransaction.commit();
+
+		// 広告の表示
+		AdView mAdView = (AdView) findViewById(R.id.adView);
+		AdRequest adRequest = new AdRequest.Builder().build();
+		mAdView.loadAd(adRequest);
 
 		// 初期化
 		init();

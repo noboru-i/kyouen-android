@@ -19,7 +19,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gcm.GCMRegistrar;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
@@ -126,6 +129,14 @@ public class TitleActivity extends FragmentActivity {
 			// タイトルを表示
 			showTitle();
 		}
+	}
+
+	@AfterViews
+	void afterViews() {
+		// 広告の表示
+		AdView mAdView = (AdView) findViewById(R.id.adView);
+		AdRequest adRequest = new AdRequest.Builder().build();
+		mAdView.loadAd(adRequest);
 	}
 
 	@Override
