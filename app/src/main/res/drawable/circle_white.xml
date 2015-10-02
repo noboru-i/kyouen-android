@@ -5,10 +5,10 @@
 	>
 	<gradient
 		android:startColor="#ffffff"
-		android:endColor="#eeeeee"
+		android:endColor="#cccccc"
 		android:centerX="0.4"
 		android:centerY="0.4"
-		android:gradientRadius="30"
+		android:gradientRadius="30dp"
 		android:type="radial"
 		/>
 	<stroke
