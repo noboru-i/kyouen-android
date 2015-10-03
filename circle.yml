@@ -2,7 +2,7 @@ machine:
   timezone: Asia/Tokyo
 dependencies:
   pre:
-    - echo y | android update sdk --no-ui --all --filter "android-23"
+    - echo y | android update sdk --no-ui --all --filter "android-23,build-tools-23.0.1"
 test:
   override:
     - sh scripts/saddler.sh
