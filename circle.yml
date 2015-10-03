@@ -1,5 +1,8 @@
 machine:
   timezone: Asia/Tokyo
+dependencies:
+  pre:
+    - echo y | android update sdk --no-ui --all --filter "android-23"
 test:
   override:
     - sh scripts/saddler.sh
