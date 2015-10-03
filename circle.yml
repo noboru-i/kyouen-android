@@ -1,0 +1,5 @@
+machine:
+  timezone: Asia/Tokyo
+test:
+  override:
+    - sh scripts/saddler.sh

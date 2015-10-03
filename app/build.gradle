@@ -50,3 +50,6 @@ dependencies {
     compile 'org.androidannotations:androidannotations-api:3.3.2'
     compile 'org.twitter4j:twitter4j-core:4.0.4'
 }
+
+// For checking source code style, and finding bugs.
+apply from: "https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-check/1.1.0/ci.gradle"
