@@ -135,8 +135,10 @@ public class TitleActivity extends FragmentActivity {
 	void afterViews() {
 		// 広告の表示
 		AdView mAdView = (AdView) findViewById(R.id.adView);
-		AdRequest adRequest = new AdRequest.Builder().build();
-		mAdView.loadAd(adRequest);
+		if (mAdView != null) {
+			AdRequest adRequest = new AdRequest.Builder().build();
+			mAdView.loadAd(adRequest);
+		}
 	}
 
 	@Override
