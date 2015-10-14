@@ -261,7 +261,7 @@ public final class ServerUtil {
             // 送信パラメータのエンコードを指定
             httpPost.setEntity(new UrlEncodedFormEntity(post_params, "UTF-8"));
         } catch (UnsupportedEncodingException e1) {
-            e1.printStackTrace();
+            throw new RuntimeException(e1);
         }
         HttpResponse response = httpClient.execute(httpPost);
         String responseString = EntityUtils.toString(response.getEntity());

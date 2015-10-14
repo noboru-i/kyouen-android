@@ -374,24 +374,24 @@ public class KyouenDb {
         @Override
         public void onCreate(SQLiteDatabase db) {
             StringBuilder sql = new StringBuilder();
-            sql.append("CREATE TABLE IF NOT EXISTS ");
-            sql.append(TABLE_NAME);
-            sql.append("(");
-            sql.append(BaseColumns._ID);
-            sql.append(" INTEGER PRIMARY KEY AUTOINCREMENT, ");
-            sql.append(TumeKyouenDataColumns.STAGE_NO);
-            sql.append(" INTEGER NOT NULL UNIQUE, ");
-            sql.append(TumeKyouenDataColumns.SIZE);
-            sql.append(" INTEGER NOT NULL, ");
-            sql.append(TumeKyouenDataColumns.STAGE);
-            sql.append(" TEXT, ");
-            sql.append(TumeKyouenDataColumns.CREATOR);
-            sql.append(" TEXT, ");
-            sql.append(TumeKyouenDataColumns.CLEAR_FLAG);
-            sql.append(" INTEGER DEFAULT 0, ");
-            sql.append(TumeKyouenDataColumns.CLEAR_DATE);
-            sql.append(" INTEGER DEFAULT 0 ");
-            sql.append(");");
+            sql.append("CREATE TABLE IF NOT EXISTS ")
+            .append(TABLE_NAME)
+            .append("(")
+            .append(BaseColumns._ID)
+            .append(" INTEGER PRIMARY KEY AUTOINCREMENT, ")
+            .append(TumeKyouenDataColumns.STAGE_NO)
+            .append(" INTEGER NOT NULL UNIQUE, ")
+            .append(TumeKyouenDataColumns.SIZE)
+            .append(" INTEGER NOT NULL, ")
+            .append(TumeKyouenDataColumns.STAGE)
+            .append(" TEXT, ")
+            .append(TumeKyouenDataColumns.CREATOR)
+            .append(" TEXT, ")
+            .append(TumeKyouenDataColumns.CLEAR_FLAG)
+            .append(" INTEGER DEFAULT 0, ")
+            .append(TumeKyouenDataColumns.CLEAR_DATE)
+            .append(" INTEGER DEFAULT 0 ")
+            .append(");");
             db.execSQL(sql.toString());
         }
 
@@ -399,12 +399,12 @@ public class KyouenDb {
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             if (oldVersion == 1 && newVersion == 2) {
                 StringBuilder sql = new StringBuilder();
-                sql.append("ALTER TABLE ");
-                sql.append(TABLE_NAME);
-                sql.append(" ADD COLUMN ");
-                sql.append(TumeKyouenDataColumns.CLEAR_DATE);
-                sql.append(" INTEGER DEFAULT 0 ");
-                sql.append(";");
+                sql.append("ALTER TABLE ")
+                .append(TABLE_NAME)
+                .append(" ADD COLUMN ")
+                .append(TumeKyouenDataColumns.CLEAR_DATE)
+                .append(" INTEGER DEFAULT 0 ")
+                .append(";");
                 db.execSQL(sql.toString());
             }
         }
