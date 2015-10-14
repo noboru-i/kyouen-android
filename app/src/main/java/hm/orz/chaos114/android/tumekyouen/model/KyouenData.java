@@ -3,14 +3,17 @@ package hm.orz.chaos114.android.tumekyouen.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+
 /**
  * 共円情報を表現するクラス。
  *
  * @author noboru
  */
+@Getter
 public class KyouenData {
     List<Point> points;
-    boolean isLine = false;
+    boolean lineKyouen = false;
     Point center;
     double radius;
     Line line;
@@ -26,35 +29,14 @@ public class KyouenData {
 
     public KyouenData(Point p1, Point p2, Point p3, Point p4,
                       boolean aIsLine, Point aCenter, double aRadius, Line aLine) {
-        this.points = new ArrayList<Point>();
+        this.points = new ArrayList<>();
         this.points.add(p1);
         this.points.add(p2);
         this.points.add(p3);
         this.points.add(p4);
-        this.isLine = aIsLine;
+        this.lineKyouen = aIsLine;
         this.center = aCenter;
         this.radius = aRadius;
         this.line = aLine;
     }
-
-    public List<Point> getPoints() {
-        return points;
-    }
-
-    public boolean isLine() {
-        return isLine;
-    }
-
-    public Point getCenter() {
-        return center;
-    }
-
-    public double getRadius() {
-        return radius;
-    }
-
-    public Line getLine() {
-        return line;
-    }
-
 }
