@@ -59,8 +59,8 @@ import twitter4j.conf.ConfigurationContext;
 public class TitleActivity extends FragmentActivity {
     private static final String TAG = TitleActivity.class.getSimpleName();
 
-    RequestToken _req;
-    OAuthAuthorization _oauth;
+    RequestToken req;
+    OAuthAuthorization oauth;
 
     @ViewById(R.id.get_stage_button)
     Button mGetStageButton;
@@ -168,15 +168,15 @@ public class TitleActivity extends FragmentActivity {
 
     @Override
     protected void onSaveInstanceState(final Bundle outState) {
-        outState.putSerializable("oauth", _oauth);
-        outState.putSerializable("req", _req);
+        outState.putSerializable("oauth", oauth);
+        outState.putSerializable("req", req);
     }
 
     @Override
     protected void onRestoreInstanceState(final Bundle savedInstanceState) {
-        _oauth = (OAuthAuthorization) savedInstanceState
+        oauth = (OAuthAuthorization) savedInstanceState
                 .getSerializable("oauth");
-        _req = (RequestToken) savedInstanceState.getSerializable("req");
+        req = (RequestToken) savedInstanceState.getSerializable("req");
     }
 
     /**
@@ -265,21 +265,21 @@ public class TitleActivity extends FragmentActivity {
             @Override
             protected Boolean doInBackground(final Void... params) {
                 final Configuration conf = ConfigurationContext.getInstance();
-                _oauth = new OAuthAuthorization(conf);
+                oauth = new OAuthAuthorization(conf);
                 // Oauth認証オブジェクトにconsumerKeyとconsumerSecretを設定
-                _oauth.setOAuthConsumer(getString(R.string.twitter_key),
+                oauth.setOAuthConsumer(getString(R.string.twitter_key),
                         getString(R.string.twitter_secret));
                 // アプリの認証オブジェクト作成
                 try {
-                    _req = _oauth
+                    req = oauth
                             .getOAuthRequestToken("tumekyouen://TitleActivity");
                 } catch (final TwitterException e) {
                     Log.e(TAG, "TwitterException", e);
                     return false;
                 }
-                final String _uri = _req.getAuthorizationURL();
+                final String uri = req.getAuthorizationURL();
                 startActivityForResult(
-                        new Intent(Intent.ACTION_VIEW, Uri.parse(_uri)), 0);
+                        new Intent(Intent.ACTION_VIEW, Uri.parse(uri)), 0);
                 return true;
             }
 
@@ -346,10 +346,10 @@ public class TitleActivity extends FragmentActivity {
         AccessToken token;
         // AccessTokenオブジェクトを取得
         try {
-            Log.d(TAG, "_oauth = " + _oauth);
-            Log.d(TAG, "_req = " + _req);
+            Log.d(TAG, "oauth = " + oauth);
+            Log.d(TAG, "req = " + req);
             Log.d(TAG, "verifier = " + verifier);
-            token = _oauth.getOAuthAccessToken(_req, verifier);
+            token = oauth.getOAuthAccessToken(req, verifier);
         } catch (final TwitterException e) {
             onFailedTwitterAuth();
             return;
@@ -579,6 +579,4 @@ public class TitleActivity extends FragmentActivity {
             onSuccessTwitterAuth();
         }
     }
-
-    ;
 }

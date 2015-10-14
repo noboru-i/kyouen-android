@@ -13,17 +13,17 @@ public class GameModel {
 
     private List<Point> whiteStonePoints = new ArrayList<Point>();
 
-    public GameModel(int size, String startState) {
-        this.size = size;
-        this.startState = startState;
+    public GameModel(int aSize, String aStartState) {
+        this.size = aSize;
+        this.startState = aStartState;
 
-        char[] states = startState.toCharArray();
+        char[] states = aStartState.toCharArray();
         for (int i = 0; i < states.length; i++) {
             if (states[i] == '0') {
                 continue;
             }
-            int col = i % size;
-            int row = i / size;
+            int col = i % aSize;
+            int row = i / aSize;
             stonePoints.add(new Point(col, row));
         }
     }

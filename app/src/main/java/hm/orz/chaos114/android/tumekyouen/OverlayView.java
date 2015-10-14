@@ -104,11 +104,11 @@ public class OverlayView extends View {
     /**
      * 表示するための情報を設定します。
      *
-     * @param size 盤面のサイズ
-     * @param data 共円の情報
+     * @param aSize 盤面のサイズ
+     * @param aData 共円の情報
      */
-    public void setData(int size, KyouenData data) {
-        this.size = size;
-        this.data = data;
+    public void setData(int aSize, KyouenData aData) {
+        this.size = aSize;
+        this.data = aData;
     }
 }

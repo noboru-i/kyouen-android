@@ -15,26 +15,26 @@ public class KyouenData {
     double radius;
     Line line;
 
-    public KyouenData(Point p1, Point p2, Point p3, Point p4, Line line) {
-        this(p1, p2, p3, p4, true, null, 0, line);
+    public KyouenData(Point p1, Point p2, Point p3, Point p4, Line aLine) {
+        this(p1, p2, p3, p4, true, null, 0, aLine);
     }
 
-    public KyouenData(Point p1, Point p2, Point p3, Point p4, Point center,
-                      double radius) {
-        this(p1, p2, p3, p4, false, center, radius, null);
+    public KyouenData(Point p1, Point p2, Point p3, Point p4, Point aCenter,
+                      double aRadius) {
+        this(p1, p2, p3, p4, false, aCenter, aRadius, null);
     }
 
     public KyouenData(Point p1, Point p2, Point p3, Point p4,
-                      boolean isLine, Point center, double radius, Line line) {
+                      boolean aIsLine, Point aCenter, double aRadius, Line aLine) {
         this.points = new ArrayList<Point>();
         this.points.add(p1);
         this.points.add(p2);
         this.points.add(p3);
         this.points.add(p4);
-        this.isLine = isLine;
-        this.center = center;
-        this.radius = radius;
-        this.line = line;
+        this.isLine = aIsLine;
+        this.center = aCenter;
+        this.radius = aRadius;
+        this.line = aLine;
     }
 
     public List<Point> getPoints() {

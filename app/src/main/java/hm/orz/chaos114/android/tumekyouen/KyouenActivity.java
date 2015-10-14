@@ -102,7 +102,6 @@ public class KyouenActivity extends FragmentActivity {
         stageCreatorView.setText("created by " + stageModel.getCreator());
 
         // prev,nextボタンの設定
-        final Button prevButton = (Button) findViewById(R.id.prev_button);
         if (stageModel.getStageNo() == 1) {
             // 先頭ステージの場合は押下不可
             prevButton.setClickable(false);
@@ -323,6 +322,4 @@ public class KyouenActivity extends FragmentActivity {
             return null;
         }
     }
-
-    ;
 }

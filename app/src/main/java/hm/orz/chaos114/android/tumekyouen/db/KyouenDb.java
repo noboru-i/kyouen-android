@@ -359,7 +359,7 @@ public class KyouenDb {
      *
      * @author noboru
      */
-    class KyouenDbOpenHelper extends SQLiteOpenHelper {
+    final class KyouenDbOpenHelper extends SQLiteOpenHelper {
 
         /** DBのバージョン */
         private static final int DB_VERSION = 2;

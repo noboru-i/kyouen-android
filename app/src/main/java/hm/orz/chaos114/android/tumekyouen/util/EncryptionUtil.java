@@ -18,9 +18,6 @@ public class EncryptionUtil {
     /** 暗号化キー */
     private final Key key;
 
-    /** コンテキスト */
-    private final Context context;
-
     /**
      * コンストラクタ。
      * 暗号化キーを生成、もしくは復元します。
@@ -28,10 +25,10 @@ public class EncryptionUtil {
      * @param context コンテキスト
      */
     public EncryptionUtil(Context context) {
-        this.context = context.getApplicationContext();
+        context = context.getApplicationContext();
 
         // Preferenceから暗号化キーを取得
-        PreferenceUtil preferenceUtil = new PreferenceUtil(this.context);
+        PreferenceUtil preferenceUtil = new PreferenceUtil(context);
         String keyStr = preferenceUtil.getString(PreferenceUtil.KEY_SECRET_KEY);
 
         if (keyStr == null) {
