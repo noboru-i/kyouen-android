@@ -53,6 +53,7 @@ dependencies {
     apt "org.androidannotations:androidannotations:3.3.2"
     compile 'org.androidannotations:androidannotations-api:3.3.2'
     compile 'org.twitter4j:twitter4j-core:4.0.4'
+    compile 'org.projectlombok:lombok:1.16.6'
 }
 
 // For checking source code style, and finding bugs.

@@ -3,6 +3,9 @@ package hm.orz.chaos114.android.tumekyouen.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+
+@Getter
 public class GameModel {
 
     private int size;
@@ -26,14 +29,6 @@ public class GameModel {
             int row = i / aSize;
             stonePoints.add(new Point(col, row));
         }
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public String getStartState() {
-        return startState;
     }
 
     public void switchColor(int x, int y) {

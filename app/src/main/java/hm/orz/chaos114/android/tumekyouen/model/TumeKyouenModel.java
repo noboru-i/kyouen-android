@@ -3,12 +3,14 @@ package hm.orz.chaos114.android.tumekyouen.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import lombok.Data;
+
 /**
  * 詰め共円のステージ情報モデル
  *
  * @author noboru
  */
-@SuppressWarnings("serial")
+@Data
 public class TumeKyouenModel implements Serializable {
 
     public static final Integer CLEAR = 1;
@@ -30,52 +32,4 @@ public class TumeKyouenModel implements Serializable {
 
     /** クリア日付 */
     private Date clearDate;
-
-    public int getStageNo() {
-        return stageNo;
-    }
-
-    public void setStageNo(int stageNo) {
-        this.stageNo = stageNo;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public String getStage() {
-        return stage;
-    }
-
-    public void setStage(String stage) {
-        this.stage = stage;
-    }
-
-    public String getCreator() {
-        return creator;
-    }
-
-    public void setCreator(String creator) {
-        this.creator = creator;
-    }
-
-    public int getClearFlag() {
-        return clearFlag;
-    }
-
-    public void setClearFlag(int clearFlag) {
-        this.clearFlag = clearFlag;
-    }
-
-    public Date getClearDate() {
-        return clearDate;
-    }
-
-    public void setClearDate(Date clearDate) {
-        this.clearDate = clearDate;
-    }
 }

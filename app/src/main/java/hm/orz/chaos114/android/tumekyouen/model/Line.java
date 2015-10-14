@@ -1,8 +1,13 @@
 package hm.orz.chaos114.android.tumekyouen.model;
 
+import lombok.Getter;
+import lombok.ToString;
+
 /**
  * Ax+By+C=0を表現するクラス。
  */
+@Getter
+@ToString
 public class Line {
     Point p1;
     Point p2;
@@ -20,40 +25,10 @@ public class Line {
     }
 
     public double getY(double x) {
-        double y = -1 * (a * x + c) / b;
-
-        return y;
+        return -1 * (a * x + c) / b;
     }
 
     public double getX(double y) {
-        double x = -1 * (b * y + c) / a;
-
-        return x;
-    }
-
-    public Point getP1() {
-        return p1;
-    }
-
-    public Point getP2() {
-        return p2;
-    }
-
-    public double getA() {
-        return a;
-    }
-
-    public double getB() {
-        return b;
-    }
-
-    public double getC() {
-        return c;
-    }
-
-    @Override
-    public String toString() {
-        return "Line [p1=" + p1 + ", p2=" + p2 + ", a=" + a + ", b=" + b
-                + ", c=" + c + "]";
+        return -1 * (b * y + c) / a;
     }
 }

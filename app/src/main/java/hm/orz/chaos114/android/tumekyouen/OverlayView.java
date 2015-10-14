@@ -58,7 +58,7 @@ public class OverlayView extends View {
         }
 
         double offset = maxScrnWidth / size;
-        if (data.isLine()) {
+        if (data.isLineKyouen()) {
             // 直線の場合
             Line line = data.getLine();
             float startX = 0;
