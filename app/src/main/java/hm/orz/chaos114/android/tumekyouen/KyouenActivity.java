@@ -1,10 +1,14 @@
 package hm.orz.chaos114.android.tumekyouen;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -16,13 +20,9 @@ import android.widget.TextView;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.Extra;
-import org.androidannotations.annotations.NoTitle;
-import org.androidannotations.annotations.ViewById;
-
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import hm.orz.chaos114.android.tumekyouen.app.StageSelectDialog;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.fragment.TumeKyouenFragment;
@@ -33,31 +33,48 @@ import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 
-@NoTitle
-@EActivity(R.layout.main)
 public class KyouenActivity extends FragmentActivity {
+
+    private static String EXTRA_TUME_KYOUEN_MODEL
+            = "hm.orz.chaos114.android.tumekyouen.EXTRA_TUME_KYOUEN_MODEL";
+
     /** ステージ情報オブジェクト */
-    @Extra("item")
     TumeKyouenModel stageModel;
+
     /** 共円描画用View */
-    @ViewById(R.id.kyouen_overlay)
+    @Bind(R.id.kyouen_overlay)
     OverlayView overlayView;
-    @ViewById(R.id.prev_button)
+    @Bind(R.id.prev_button)
     Button prevButton;
-    @ViewById(R.id.next_button)
+    @Bind(R.id.next_button)
     Button nextButton;
-    @ViewById(R.id.stage_no_layout)
+    @Bind(R.id.stage_no_layout)
     LinearLayout stageNoLayout;
-    @ViewById(R.id.stage_no)
+    @Bind(R.id.stage_no)
     TextView stageNoView;
     /** DBアクセスオブジェクト */
     private KyouenDb kyouenDb;
     /** 共円描画用view */
     private TumeKyouenFragment tumeKyouenFragment;
 
-    @AfterViews
-    void afterViews() {
+    public static void start(Activity activity, TumeKyouenModel tumeKyouenModel) {
+        final Intent intent = new Intent(activity, KyouenActivity.class);
+        intent.putExtra(EXTRA_TUME_KYOUEN_MODEL, tumeKyouenModel);
+        activity.startActivityForResult(intent, 0);
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+        ButterKnife.bind(this);
+
         kyouenDb = new KyouenDb(this);
+
+        Intent intent = getIntent();
+        if (intent != null) {
+            stageModel = (TumeKyouenModel) intent.getSerializableExtra(EXTRA_TUME_KYOUEN_MODEL);
+        }
 
         // 音量ボタンの動作変更
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -197,7 +214,7 @@ public class KyouenActivity extends FragmentActivity {
     }
 
     /**
-     * {@link stageModel}のデータに合わせて画面を変更する。
+     * stageModelのデータに合わせて画面を変更する。
      *
      * @param direction 移動するステージの方向（PREV/NEXT/NONE）
      */
@@ -229,7 +246,7 @@ public class KyouenActivity extends FragmentActivity {
         init();
     }
 
-    @Click(R.id.kyouen_button)
+    @OnClick(R.id.kyouen_button)
     void checkKyouen() {
         if (tumeKyouenFragment.getGameModel().getWhiteStoneCount() != 4) {
             // 4つの石が選択されていない場合
@@ -267,7 +284,7 @@ public class KyouenActivity extends FragmentActivity {
         setKyouen();
     }
 
-    @Click({R.id.next_button, R.id.prev_button})
+    @OnClick({R.id.next_button, R.id.prev_button})
     void moveStage(final View v) {
 
         Direction direction = null;
@@ -282,7 +299,7 @@ public class KyouenActivity extends FragmentActivity {
         moveStage(direction);
     }
 
-    @Click({R.id.stage_no_layout})
+    @OnClick({R.id.stage_no_layout})
     void showSelectStageDialog() {
         final StageSelectDialog dialog = new StageSelectDialog(
                 KyouenActivity.this, new StageSelectDialog.OnSuccessListener() {
@@ -312,8 +329,6 @@ public class KyouenActivity extends FragmentActivity {
 
     /**
      * クリア情報を送信するタスククラス
-     *
-     * @author ishikuranoboru
      */
     final class AddStageUserTask extends AsyncTask<TumeKyouenModel, Void, Void> {
         @Override
