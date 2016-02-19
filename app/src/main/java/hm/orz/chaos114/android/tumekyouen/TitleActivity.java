@@ -1,5 +1,6 @@
 package hm.orz.chaos114.android.tumekyouen;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -105,39 +106,22 @@ public class TitleActivity extends AppCompatActivity {
         }
     };
 
+    public static void start(Activity activity) {
+        final Intent intent = new Intent(activity, TitleActivity.class);
+        activity.startActivity(intent);
+    }
+
+
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_title);
+        ButterKnife.bind(this);
 
         kyouenDb = new KyouenDb(this);
 
         // 音量ボタンの動作変更
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-        // GCMへの登録
-        registGcm();
-
-        if (kyouenDb.selectMaxStageNo() == 0) {
-            // データが存在しない場合
-            // ローディングを表示
-            setContentView(R.layout.loading);
-
-            new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... voids) {
-                    inserInitialDatatInBackground();
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    showTitle();
-                }
-            }.execute();
-        } else {
-            // タイトルを表示
-            showTitle();
-        }
 
         // 広告の表示
         AdView mAdView = (AdView) findViewById(R.id.adView);
@@ -145,6 +129,17 @@ public class TitleActivity extends AppCompatActivity {
             AdRequest adRequest = new AdRequest.Builder().build();
             mAdView.loadAd(adRequest);
         }
+
+        final LoginUtil loginUtil = new LoginUtil(this);
+        final AccessToken loginInfo = loginUtil.loadLoginInfo();
+        if (loginInfo != null) {
+            // 認証情報が存在する場合
+            final ServerRegistTask task = new ServerRegistTask();
+            task.execute(loginInfo);
+        }
+
+        // 描画内容を更新
+        refreshAll();
     }
 
     @Override
@@ -401,48 +396,6 @@ public class TitleActivity extends AppCompatActivity {
     }
 
     /**
-     * 初期データを登録する。
-     */
-    @WorkerThread
-    void inserInitialDatatInBackground() {
-        final String[] initData = new String[]{
-                "1,6,000000010000001100001100000000001000,noboru",
-                "2,6,000000000000000100010010001100000000,noboru",
-                "3,6,000000001000010000000100010010001000,noboru",
-                "4,6,001000001000000010010000010100000000,noboru",
-                "5,6,000000001011010000000010001000000010,noboru",
-                "6,6,000100000000101011010000000000000000,noboru",
-                "7,6,000000001010000000010010000000001010,noboru",
-                "8,6,001000000001010000010010000001000000,noboru",
-                "9,6,000000001000010000000010000100001000,noboru",
-                "10,6,000100000010010000000100000010010000,noboru"};
-        for (final String data : initData) {
-            kyouenDb.insert(data);
-        }
-    }
-
-    /**
-     * タイトル画面を初期化する。
-     */
-    @MainThread
-    void showTitle() {
-        // タイトル画面を設定
-        setContentView(R.layout.activity_title);
-        ButterKnife.bind(this);
-
-        final LoginUtil loginUtil = new LoginUtil(this);
-        final AccessToken loginInfo = loginUtil.loadLoginInfo();
-        if (loginInfo != null) {
-            // 認証情報が存在する場合
-            final ServerRegistTask task = new ServerRegistTask();
-            task.execute(loginInfo);
-        }
-
-        // 描画内容を更新
-        refreshAll();
-    }
-
-    /**
      * twitter連携に成功した場合の処理。
      * ボタンを切り替える。
      */
@@ -533,48 +486,6 @@ public class TitleActivity extends AppCompatActivity {
         } else {
             mSoundImageView.setImageResource(R.drawable.sound_off);
         }
-    }
-
-    private void registGcm() {
-        try {
-            GCMRegistrar.checkDevice(getApplicationContext());
-            GCMRegistrar.checkManifest(getApplicationContext());
-        } catch (final UnsupportedOperationException e) {
-            Log.e("kyouen", "unsupported gcm.", e);
-            return;
-        }
-        final String regId = GCMRegistrar
-                .getRegistrationId(getApplicationContext());
-        Log.i("kyouen", "regId=" + regId);
-        if (regId.equals("")) {
-            // GCMに登録
-            GCMRegistrar.register(getApplicationContext(),
-                    GCMIntentService.getSenderId(this));
-            return;
-        }
-        if (GCMRegistrar.isRegisteredOnServer(getApplicationContext())) {
-            // 既に登録されている場合、終了
-            return;
-        }
-
-        final Context context = this;
-        final AsyncTask<Void, Void, Void> registerTask = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(final Void... params) {
-                final boolean registered = ServerUtil.registGcm(context, regId);
-                // At this point all attempts to register with the app
-                // server failed, so we need to unregister the device
-                // from GCM - the app will try to register again when
-                // it is restarted. Note that GCM will send an
-                // unregistered callback upon completion, but
-                // GCMIntentService.onUnregistered() will ignore it.
-                if (!registered) {
-                    GCMRegistrar.unregister(context);
-                }
-                return null;
-            }
-        };
-        registerTask.execute(null, null, null);
     }
 
     /** サーバに認証情報を送信するタスク */
