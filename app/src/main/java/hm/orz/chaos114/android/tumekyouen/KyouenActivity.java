@@ -10,10 +10,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -34,7 +34,7 @@ import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 
-public class KyouenActivity extends FragmentActivity {
+public class KyouenActivity extends AppCompatActivity {
 
     private static final String EXTRA_TUME_KYOUEN_MODEL
             = "hm.orz.chaos114.android.tumekyouen.EXTRA_TUME_KYOUEN_MODEL";
@@ -65,7 +65,7 @@ public class KyouenActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.activity_kyouen);
         ButterKnife.bind(this);
 
         kyouenDb = new KyouenDb(this);

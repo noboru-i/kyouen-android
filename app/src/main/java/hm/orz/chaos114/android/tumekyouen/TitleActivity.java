@@ -13,7 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.WorkerThread;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -36,6 +36,7 @@ import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
+import hm.orz.chaos114.android.tumekyouen.util.NotificationUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
@@ -49,7 +50,7 @@ import twitter4j.conf.ConfigurationContext;
 /**
  * タイトル画面を表示するアクティビティ。
  */
-public class TitleActivity extends FragmentActivity {
+public class TitleActivity extends AppCompatActivity {
     private static final String TAG = TitleActivity.class.getSimpleName();
 
     RequestToken req;
@@ -426,7 +427,7 @@ public class TitleActivity extends FragmentActivity {
     @MainThread
     void showTitle() {
         // タイトル画面を設定
-        setContentView(R.layout.title);
+        setContentView(R.layout.activity_title);
         ButterKnife.bind(this);
 
         final LoginUtil loginUtil = new LoginUtil(this);
