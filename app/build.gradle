@@ -1,22 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'android-apt'
-
-// For android annotation
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        // The latest version of the android-apt plugin
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-    }
-}
-
-apt {
-    arguments {
-        androidManifestFile variant.outputs[0]?.processResources?.manifestFile
-    }
-}
 
 android {
     compileSdkVersion 23
@@ -41,6 +23,9 @@ android {
         abortOnError false
         lintConfig file('lint.xml')
     }
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
 }
 
 dependencies {
@@ -50,10 +35,9 @@ dependencies {
     compile 'com.android.support:design:23.1.1'
     compile 'com.google.android.gms:play-services-ads:8.4.0'
 
-    apt "org.androidannotations:androidannotations:3.3.2"
-    compile 'org.androidannotations:androidannotations-api:3.3.2'
     compile 'org.twitter4j:twitter4j-core:4.0.4'
     compile 'org.projectlombok:lombok:1.16.6'
+    compile 'com.jakewharton:butterknife:7.0.1'
 }
 
 // For checking source code style, and finding bugs.
