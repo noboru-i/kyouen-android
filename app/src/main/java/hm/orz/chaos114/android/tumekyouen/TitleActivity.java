@@ -48,8 +48,6 @@ import twitter4j.conf.ConfigurationContext;
 
 /**
  * タイトル画面を表示するアクティビティ。
- *
- * @author noboru
  */
 public class TitleActivity extends FragmentActivity {
     private static final String TAG = TitleActivity.class.getSimpleName();
@@ -68,6 +66,9 @@ public class TitleActivity extends FragmentActivity {
 
     @Bind(R.id.sound_button)
     ImageView mSoundImageView;
+
+    @Bind(R.id.stage_count)
+    TextView stageCountView;
 
     /** DBオブジェクト */
     private KyouenDb kyouenDb;
@@ -202,7 +203,7 @@ public class TitleActivity extends FragmentActivity {
      * スタートボタンの設定
      */
     @OnClick(R.id.start_puzzle_button)
-    public void onClickStartButton(View v) {
+    public void onClickStartButton() {
         Log.d(TAG, "onClickStartButton!!!!!!");
         final int stageNo = getLastStageNo();
         final TumeKyouenModel item = kyouenDb.selectCurrentStage(stageNo);
@@ -267,7 +268,7 @@ public class TitleActivity extends FragmentActivity {
 
     /** twitter接続ボタン押下後の処理 */
     @OnClick(R.id.connect_button)
-    void onClickConnectButton(final View v) {
+    void onClickConnectButton() {
         final AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
             ProgressDialog dialog;
 
@@ -515,10 +516,11 @@ public class TitleActivity extends FragmentActivity {
      * ステージ数領域を再設定します。
      */
     private void refreshStageCount() {
-        final TextView stageCountView = (TextView) findViewById(R.id.stage_count);
         final StageCountModel stageCountModel = kyouenDb.selectStageCount();
-        stageCountView.setText(stageCountModel.getClearStageCount() + " / "
-                + stageCountModel.getStageCount());
+        stageCountView.setText(
+                getString(R.string.stage_count,
+                        stageCountModel.getClearStageCount(),
+                        stageCountModel.getStageCount()));
     }
 
     /**
@@ -575,7 +577,7 @@ public class TitleActivity extends FragmentActivity {
     }
 
     /** サーバに認証情報を送信するタスク */
-    class ServerRegistTask extends AsyncTask<AccessToken, Void, Boolean> {
+    private class ServerRegistTask extends AsyncTask<AccessToken, Void, Boolean> {
 
         @Override
         protected void onPreExecute() {

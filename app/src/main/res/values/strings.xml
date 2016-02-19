@@ -8,12 +8,13 @@
     <string name="create_stage">create stage</string>
     <string name="twitter_connect">Sign in with Twitter</string>
     <string name="sync_stage_user">sync stages</string>
-
-    <string name="sound_description"></string>
+    <string name="stage_count">%1$d/%2$d</string>
 
     <string name="button_prev">prev</string>
     <string name="button_next">next</string>
     <string name="check_kyouen">Check kyouen</string>
+    <string name="stage_no">STAGE:%d</string>
+    <string name="creator">created by %s</string>
     <string name="text_initializing">initializing&#8230;</string>
     <string name="text_x10">x10</string>
 

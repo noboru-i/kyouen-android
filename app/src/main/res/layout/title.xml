@@ -104,7 +104,6 @@
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:layout_marginLeft="90dp"
-            android:contentDescription="@string/sound_description"
             android:src="@drawable/sound_on"/>
     </LinearLayout>
 

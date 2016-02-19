@@ -8,12 +8,13 @@
     <string name="create_stage">ステージ作成</string>
     <string name="twitter_connect">twitterでログイン</string>
     <string name="sync_stage_user">クリア情報を同期</string>
-
-    <string name="sound_description"></string>
+    <string name="stage_count">%1$d/%2$d</string>
 
     <string name="button_prev">前へ</string>
     <string name="button_next">次へ</string>
     <string name="check_kyouen">共円！！</string>
+    <string name="stage_no">STAGE:%d</string>
+    <string name="creator">created by %s</string>
     <string name="text_initializing">initializing&#8230;</string>
     <string name="text_x10">x10</string>
 

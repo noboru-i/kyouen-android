@@ -8,13 +8,14 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
@@ -35,23 +36,21 @@ import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 
 public class KyouenActivity extends FragmentActivity {
 
-    private static String EXTRA_TUME_KYOUEN_MODEL
+    private static final String EXTRA_TUME_KYOUEN_MODEL
             = "hm.orz.chaos114.android.tumekyouen.EXTRA_TUME_KYOUEN_MODEL";
 
     /** ステージ情報オブジェクト */
     TumeKyouenModel stageModel;
 
-    /** 共円描画用View */
     @Bind(R.id.kyouen_overlay)
     OverlayView overlayView;
     @Bind(R.id.prev_button)
     Button prevButton;
     @Bind(R.id.next_button)
     Button nextButton;
-    @Bind(R.id.stage_no_layout)
-    LinearLayout stageNoLayout;
     @Bind(R.id.stage_no)
     TextView stageNoView;
+
     /** DBアクセスオブジェクト */
     private KyouenDb kyouenDb;
     /** 共円描画用view */
@@ -105,18 +104,16 @@ public class KyouenActivity extends FragmentActivity {
         // ステージ名表示領域の設定
         if (stageModel.getClearFlag() == TumeKyouenModel.CLEAR) {
             // クリア後の場合
-            stageNoView.setTextColor(getResources()
-                    .getColor(R.color.text_clear));
+            stageNoView.setTextColor(ContextCompat.getColor(this, R.color.text_clear));
         } else {
             // 未クリアの場合
-            stageNoView.setTextColor(getResources().getColor(
-                    R.color.text_not_clear));
+            stageNoView.setTextColor(ContextCompat.getColor(this, R.color.text_not_clear));
         }
-        stageNoView.setText("STAGE:" + stageModel.getStageNo());
+        stageNoView.setText(getString(R.string.stage_no, stageModel.getStageNo()));
 
         // ステージ作者領域の設定
         final TextView stageCreatorView = (TextView) findViewById(R.id.stage_creator);
-        stageCreatorView.setText("created by " + stageModel.getCreator());
+        stageCreatorView.setText(getString(R.string.creator, stageModel.getCreator()));
 
         // prev,nextボタンの設定
         if (stageModel.getStageNo() == 1) {
@@ -148,7 +145,7 @@ public class KyouenActivity extends FragmentActivity {
         final AddStageUserTask task = new AddStageUserTask();
         task.execute(stageModel);
 
-        stageNoView.setTextColor(getResources().getColor(R.color.text_clear));
+        stageNoView.setTextColor(ContextCompat.getColor(this, R.color.text_clear));
     }
 
     /**
@@ -157,11 +154,7 @@ public class KyouenActivity extends FragmentActivity {
      * @param direction 移動するステージの方向（PREV/NEXT）
      * @return 移動が成功した場合true
      */
-    private boolean moveStage(final Direction direction) {
-        if (direction == null) {
-            throw new IllegalArgumentException("引数がnull");
-        }
-
+    private boolean moveStage(@NonNull final Direction direction) {
         TumeKyouenModel newModel = null;
         switch (direction) {
             case PREV:
@@ -218,10 +211,7 @@ public class KyouenActivity extends FragmentActivity {
      *
      * @param direction 移動するステージの方向（PREV/NEXT/NONE）
      */
-    private void showOtherStage(final Direction direction) {
-        if (direction == null) {
-            throw new IllegalArgumentException("引数がnull");
-        }
+    private void showOtherStage(@NonNull final Direction direction) {
         final FragmentTransaction ft = getSupportFragmentManager()
                 .beginTransaction();
         tumeKyouenFragment = TumeKyouenFragment.newInstance(stageModel);
@@ -287,11 +277,11 @@ public class KyouenActivity extends FragmentActivity {
     @OnClick({R.id.next_button, R.id.prev_button})
     void moveStage(final View v) {
 
-        Direction direction = null;
+        Direction direction;
         if (v == prevButton) {
             // prevボタン押下時
             direction = Direction.PREV;
-        } else if (v == nextButton) {
+        } else {
             // nextボタン押下時
             direction = Direction.NEXT;
         }
@@ -312,9 +302,7 @@ public class KyouenActivity extends FragmentActivity {
                 }
 
                 // ダイアログで選択されたステージを表示
-                final TumeKyouenModel newModel = kyouenDb
-                        .selectCurrentStage(nextStageNo);
-                stageModel = newModel;
+                stageModel = kyouenDb.selectCurrentStage(nextStageNo);
                 showOtherStage(Direction.NONE);
             }
         }, null);
@@ -323,14 +311,14 @@ public class KyouenActivity extends FragmentActivity {
     }
 
     /** 方向を表すenum */
-    enum Direction {
+    private enum Direction {
         PREV, NEXT, NONE
     }
 
     /**
      * クリア情報を送信するタスククラス
      */
-    final class AddStageUserTask extends AsyncTask<TumeKyouenModel, Void, Void> {
+    private final class AddStageUserTask extends AsyncTask<TumeKyouenModel, Void, Void> {
         @Override
         protected Void doInBackground(final TumeKyouenModel... params) {
             ServerUtil.addStageUser(KyouenActivity.this, params[0]);
