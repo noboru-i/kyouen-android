@@ -63,12 +63,12 @@ public class TumeKyouenFragment extends Fragment {
         gameModel = new GameModel(stageModel.getSize(), stageModel.getStage());
 
         // ディスプレイサイズの取得
-        final Display disp = ((WindowManager) context
+        final Display display = ((WindowManager) context
                 .getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        maxScrnWidth = disp.getWidth();
+        maxScrnWidth = display.getWidth();
 
         layout = new TableLayout(context);
-        buttons = new ArrayList<Button>();
+        buttons = new ArrayList<>();
 
         init();
 
@@ -77,8 +77,8 @@ public class TumeKyouenFragment extends Fragment {
 
     private void init() {
         for (int i = 0; i < gameModel.getSize(); i++) {
-            final TableRow row = new TableRow(context);
-            layout.addView(row);
+            final TableRow tableRow = new TableRow(context);
+            layout.addView(tableRow);
             for (int j = 0; j < gameModel.getSize(); j++) {
                 final Button button = new Button(context);
                 button.setBackgroundDrawable(new BitmapDrawable(
@@ -93,12 +93,10 @@ public class TumeKyouenFragment extends Fragment {
                     button.setTag(ButtonState.NONE);
                 }
                 buttons.add(button);
-                row.addView(button, stoneSize, stoneSize);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(final View v) {
+                tableRow.addView(button, stoneSize, stoneSize);
+                button.setOnClickListener((v) -> {
                         final int index = buttons.indexOf(v);
-                        final Button button = (Button) v;
+                        final Button b = (Button) v;
                         if (v.getTag() == ButtonState.NONE) {
                             // 石が設定されていない場合
                             return;
@@ -111,9 +109,8 @@ public class TumeKyouenFragment extends Fragment {
                         // 色の反転
                         final int col = index % gameModel.getSize();
                         final int row = index / gameModel.getSize();
-                        switchStoneColor(button);
+                        switchStoneColor(b);
                         gameModel.switchColor(col, row);
-                    }
                 });
             }
         }

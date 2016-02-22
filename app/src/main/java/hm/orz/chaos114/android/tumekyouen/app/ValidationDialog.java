@@ -32,24 +32,19 @@ public abstract class ValidationDialog extends AlertDialog {
      * @param text     ボタンのラベル
      * @param listener エラーが存在しない場合に呼び出されるリスナー
      */
-    public void setPositiveButton(CharSequence text,
-                                  final OnClickListener listener) {
-        setButton(DialogInterface.BUTTON_POSITIVE, text,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (hasError()) {
-                            reshow = true;
-                            cancel();
-                            return;
-                        }
+    public void setPositiveButton(CharSequence text, final OnClickListener listener) {
+        setButton(DialogInterface.BUTTON_POSITIVE, text, ((dialog, which) -> {
+            if (hasError()) {
+                reshow = true;
+                cancel();
+                return;
+            }
 
-                        // エラーが存在しない場合
-                        if (listener != null) {
-                            listener.onClick(dialog, which);
-                        }
-                    }
-                });
+            // エラーが存在しない場合
+            if (listener != null) {
+                listener.onClick(dialog, which);
+            }
+        }));
     }
 
     /**
@@ -61,27 +56,20 @@ public abstract class ValidationDialog extends AlertDialog {
     public void setCancelButton(CharSequence text,
                                 final OnCancelListener listener) {
         // キャンセルボタン押下時の設定
-        setButton(DialogInterface.BUTTON_NEUTRAL, text,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        cancel();
-                    }
-                });
+        setButton(DialogInterface.BUTTON_NEUTRAL, text, ((dialog, which) -> {
+            cancel();
+        }));
 
         // キャンセル時の設定
-        setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                if (reshow) {
-                    show();
-                    return;
-                }
+        setOnCancelListener(dialog -> {
+            if (reshow) {
+                show();
+                return;
+            }
 
-                // エラーが存在しない場合
-                if (listener != null) {
-                    listener.onCancel(dialog);
-                }
+            // エラーが存在しない場合
+            if (listener != null) {
+                listener.onCancel(dialog);
             }
         });
     }

@@ -59,24 +59,14 @@ public class StageSelectDialog extends ValidationDialog {
         setCancelButton(cancelStr, cancelListener);
 
         // チェックボックスの設定
-        firstCheckBox
-                .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView,
-                                                 boolean isChecked) {
-                        numberEdit.setEnabled(!isChecked);
-                        lastCheckBox.setEnabled(!isChecked);
-                    }
-                });
-        lastCheckBox
-                .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView,
-                                                 boolean isChecked) {
-                        numberEdit.setEnabled(!isChecked);
-                        firstCheckBox.setEnabled(!isChecked);
-                    }
-                });
+        firstCheckBox.setOnCheckedChangeListener(((buttonView, isChecked) -> {
+            numberEdit.setEnabled(!isChecked);
+            lastCheckBox.setEnabled(!isChecked);
+        }));
+        lastCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            numberEdit.setEnabled(!isChecked);
+            firstCheckBox.setEnabled(!isChecked);
+        });
     }
 
     /**

@@ -11,6 +11,9 @@ import com.google.android.gcm.GCMRegistrar;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 
+/**
+ * 初期化処理Activity。
+ */
 public class InitialActivity extends AppCompatActivity {
 
     /** DBオブジェクト */

@@ -12,9 +12,9 @@ public class GameModel {
 
     private String startState;
 
-    private List<Point> stonePoints = new ArrayList<Point>();
+    private List<Point> stonePoints = new ArrayList<>();
 
-    private List<Point> whiteStonePoints = new ArrayList<Point>();
+    private List<Point> whiteStonePoints = new ArrayList<>();
 
     public GameModel(int aSize, String aStartState) {
         this.size = aSize;
@@ -141,8 +141,7 @@ public class GameModel {
         Point dif = p1.difference(p2);
         Point gradient = new Point(dif.y, -1 * dif.x);
 
-        Line midperpendicular = new Line(midpoint, midpoint.sum(gradient));
-        return midperpendicular;
+        return new Line(midpoint, midpoint.sum(gradient));
     }
 
     /**
@@ -154,7 +153,6 @@ public class GameModel {
      */
     public Point getMidpoint(Point p1, Point p2) {
 
-        Point midpoint = new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
-        return midpoint;
+        return new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
     }
 }

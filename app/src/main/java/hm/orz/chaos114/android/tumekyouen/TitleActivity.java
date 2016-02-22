@@ -20,7 +20,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gcm.GCMRegistrar;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
@@ -97,12 +96,9 @@ public class TitleActivity extends AppCompatActivity {
     });
 
     /** キャンセルボタン押下後の処理 */
-    private final DialogInterface.OnCancelListener mCancelListener = new DialogInterface.OnCancelListener() {
-        @Override
-        public void onCancel(final DialogInterface dialog) {
-            refreshAll();
-        }
-    };
+    private final DialogInterface.OnCancelListener mCancelListener = (dialog -> {
+        refreshAll();
+    });
 
     public static void start(Activity activity) {
         final Intent intent = new Intent(activity, TitleActivity.class);
@@ -224,20 +220,13 @@ public class TitleActivity extends AppCompatActivity {
             // マーケットへの導線を表示
             new AlertDialog.Builder(this)
                     .setMessage(R.string.alert_install_kyouenchecker)
-                    .setPositiveButton("YES",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(
-                                        final DialogInterface dialog,
-                                        final int which) {
-                                    // マーケットを開く
-                                    final Uri uri = Uri
-                                            .parse("market://details?id=hm.orz.chaos114.android.kyouenchecker");
-                                    final Intent intent = new Intent(
-                                            Intent.ACTION_VIEW, uri);
-                                    startActivity(intent);
-                                }
-                            }).setNegativeButton("NO", null).show();
+                    .setPositiveButton("YES", ((dialog, which) -> {
+                        // マーケットを開く
+                        final Uri uri = Uri.parse("market://details?id=hm.orz.chaos114.android.kyouenchecker");
+                        final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                        startActivity(intent);
+                    }))
+                    .setNegativeButton("NO", null).show();
         }
     }
 
@@ -265,15 +254,13 @@ public class TitleActivity extends AppCompatActivity {
                         getString(R.string.twitter_secret));
                 // アプリの認証オブジェクト作成
                 try {
-                    req = oauth
-                            .getOAuthRequestToken("tumekyouen://TitleActivity");
+                    req = oauth.getOAuthRequestToken("tumekyouen://TitleActivity");
                 } catch (final TwitterException e) {
                     Log.e(TAG, "TwitterException", e);
                     return false;
                 }
                 final String uri = req.getAuthorizationURL();
-                startActivityForResult(
-                        new Intent(Intent.ACTION_VIEW, Uri.parse(uri)), 0);
+                startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(uri)), 0);
                 return true;
             }
 
@@ -281,8 +268,7 @@ public class TitleActivity extends AppCompatActivity {
             protected void onPostExecute(final Boolean result) {
                 if (!result) {
                     new AlertDialog.Builder(TitleActivity.this)
-                            .setMessage(
-                                    R.string.alert_error_authenticate_twitter)
+                            .setMessage(R.string.alert_error_authenticate_twitter)
                             .setPositiveButton(android.R.string.ok, null)
                             .show();
                 }
@@ -407,10 +393,8 @@ public class TitleActivity extends AppCompatActivity {
      * @return ステージ番号
      */
     private int getLastStageNo() {
-        final PreferenceUtil preferenceUtil = new PreferenceUtil(
-                getApplicationContext());
-        int lastStageNo = preferenceUtil
-                .getInt(PreferenceUtil.KEY_LAST_STAGE_NO);
+        final PreferenceUtil preferenceUtil = new PreferenceUtil(getApplicationContext());
+        int lastStageNo = preferenceUtil.getInt(PreferenceUtil.KEY_LAST_STAGE_NO);
         if (lastStageNo == 0) {
             // デフォルト値を設定
             lastStageNo = 1;

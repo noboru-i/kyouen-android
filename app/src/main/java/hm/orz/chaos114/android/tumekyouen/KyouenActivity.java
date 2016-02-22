@@ -3,7 +3,6 @@ package hm.orz.chaos114.android.tumekyouen;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.AsyncTask;
@@ -178,23 +177,19 @@ public class KyouenActivity extends AppCompatActivity {
             dialog.show();
 
             final long maxStageNo = kyouenDb.selectMaxStageNo();
-            new InsertDataTask(this,
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            dialog.dismiss();
+            new InsertDataTask(this, (() -> {
+                dialog.dismiss();
 
-                            final TumeKyouenModel newModel = kyouenDb
-                                    .selectNextStage(stageModel.getStageNo());
-                            if (newModel == null) {
-                                // WEBより取得後も取得できない場合
-                                return;
-                            }
+                final TumeKyouenModel model = kyouenDb.selectNextStage(stageModel.getStageNo());
+                if (model == null) {
+                    // WEBより取得後も取得できない場合
+                    return;
+                }
 
-                            stageModel = newModel;
-                            showOtherStage(direction);
-                        }
-                    }).execute(String.valueOf(maxStageNo));
+                stageModel = model;
+                showOtherStage(direction);
+            }))
+                    .execute(String.valueOf(maxStageNo));
 
             return false;
         }
@@ -258,14 +253,10 @@ public class KyouenActivity extends AppCompatActivity {
         SoundManager.getInstance(KyouenActivity.this).play(R.raw.se_maoudamashii_onepoint23);
         new AlertDialog.Builder(KyouenActivity.this)
                 .setTitle(R.string.kyouen)
-                .setNeutralButton("Next",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(final DialogInterface dialog,
-                                                final int which) {
-                                moveStage(Direction.NEXT);
-                            }
-                        }).create().show();
+                .setNeutralButton("Next", ((dialog, which) -> {
+                    moveStage(Direction.NEXT);
+                }))
+                .create().show();
         overlayView.setData(stageModel.getSize(), data);
         overlayView.setVisibility(View.VISIBLE);
         setKyouen();
@@ -289,20 +280,17 @@ public class KyouenActivity extends AppCompatActivity {
     @OnClick({R.id.stage_no_layout})
     void showSelectStageDialog() {
         final StageSelectDialog dialog = new StageSelectDialog(
-                KyouenActivity.this, new StageSelectDialog.OnSuccessListener() {
-            @Override
-            public void onSuccess(final int count) {
-                final long maxStageNo = kyouenDb.selectMaxStageNo();
-                int nextStageNo = count;
-                if (nextStageNo > maxStageNo || nextStageNo == -1) {
-                    nextStageNo = (int) maxStageNo;
-                }
-
-                // ダイアログで選択されたステージを表示
-                stageModel = kyouenDb.selectCurrentStage(nextStageNo);
-                showOtherStage(Direction.NONE);
+                KyouenActivity.this, ((count) -> {
+            final long maxStageNo = kyouenDb.selectMaxStageNo();
+            int nextStageNo = count;
+            if (nextStageNo > maxStageNo || nextStageNo == -1) {
+                nextStageNo = (int) maxStageNo;
             }
-        }, null);
+
+            // ダイアログで選択されたステージを表示
+            stageModel = kyouenDb.selectCurrentStage(nextStageNo);
+            showOtherStage(Direction.NONE);
+        }), null);
         dialog.setStageNo(stageModel.getStageNo());
         dialog.show();
     }
