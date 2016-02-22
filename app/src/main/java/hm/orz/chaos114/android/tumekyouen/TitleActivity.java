@@ -76,27 +76,25 @@ public class TitleActivity extends AppCompatActivity {
     private KyouenDb kyouenDb;
 
     /** 取得ボタン押下後の処理 */
-    private final StageGetDialog.OnSuccessListener mSuccessListener = new StageGetDialog.OnSuccessListener() {
-        @Override
-        public void onSuccess(final int count) {
-            int taskCount;
-            if (count == -1) {
-                // 全件の場合
-                taskCount = Integer.MAX_VALUE;
-            } else {
-                taskCount = count;
-            }
-            final InsertDataTask task = new InsertDataTask(TitleActivity.this,
-                    taskCount, new Runnable() {
-                @Override
-                public void run() {
-                    refreshAll();
-                }
-            });
-            final long maxStageNo = kyouenDb.selectMaxStageNo();
-            task.execute(String.valueOf(maxStageNo));
+    private final StageGetDialog.OnSuccessListener mSuccessListener = (count -> {
+        int taskCount;
+        if (count == -1) {
+            // 全件の場合
+            taskCount = Integer.MAX_VALUE;
+        } else {
+            taskCount = count;
         }
-    };
+        final InsertDataTask task = new InsertDataTask(TitleActivity.this,
+                taskCount, new Runnable() {
+            @Override
+            public void run() {
+                refreshAll();
+            }
+        });
+        final long maxStageNo = kyouenDb.selectMaxStageNo();
+        task.execute(String.valueOf(maxStageNo));
+
+    });
 
     /** キャンセルボタン押下後の処理 */
     private final DialogInterface.OnCancelListener mCancelListener = new DialogInterface.OnCancelListener() {
