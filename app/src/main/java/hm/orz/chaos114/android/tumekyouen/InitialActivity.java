@@ -1,6 +1,5 @@
 package hm.orz.chaos114.android.tumekyouen;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.WorkerThread;
@@ -27,14 +26,13 @@ public class InitialActivity extends AppCompatActivity {
         // GCMへの登録
         registGcm();
 
-
         if (kyouenDb.selectMaxStageNo() == 0) {
             // データが存在しない場合
 
             new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... voids) {
-                    inserInitialDatatInBackground();
+                    insertInitialDatatInBackground();
                     return null;
                 }
 
@@ -51,11 +49,17 @@ public class InitialActivity extends AppCompatActivity {
         finish();
     }
 
+    @Override
+    protected void onDestroy() {
+        GCMRegistrar.onDestroy(getApplicationContext());
+        super.onDestroy();
+    }
+
     /**
      * 初期データを登録する。
      */
     @WorkerThread
-    void inserInitialDatatInBackground() {
+    void insertInitialDatatInBackground() {
         final String[] initData = new String[]{
                 "1,6,000000010000001100001100000000001000,noboru",
                 "2,6,000000000000000100010010001100000000,noboru",
@@ -80,13 +84,11 @@ public class InitialActivity extends AppCompatActivity {
             Log.e("kyouen", "unsupported gcm.", e);
             return;
         }
-        final String regId = GCMRegistrar
-                .getRegistrationId(getApplicationContext());
+        final String regId = GCMRegistrar.getRegistrationId(getApplicationContext());
         Log.i("kyouen", "regId=" + regId);
-        if (regId.equals("")) {
+        if (regId.length() == 0) {
             // GCMに登録
-            GCMRegistrar.register(getApplicationContext(),
-                    GCMIntentService.getSenderId(this));
+            GCMRegistrar.register(getApplicationContext(), GCMIntentService.getSenderId(this));
             return;
         }
         if (GCMRegistrar.isRegisteredOnServer(getApplicationContext())) {
@@ -94,11 +96,10 @@ public class InitialActivity extends AppCompatActivity {
             return;
         }
 
-        final Context context = this;
-        final AsyncTask<Void, Void, Void> registerTask = new AsyncTask<Void, Void, Void>() {
+        new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(final Void... params) {
-                final boolean registered = ServerUtil.registGcm(context, regId);
+                final boolean registered = ServerUtil.registGcm(InitialActivity.this, regId);
                 // At this point all attempts to register with the app
                 // server failed, so we need to unregister the device
                 // from GCM - the app will try to register again when
@@ -106,11 +107,10 @@ public class InitialActivity extends AppCompatActivity {
                 // unregistered callback upon completion, but
                 // GCMIntentService.onUnregistered() will ignore it.
                 if (!registered) {
-                    GCMRegistrar.unregister(context);
+                    GCMRegistrar.unregister(InitialActivity.this);
                 }
                 return null;
             }
-        };
-        registerTask.execute(null, null, null);
+        }.execute(null, null, null);
     }
 }

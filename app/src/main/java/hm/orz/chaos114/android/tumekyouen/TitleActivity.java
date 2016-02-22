@@ -3,7 +3,6 @@ package hm.orz.chaos114.android.tumekyouen;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -37,10 +36,11 @@ import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
-import hm.orz.chaos114.android.tumekyouen.util.NotificationUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
+import icepick.Icepick;
+import icepick.State;
 import twitter4j.TwitterException;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.OAuthAuthorization;
@@ -54,23 +54,23 @@ import twitter4j.conf.ConfigurationContext;
 public class TitleActivity extends AppCompatActivity {
     private static final String TAG = TitleActivity.class.getSimpleName();
 
+    @State
     RequestToken req;
+    @State
     OAuthAuthorization oauth;
 
     @Bind(R.id.get_stage_button)
     Button mGetStageButton;
-
     @Bind(R.id.connect_button)
     Button mConnectButton;
-
     @Bind(R.id.sync_button)
     Button mSyncButton;
-
     @Bind(R.id.sound_button)
     ImageView mSoundImageView;
-
     @Bind(R.id.stage_count)
     TextView stageCountView;
+    @Bind(R.id.adView)
+    AdView mAdView;
 
     /** DBオブジェクト */
     private KyouenDb kyouenDb;
@@ -111,12 +111,12 @@ public class TitleActivity extends AppCompatActivity {
         activity.startActivity(intent);
     }
 
-
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_title);
         ButterKnife.bind(this);
+        Icepick.restoreInstanceState(this, savedInstanceState);
 
         kyouenDb = new KyouenDb(this);
 
@@ -124,18 +124,14 @@ public class TitleActivity extends AppCompatActivity {
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         // 広告の表示
-        AdView mAdView = (AdView) findViewById(R.id.adView);
-        if (mAdView != null) {
-            AdRequest adRequest = new AdRequest.Builder().build();
-            mAdView.loadAd(adRequest);
-        }
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         final LoginUtil loginUtil = new LoginUtil(this);
         final AccessToken loginInfo = loginUtil.loadLoginInfo();
         if (loginInfo != null) {
             // 認証情報が存在する場合
-            final ServerRegistTask task = new ServerRegistTask();
-            task.execute(loginInfo);
+            new ServerRegistTask().execute(loginInfo);
         }
 
         // 描画内容を更新
@@ -177,22 +173,8 @@ public class TitleActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        GCMRegistrar.onDestroy(getApplicationContext());
-        super.onDestroy();
-    }
-
-    @Override
     protected void onSaveInstanceState(final Bundle outState) {
-        outState.putSerializable("oauth", oauth);
-        outState.putSerializable("req", req);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(final Bundle savedInstanceState) {
-        oauth = (OAuthAuthorization) savedInstanceState
-                .getSerializable("oauth");
-        req = (RequestToken) savedInstanceState.getSerializable("req");
+        Icepick.saveInstanceState(this, outState);
     }
 
     /**
@@ -200,7 +182,6 @@ public class TitleActivity extends AppCompatActivity {
      */
     @OnClick(R.id.start_puzzle_button)
     public void onClickStartButton() {
-        Log.d(TAG, "onClickStartButton!!!!!!");
         final int stageNo = getLastStageNo();
         final TumeKyouenModel item = kyouenDb.selectCurrentStage(stageNo);
         KyouenActivity.start(this, item);
@@ -265,7 +246,7 @@ public class TitleActivity extends AppCompatActivity {
     /** twitter接続ボタン押下後の処理 */
     @OnClick(R.id.connect_button)
     void onClickConnectButton() {
-        final AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
+        new AsyncTask<Void, Void, Boolean>() {
             ProgressDialog dialog;
 
             @Override
@@ -309,8 +290,7 @@ public class TitleActivity extends AppCompatActivity {
                 }
                 dialog.dismiss();
             }
-        };
-        task.execute((Void) null);
+        }.execute();
     }
 
     /**
@@ -335,7 +315,6 @@ public class TitleActivity extends AppCompatActivity {
                 enableSyncButton();
             }
         }.execute();
-
     }
 
     /**
@@ -355,8 +334,7 @@ public class TitleActivity extends AppCompatActivity {
         // クリアした情報を取得
         final List<TumeKyouenModel> stages = kyouenDb.selectAllClearStage();
         // ステージデータを送信
-        final List<TumeKyouenModel> clearList = ServerUtil.addAllStageUser(
-                this, stages);
+        final List<TumeKyouenModel> clearList = ServerUtil.addAllStageUser(this, stages);
         if (clearList != null) {
             kyouenDb.updateSyncClearData(clearList);
         }
@@ -382,8 +360,7 @@ public class TitleActivity extends AppCompatActivity {
 
         // サーバに認証情報を送信
         try {
-            ServerUtil.registUser(this, token.getToken(),
-                    token.getTokenSecret());
+            ServerUtil.registUser(this, token.getToken(), token.getTokenSecret());
         } catch (final IOException e) {
             return false;
         }

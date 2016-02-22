@@ -1,6 +1,7 @@
 package hm.orz.chaos114.android.tumekyouen.util;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import twitter4j.auth.AccessToken;
 
@@ -19,9 +20,9 @@ public class LoginUtil {
     /**
      * ログイン情報を保存する。 nullが与えられた場合、クリアする
      *
-     * @param loginInfo
+     * @param loginInfo ログイン情報
      */
-    public void saveLoginInfo(AccessToken loginInfo) {
+    public void saveLoginInfo(@Nullable AccessToken loginInfo) {
         if (loginInfo == null) {
             // nullの場合、削除
             preferenceUtil.remove(PreferenceUtil.KEY_TOKEN);
@@ -41,6 +42,7 @@ public class LoginUtil {
      *
      * @return ログイン情報
      */
+    @Nullable
     public AccessToken loadLoginInfo() {
         String token = encryptionUtil.decrypt(preferenceUtil
                 .getString(PreferenceUtil.KEY_TOKEN));

@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -50,6 +49,12 @@ public class KyouenActivity extends AppCompatActivity {
     Button nextButton;
     @Bind(R.id.stage_no)
     TextView stageNoView;
+    @Bind(R.id.stage_creator)
+    TextView mStageCreatorView;
+    @Bind(R.id.kyouen_button)
+    Button kyouenButton;
+    @Bind(R.id.adView)
+    AdView mAdView;
 
     /** DBアクセスオブジェクト */
     private KyouenDb kyouenDb;
@@ -78,16 +83,15 @@ public class KyouenActivity extends AppCompatActivity {
         // 音量ボタンの動作変更
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        // 詰め共円領域の追加
-        final FragmentManager fragmentManager = getSupportFragmentManager();
-        final FragmentTransaction fragmentTransaction = fragmentManager
-                .beginTransaction();
-        tumeKyouenFragment = TumeKyouenFragment.newInstance(stageModel);
-        fragmentTransaction.add(R.id.fragment_container, tumeKyouenFragment);
-        fragmentTransaction.commit();
+        if (savedInstanceState == null) {
+            // 詰め共円領域の追加
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            tumeKyouenFragment = TumeKyouenFragment.newInstance(stageModel);
+            fragmentTransaction.add(R.id.fragment_container, tumeKyouenFragment);
+            fragmentTransaction.commit();
+        }
 
         // 広告の表示
-        AdView mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
@@ -97,8 +101,7 @@ public class KyouenActivity extends AppCompatActivity {
 
     private void init() {
         // プリファレンスに設定
-        final PreferenceUtil preferenceUtil = new PreferenceUtil(
-                getApplicationContext());
+        final PreferenceUtil preferenceUtil = new PreferenceUtil(getApplicationContext());
         preferenceUtil.putInt(PreferenceUtil.KEY_LAST_STAGE_NO, stageModel.getStageNo());
 
         // ステージ名表示領域の設定
@@ -112,8 +115,7 @@ public class KyouenActivity extends AppCompatActivity {
         stageNoView.setText(getString(R.string.stage_no, stageModel.getStageNo()));
 
         // ステージ作者領域の設定
-        final TextView stageCreatorView = (TextView) findViewById(R.id.stage_creator);
-        stageCreatorView.setText(getString(R.string.creator, stageModel.getCreator()));
+        mStageCreatorView.setText(getString(R.string.creator, stageModel.getCreator()));
 
         // prev,nextボタンの設定
         if (stageModel.getStageNo() == 1) {
@@ -124,7 +126,6 @@ public class KyouenActivity extends AppCompatActivity {
         }
 
         // 共円ボタンの設定
-        final Button kyouenButton = (Button) findViewById(R.id.kyouen_button);
         kyouenButton.setClickable(true);
 
         overlayView.setVisibility(View.INVISIBLE);
@@ -134,7 +135,6 @@ public class KyouenActivity extends AppCompatActivity {
      * 共円状態を設定します。
      */
     private void setKyouen() {
-        final Button kyouenButton = (Button) findViewById(R.id.kyouen_button);
         kyouenButton.setClickable(false);
         tumeKyouenFragment.setClickable(false);
 
@@ -142,8 +142,7 @@ public class KyouenActivity extends AppCompatActivity {
         kyouenDb.updateClearFlag(stageModel);
 
         // サーバに送信
-        final AddStageUserTask task = new AddStageUserTask();
-        task.execute(stageModel);
+        new AddStageUserTask().execute(stageModel);
 
         stageNoView.setTextColor(ContextCompat.getColor(this, R.color.text_clear));
     }
@@ -178,7 +177,8 @@ public class KyouenActivity extends AppCompatActivity {
             dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             dialog.show();
 
-            final InsertDataTask task = new InsertDataTask(this,
+            final long maxStageNo = kyouenDb.selectMaxStageNo();
+            new InsertDataTask(this,
                     new Runnable() {
                         @Override
                         public void run() {
@@ -194,9 +194,7 @@ public class KyouenActivity extends AppCompatActivity {
                             stageModel = newModel;
                             showOtherStage(direction);
                         }
-                    });
-            final long maxStageNo = kyouenDb.selectMaxStageNo();
-            task.execute(String.valueOf(maxStageNo));
+                    }).execute(String.valueOf(maxStageNo));
 
             return false;
         }
@@ -212,8 +210,7 @@ public class KyouenActivity extends AppCompatActivity {
      * @param direction 移動するステージの方向（PREV/NEXT/NONE）
      */
     private void showOtherStage(@NonNull final Direction direction) {
-        final FragmentTransaction ft = getSupportFragmentManager()
-                .beginTransaction();
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         tumeKyouenFragment = TumeKyouenFragment.newInstance(stageModel);
 
         switch (direction) {
@@ -223,7 +220,8 @@ public class KyouenActivity extends AppCompatActivity {
                         R.anim.fragment_slide_right_exit);
                 break;
             case NEXT:
-                ft.setCustomAnimations(R.anim.fragment_slide_left_enter,
+                ft.setCustomAnimations(
+                        R.anim.fragment_slide_left_enter,
                         R.anim.fragment_slide_left_exit);
                 break;
             case NONE:
@@ -257,8 +255,7 @@ public class KyouenActivity extends AppCompatActivity {
         }
 
         // 共円の場合
-        SoundManager.getInstance(KyouenActivity.this).play(
-                R.raw.se_maoudamashii_onepoint23);
+        SoundManager.getInstance(KyouenActivity.this).play(R.raw.se_maoudamashii_onepoint23);
         new AlertDialog.Builder(KyouenActivity.this)
                 .setTitle(R.string.kyouen)
                 .setNeutralButton("Next",
