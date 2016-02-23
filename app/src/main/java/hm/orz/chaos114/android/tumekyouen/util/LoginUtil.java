@@ -3,7 +3,7 @@ package hm.orz.chaos114.android.tumekyouen.util;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
-import twitter4j.auth.AccessToken;
+import com.twitter.sdk.android.core.TwitterAuthToken;
 
 public class LoginUtil {
     /** Preferenceユーティリティ */
@@ -20,10 +20,10 @@ public class LoginUtil {
     /**
      * ログイン情報を保存する。 nullが与えられた場合、クリアする
      *
-     * @param loginInfo ログイン情報
+     * @param authToken ログイン情報
      */
-    public void saveLoginInfo(@Nullable AccessToken loginInfo) {
-        if (loginInfo == null) {
+    public void saveLoginInfo(@Nullable TwitterAuthToken authToken) {
+        if (authToken == null) {
             // nullの場合、削除
             preferenceUtil.remove(PreferenceUtil.KEY_TOKEN);
             preferenceUtil.remove(PreferenceUtil.KEY_TOKEN_SECRET);
@@ -32,9 +32,9 @@ public class LoginUtil {
 
         // 値の保存
         preferenceUtil.putString(PreferenceUtil.KEY_TOKEN,
-                encryptionUtil.encrypt(loginInfo.getToken()));
+                encryptionUtil.encrypt(authToken.token));
         preferenceUtil.putString(PreferenceUtil.KEY_TOKEN_SECRET,
-                encryptionUtil.encrypt(loginInfo.getTokenSecret()));
+                encryptionUtil.encrypt(authToken.secret));
     }
 
     /**
@@ -43,7 +43,7 @@ public class LoginUtil {
      * @return ログイン情報
      */
     @Nullable
-    public AccessToken loadLoginInfo() {
+    public TwitterAuthToken loadLoginInfo() {
         String token = encryptionUtil.decrypt(preferenceUtil
                 .getString(PreferenceUtil.KEY_TOKEN));
         String tokenSecret = encryptionUtil.decrypt(preferenceUtil
@@ -53,6 +53,6 @@ public class LoginUtil {
             // 取得できなかった場合はnullを返却
             return null;
         }
-        return new AccessToken(token, tokenSecret);
+        return new TwitterAuthToken(token, tokenSecret);
     }
 }

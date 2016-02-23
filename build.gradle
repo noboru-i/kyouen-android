@@ -3,17 +3,20 @@
 buildscript {
     repositories {
         jcenter()
+        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.5.0'
         classpath 'me.tatarka:gradle-retrolambda:3.2.5'
+        classpath 'io.fabric.tools:gradle:1.21.4'
     }
 }
 
 allprojects {
     repositories {
         jcenter()
-        maven {url "https://clojars.org/repo/"}
+        maven { url "https://clojars.org/repo/" }
+        maven { url 'https://maven.fabric.io/public' }
     }
 }
 
