@@ -32,6 +32,9 @@ import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 
+/**
+ * 詰め共円のプレイ画面。
+ */
 public class KyouenActivity extends AppCompatActivity {
 
     private static final String EXTRA_TUME_KYOUEN_MODEL
