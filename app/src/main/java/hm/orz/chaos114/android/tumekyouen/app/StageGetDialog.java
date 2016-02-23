@@ -1,11 +1,9 @@
 package hm.orz.chaos114.android.tumekyouen.app;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import hm.orz.chaos114.android.tumekyouen.R;
@@ -44,31 +42,23 @@ public class StageGetDialog extends ValidationDialog {
 
         // ボタンの設定
         String getStr = context.getString(R.string.dialog_get);
-        setPositiveButton(getStr, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (successListener != null) {
-                    successListener.onSuccess(getCount());
-                }
+        setPositiveButton(getStr, ((dialog, which) -> {
+            if (successListener != null) {
+                successListener.onSuccess(getCount());
             }
-        });
+        }));
         String cancelStr = context.getString(R.string.dialog_cancel);
         setCancelButton(cancelStr, cancelListener);
 
         // チェックボックスの設定
-        allCheckBox
-                .setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView,
-                                                 boolean isChecked) {
-                        numberEdit.setEnabled(!isChecked);
-                    }
-                });
+        allCheckBox.setOnCheckedChangeListener(((buttonView, isChecked) -> {
+            numberEdit.setEnabled(!isChecked);
+        }));
     }
 
     /**
      * 入力されている数値を返却します。
-     * <p/>
+     * <p>
      * チェックされていた場合は"-1"を返却します。 0以下の数値、または数値以外が入力されていた場合は"0"を返却します。
      *
      * @return 入力されている数値

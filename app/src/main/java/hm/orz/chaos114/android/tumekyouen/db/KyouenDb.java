@@ -61,9 +61,7 @@ public class KyouenDb {
         try {
             database = mHelper.getWritableDatabase();
             // レコード登録
-            long id = insert(database, csvString);
-
-            return id;
+            return insert(database, csvString);
         } finally {
             if (database != null) {
                 database.close();
@@ -90,9 +88,7 @@ public class KyouenDb {
         values.put(TumeKyouenDataColumns.CREATOR, splitString[i++]);
 
         // レコード登録
-        long id = db.insert(TABLE_NAME, "", values);
-
-        return id;
+        return db.insert(TABLE_NAME, "", values);
     }
 
     /**
@@ -125,11 +121,9 @@ public class KyouenDb {
             database = mHelper.getWritableDatabase();
 
             // レコード更新
-            int count = database.update(TABLE_NAME, values,
+            return database.update(TABLE_NAME, values,
                     TumeKyouenDataColumns.STAGE_NO + " = ?",
                     new String[]{Integer.toString(item.getStageNo())});
-
-            return count;
         } finally {
             if (database != null) {
                 database.close();
@@ -300,7 +294,7 @@ public class KyouenDb {
                     TumeKyouenDataColumns.CLEAR_FLAG + " = 1", null, null,
                     null, null, null);
 
-            List<TumeKyouenModel> list = new ArrayList<TumeKyouenModel>();
+            List<TumeKyouenModel> list = new ArrayList<>();
             while (cursor.moveToNext()) {
                 list.add(cursorToTumeKyouenModel(cursor));
             }

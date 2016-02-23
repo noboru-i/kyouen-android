@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    package="hm.orz.chaos114.android.tumekyouen"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest package="hm.orz.chaos114.android.tumekyouen"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -25,9 +24,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".TitleActivity"
-            android:label="@string/app_name"
-            android:launchMode="singleTask"
+            android:name=".InitialActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -54,6 +51,11 @@
                     android:scheme="http"/>
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".TitleActivity"
+            android:screenOrientation="portrait">
+        </activity>
         <activity
             android:name=".KyouenActivity"
             android:label="@string/app_name"
@@ -71,15 +73,15 @@
             </intent-filter>
         </receiver>
 
-        <service android:name="hm.orz.chaos114.android.tumekyouen.GCMIntentService"/>
+        <service android:name=".GCMIntentService"/>
 
-        <!--Include the AdActivity configChanges and theme. -->
+        <!-- Include the AdActivity configChanges and theme. -->
         <activity
             android:name="com.google.android.gms.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@android:style/Theme.Translucent"/>
 
-        <!--This meta-data tag is required to use Google Play Services.-->
+        <!-- This meta-data tag is required to use Google Play Services. -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>

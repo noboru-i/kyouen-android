@@ -127,8 +127,7 @@ public class InsertDataTask extends AsyncTask<String, Integer, Integer> {
         }
 
         // データの登録
-        int count = insertData(data.split("\n"));
-        return count;
+        return insertData(data.split("\n"));
     }
 
     /**
@@ -145,9 +144,7 @@ public class InsertDataTask extends AsyncTask<String, Integer, Integer> {
         HttpGet httpGet = new HttpGet(url);
         try {
             HttpResponse response = httpClient.execute(httpGet);
-            String ret = EntityUtils.toString(response.getEntity());
-
-            return ret;
+            return EntityUtils.toString(response.getEntity());
         } catch (IOException e) {
             return null;
         } finally {
@@ -191,12 +188,12 @@ public class InsertDataTask extends AsyncTask<String, Integer, Integer> {
         } else if (result == 0) {
             // 取得できなかった場合
             Toast.makeText(mContext,
-                    mContext.getString(R.string.toast_no_stage, result),
+                    R.string.toast_no_stage,
                     Toast.LENGTH_SHORT).show();
         } else {
             // エラーが発生した場合
             Toast.makeText(mContext,
-                    mContext.getString(R.string.toast_no_stage, result),
+                    R.string.toast_no_stage,
                     Toast.LENGTH_SHORT).show();
         }
     }

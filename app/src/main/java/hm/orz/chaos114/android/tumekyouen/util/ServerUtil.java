@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -47,7 +48,7 @@ public final class ServerUtil {
     private static final int BACKOFF_MILLI_SECONDS = 2000;
 
     /** cookie情報を保持 */
-    private static List<Cookie> cookies = new ArrayList<Cookie>();
+    private static List<Cookie> cookies = new ArrayList<>();
 
     /**
      * GCM用の登録IDをAPサーバに登録する。
@@ -157,7 +158,8 @@ public final class ServerUtil {
         String url = context.getString(R.string.server_url) + "/page/add_all";
         JSONArray sendData = new JSONArray();
         DateFormat simpleDateFormat = new SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss");
+                "yyyy-MM-dd HH:mm:ss",
+                Locale.US);
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         for (TumeKyouenModel stageModel : stages) {
             JSONObject map = new JSONObject();

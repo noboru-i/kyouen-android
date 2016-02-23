@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
 
 android {
     compileSdkVersion 23
@@ -23,6 +24,10 @@ android {
         abortOnError false
         lintConfig file('lint.xml')
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     packagingOptions {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
@@ -31,6 +36,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
+    compile "com.android.support:support-v4:23.1.1"
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.google.android.gms:play-services-ads:8.4.0'
@@ -38,6 +44,8 @@ dependencies {
     compile 'org.twitter4j:twitter4j-core:4.0.4'
     compile 'org.projectlombok:lombok:1.16.6'
     compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'frankiesardo:icepick:3.1.0'
+    provided 'frankiesardo:icepick-processor:3.1.0'
 }
 
 // For checking source code style, and finding bugs.
