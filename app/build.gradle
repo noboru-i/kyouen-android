@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 23
@@ -41,11 +42,13 @@ dependencies {
     compile 'com.android.support:design:23.1.1'
     compile 'com.google.android.gms:play-services-ads:8.4.0'
 
-    compile 'org.twitter4j:twitter4j-core:4.0.4'
     compile 'org.projectlombok:lombok:1.16.6'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'frankiesardo:icepick:3.1.0'
     provided 'frankiesardo:icepick-processor:3.1.0'
+    compile('com.twitter.sdk.android:twitter:1.12.1@aar') {
+        transitive = true;
+    }
 }
 
 // For checking source code style, and finding bugs.

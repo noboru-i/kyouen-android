@@ -22,6 +22,12 @@ import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterAuthToken;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.identity.TwitterAuthClient;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,24 +45,12 @@ import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 import icepick.Icepick;
-import icepick.State;
-import twitter4j.TwitterException;
-import twitter4j.auth.AccessToken;
-import twitter4j.auth.OAuthAuthorization;
-import twitter4j.auth.RequestToken;
-import twitter4j.conf.Configuration;
-import twitter4j.conf.ConfigurationContext;
 
 /**
  * タイトル画面を表示するアクティビティ。
  */
 public class TitleActivity extends AppCompatActivity {
     private static final String TAG = TitleActivity.class.getSimpleName();
-
-    @State
-    RequestToken req;
-    @State
-    OAuthAuthorization oauth;
 
     @Bind(R.id.get_stage_button)
     Button mGetStageButton;
@@ -74,22 +68,13 @@ public class TitleActivity extends AppCompatActivity {
     /** DBオブジェクト */
     private KyouenDb kyouenDb;
 
+    private TwitterAuthClient twitterAuthClient = new TwitterAuthClient();
+
     /** 取得ボタン押下後の処理 */
     private final StageGetDialog.OnSuccessListener mSuccessListener = (count -> {
-        int taskCount;
-        if (count == -1) {
-            // 全件の場合
-            taskCount = Integer.MAX_VALUE;
-        } else {
-            taskCount = count;
-        }
+        int taskCount = count == -1 ? Integer.MAX_VALUE : count;
         final InsertDataTask task = new InsertDataTask(TitleActivity.this,
-                taskCount, new Runnable() {
-            @Override
-            public void run() {
-                refreshAll();
-            }
-        });
+                taskCount, this::refreshAll);
         final long maxStageNo = kyouenDb.selectMaxStageNo();
         task.execute(String.valueOf(maxStageNo));
 
@@ -122,7 +107,7 @@ public class TitleActivity extends AppCompatActivity {
         mAdView.loadAd(adRequest);
 
         final LoginUtil loginUtil = new LoginUtil(this);
-        final AccessToken loginInfo = loginUtil.loadLoginInfo();
+        final TwitterAuthToken loginInfo = loginUtil.loadLoginInfo();
         if (loginInfo != null) {
             // 認証情報が存在する場合
             new ServerRegistTask().execute(loginInfo);
@@ -133,36 +118,12 @@ public class TitleActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onNewIntent(final Intent intent) {
-        final Uri uri = intent.getData();
-        if (uri != null
-                && uri.toString().startsWith("tumekyouen://TitleActivity")) {
-            // twitter連携
-
-            // oauth_verifierを取得する
-            String verifier = uri.getQueryParameter("oauth_verifier");
-            new AsyncTask<String, Void, Boolean>() {
-
-                @Override
-                protected Boolean doInBackground(String... strings) {
-                    return authTwitterInBackground(strings[0]);
-                }
-
-                @Override
-                protected void onPostExecute(Boolean aBoolean) {
-                    if (aBoolean) {
-                        onSuccessTwitterAuth();
-                    } else {
-                        onFailedTwitterAuth();
-                    }
-                }
-            }.execute(verifier);
-        }
-    }
-
-    @Override
     protected void onActivityResult(final int requestCode,
                                     final int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        twitterAuthClient.onActivityResult(requestCode, resultCode, data);
+
         refreshAll();
     }
 
@@ -233,48 +194,31 @@ public class TitleActivity extends AppCompatActivity {
     /** twitter接続ボタン押下後の処理 */
     @OnClick(R.id.connect_button)
     void onClickConnectButton() {
-        new AsyncTask<Void, Void, Boolean>() {
-            ProgressDialog dialog;
+        ProgressDialog dialog;
+        // ローディングダイアログの表示
+        dialog = new ProgressDialog(TitleActivity.this);
+        dialog.setMessage("Now Loading...");
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.show();
 
+        twitterAuthClient.authorize(TitleActivity.this, new Callback<TwitterSession>() {
             @Override
-            protected void onPreExecute() {
-                // ローディングダイアログの表示
-                dialog = new ProgressDialog(TitleActivity.this);
-                dialog.setMessage("Now Loading...");
-                dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                dialog.show();
+            public void success(Result<TwitterSession> result) {
+                Log.d(TAG, "success");
+                dialog.dismiss();
+                sendAuthToken(result.data.getAuthToken());
             }
 
             @Override
-            protected Boolean doInBackground(final Void... params) {
-                final Configuration conf = ConfigurationContext.getInstance();
-                oauth = new OAuthAuthorization(conf);
-                // Oauth認証オブジェクトにconsumerKeyとconsumerSecretを設定
-                oauth.setOAuthConsumer(getString(R.string.twitter_key),
-                        getString(R.string.twitter_secret));
-                // アプリの認証オブジェクト作成
-                try {
-                    req = oauth.getOAuthRequestToken("tumekyouen://TitleActivity");
-                } catch (final TwitterException e) {
-                    Log.e(TAG, "TwitterException", e);
-                    return false;
-                }
-                final String uri = req.getAuthorizationURL();
-                startActivityForResult(new Intent(Intent.ACTION_VIEW, Uri.parse(uri)), 0);
-                return true;
-            }
-
-            @Override
-            protected void onPostExecute(final Boolean result) {
-                if (!result) {
-                    new AlertDialog.Builder(TitleActivity.this)
-                            .setMessage(R.string.alert_error_authenticate_twitter)
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show();
-                }
+            public void failure(TwitterException e) {
+                Log.d(TAG, "failure");
+                new AlertDialog.Builder(TitleActivity.this)
+                        .setMessage(R.string.alert_error_authenticate_twitter)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show();
                 dialog.dismiss();
             }
-        }.execute();
+        });
     }
 
     /**
@@ -310,11 +254,31 @@ public class TitleActivity extends AppCompatActivity {
         refreshSoundState();
     }
 
+    @MainThread
+    private void sendAuthToken(TwitterAuthToken authToken) {
+        new AsyncTask<TwitterAuthToken, Void, Boolean>() {
+
+            @Override
+            protected Boolean doInBackground(TwitterAuthToken... authToken) {
+                return authTwitterInBackground(authToken[0]);
+            }
+
+            @Override
+            protected void onPostExecute(Boolean aBoolean) {
+                if (aBoolean) {
+                    onSuccessTwitterAuth();
+                } else {
+                    onFailedTwitterAuth();
+                }
+            }
+        }.execute(authToken);
+    }
+
     /**
      * クリアステージデータの同期を行う。
      */
     @WorkerThread
-    void syncClearDataInBackground() {
+    private void syncClearDataInBackground() {
         // クリアした情報を取得
         final List<TumeKyouenModel> stages = kyouenDb.selectAllClearStage();
         // ステージデータを送信
@@ -325,33 +289,19 @@ public class TitleActivity extends AppCompatActivity {
     }
 
     @WorkerThread
-    boolean authTwitterInBackground(final String verifier) {
-        if (verifier == null) {
-            // 認証をキャンセルされた場合
-            return false;
-        }
-
-        AccessToken token;
-        // AccessTokenオブジェクトを取得
-        try {
-            Log.d(TAG, "oauth = " + oauth);
-            Log.d(TAG, "req = " + req);
-            Log.d(TAG, "verifier = " + verifier);
-            token = oauth.getOAuthAccessToken(req, verifier);
-        } catch (final TwitterException e) {
-            return false;
-        }
-
+    private boolean authTwitterInBackground(final TwitterAuthToken authToken) {
         // サーバに認証情報を送信
         try {
-            ServerUtil.registUser(this, token.getToken(), token.getTokenSecret());
+            Log.d(TAG, "ServerUtil.registUser");
+            ServerUtil.registUser(this, authToken.token, authToken.secret);
         } catch (final IOException e) {
             return false;
         }
 
         // ログイン情報を保存
         final LoginUtil loginUtil = new LoginUtil(this);
-        loginUtil.saveLoginInfo(token);
+        Log.d(TAG, "loginUtil.saveLoginInfo");
+        loginUtil.saveLoginInfo(authToken);
 
         return true;
     }
@@ -361,7 +311,7 @@ public class TitleActivity extends AppCompatActivity {
      * ボタンを切り替える。
      */
     @MainThread
-    void onSuccessTwitterAuth() {
+    private void onSuccessTwitterAuth() {
         mConnectButton.setEnabled(false);
         mConnectButton.setVisibility(View.INVISIBLE);
         mSyncButton.setVisibility(View.VISIBLE);
@@ -371,7 +321,7 @@ public class TitleActivity extends AppCompatActivity {
      * twitter連携に失敗した場合の処理
      */
     @MainThread
-    void onFailedTwitterAuth() {
+    private void onFailedTwitterAuth() {
         mConnectButton.setEnabled(true);
         final LoginUtil loginUtil = new LoginUtil(this);
         loginUtil.saveLoginInfo(null);
@@ -381,7 +331,7 @@ public class TitleActivity extends AppCompatActivity {
     }
 
     @MainThread
-    void enableSyncButton() {
+    private void enableSyncButton() {
         // ボタンを有効化
         mSyncButton.setEnabled(true);
         refreshAll();
@@ -448,7 +398,7 @@ public class TitleActivity extends AppCompatActivity {
     }
 
     /** サーバに認証情報を送信するタスク */
-    private class ServerRegistTask extends AsyncTask<AccessToken, Void, Boolean> {
+    private class ServerRegistTask extends AsyncTask<TwitterAuthToken, Void, Boolean> {
 
         @Override
         protected void onPreExecute() {
@@ -456,13 +406,12 @@ public class TitleActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Boolean doInBackground(final AccessToken... params) {
-            final AccessToken token = params[0];
+        protected Boolean doInBackground(final TwitterAuthToken... params) {
+            final TwitterAuthToken token = params[0];
 
             // サーバに認証情報を送信
             try {
-                ServerUtil.registUser(TitleActivity.this, token.getToken(),
-                        token.getTokenSecret());
+                ServerUtil.registUser(TitleActivity.this, token.token, token.secret);
             } catch (final IOException e) {
                 return false;
             }
