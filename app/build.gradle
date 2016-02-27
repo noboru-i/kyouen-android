@@ -8,6 +8,9 @@ android {
 
     useLibrary 'org.apache.http.legacy'
 
+    dataBinding {
+        enabled = true
+    }
     defaultConfig {
         applicationId "hm.orz.chaos114.android.tumekyouen"
         minSdkVersion 17

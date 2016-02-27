@@ -4,25 +4,22 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 
-import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hm.orz.chaos114.android.tumekyouen.app.StageSelectDialog;
+import hm.orz.chaos114.android.tumekyouen.databinding.ActivityKyouenBinding;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.fragment.TumeKyouenFragment;
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
@@ -31,6 +28,7 @@ import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
+import hm.orz.chaos114.android.tumekyouen.viewmodel.KyouenActivityViewModel;
 
 /**
  * 詰め共円のプレイ画面。
@@ -41,22 +39,9 @@ public class KyouenActivity extends AppCompatActivity {
             = "hm.orz.chaos114.android.tumekyouen.EXTRA_TUME_KYOUEN_MODEL";
 
     /** ステージ情報オブジェクト */
-    TumeKyouenModel stageModel;
+    private TumeKyouenModel stageModel;
 
-    @Bind(R.id.kyouen_overlay)
-    OverlayView overlayView;
-    @Bind(R.id.prev_button)
-    Button prevButton;
-    @Bind(R.id.next_button)
-    Button nextButton;
-    @Bind(R.id.stage_no)
-    TextView stageNoView;
-    @Bind(R.id.stage_creator)
-    TextView mStageCreatorView;
-    @Bind(R.id.kyouen_button)
-    Button kyouenButton;
-    @Bind(R.id.adView)
-    AdView mAdView;
+    private ActivityKyouenBinding binding;
 
     /** DBアクセスオブジェクト */
     private KyouenDb kyouenDb;
@@ -72,7 +57,7 @@ public class KyouenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_kyouen);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_kyouen);
         ButterKnife.bind(this);
 
         kyouenDb = new KyouenDb(this);
@@ -81,6 +66,7 @@ public class KyouenActivity extends AppCompatActivity {
         if (intent != null) {
             stageModel = (TumeKyouenModel) intent.getSerializableExtra(EXTRA_TUME_KYOUEN_MODEL);
         }
+        binding.setStageModel(new KyouenActivityViewModel(stageModel, this));
 
         // 音量ボタンの動作変更
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -95,7 +81,7 @@ public class KyouenActivity extends AppCompatActivity {
 
         // 広告の表示
         AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+        binding.adView.loadAd(adRequest);
 
         // 初期化
         init();
@@ -106,38 +92,19 @@ public class KyouenActivity extends AppCompatActivity {
         final PreferenceUtil preferenceUtil = new PreferenceUtil(getApplicationContext());
         preferenceUtil.putInt(PreferenceUtil.KEY_LAST_STAGE_NO, stageModel.getStageNo());
 
-        // ステージ名表示領域の設定
-        if (stageModel.getClearFlag() == TumeKyouenModel.CLEAR) {
-            // クリア後の場合
-            stageNoView.setTextColor(ContextCompat.getColor(this, R.color.text_clear));
-        } else {
-            // 未クリアの場合
-            stageNoView.setTextColor(ContextCompat.getColor(this, R.color.text_not_clear));
-        }
-        stageNoView.setText(getString(R.string.stage_no, stageModel.getStageNo()));
-
-        // ステージ作者領域の設定
-        mStageCreatorView.setText(getString(R.string.creator, stageModel.getCreator()));
-
-        // prev,nextボタンの設定
-        if (stageModel.getStageNo() == 1) {
-            // 先頭ステージの場合は押下不可
-            prevButton.setClickable(false);
-        } else {
-            prevButton.setClickable(true);
-        }
-
         // 共円ボタンの設定
-        kyouenButton.setClickable(true);
+        binding.kyouenButton.setClickable(true);
 
-        overlayView.setVisibility(View.INVISIBLE);
+        binding.kyouenOverlay.setVisibility(View.INVISIBLE);
+
+        binding.setStageModel(new KyouenActivityViewModel(stageModel, this));
     }
 
     /**
      * 共円状態を設定します。
      */
     private void setKyouen() {
-        kyouenButton.setClickable(false);
+        binding.kyouenButton.setClickable(false);
         tumeKyouenFragment.setClickable(false);
 
         stageModel.setClearFlag(TumeKyouenModel.CLEAR);
@@ -146,7 +113,7 @@ public class KyouenActivity extends AppCompatActivity {
         // サーバに送信
         new AddStageUserTask().execute(stageModel);
 
-        stageNoView.setTextColor(ContextCompat.getColor(this, R.color.text_clear));
+        binding.setStageModel(new KyouenActivityViewModel(stageModel, this));
     }
 
     /**
@@ -260,8 +227,8 @@ public class KyouenActivity extends AppCompatActivity {
                     moveStage(Direction.NEXT);
                 }))
                 .create().show();
-        overlayView.setData(stageModel.getSize(), data);
-        overlayView.setVisibility(View.VISIBLE);
+        binding.kyouenOverlay.setData(stageModel.getSize(), data);
+        binding.kyouenOverlay.setVisibility(View.VISIBLE);
         setKyouen();
     }
 
@@ -269,7 +236,7 @@ public class KyouenActivity extends AppCompatActivity {
     void moveStage(final View v) {
 
         Direction direction;
-        if (v == prevButton) {
+        if (v == binding.prevButton) {
             // prevボタン押下時
             direction = Direction.PREV;
         } else {
@@ -280,7 +247,7 @@ public class KyouenActivity extends AppCompatActivity {
         moveStage(direction);
     }
 
-    @OnClick({R.id.stage_no_layout})
+    @OnClick(R.id.stage_no_layout)
     void showSelectStageDialog() {
         final StageSelectDialog dialog = new StageSelectDialog(
                 KyouenActivity.this, ((count) -> {
