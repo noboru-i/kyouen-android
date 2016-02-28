@@ -10,7 +10,7 @@ import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 /**
  * KyouenActivity用のViewModel。
  */
-public class KyouenActivityViewModel {
+public final class KyouenActivityViewModel {
 
     private TumeKyouenModel tumeKyouenModel;
 

@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.databinding.DataBindingUtil;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -17,11 +18,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterAuthToken;
@@ -32,10 +30,10 @@ import com.twitter.sdk.android.core.identity.TwitterAuthClient;
 import java.io.IOException;
 import java.util.List;
 
-import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hm.orz.chaos114.android.tumekyouen.app.StageGetDialog;
+import hm.orz.chaos114.android.tumekyouen.databinding.ActivityTitleBinding;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
@@ -44,6 +42,7 @@ import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
+import hm.orz.chaos114.android.tumekyouen.viewmodel.TitleActivityViewModel;
 import icepick.Icepick;
 
 /**
@@ -52,21 +51,10 @@ import icepick.Icepick;
 public class TitleActivity extends AppCompatActivity {
     private static final String TAG = TitleActivity.class.getSimpleName();
 
-    @Bind(R.id.get_stage_button)
-    Button mGetStageButton;
-    @Bind(R.id.connect_button)
-    Button mConnectButton;
-    @Bind(R.id.sync_button)
-    Button mSyncButton;
-    @Bind(R.id.sound_button)
-    ImageView mSoundImageView;
-    @Bind(R.id.stage_count)
-    TextView stageCountView;
-    @Bind(R.id.adView)
-    AdView mAdView;
-
     /** DBオブジェクト */
     private KyouenDb kyouenDb;
+
+    private ActivityTitleBinding binding;
 
     private TwitterAuthClient twitterAuthClient = new TwitterAuthClient();
 
@@ -93,9 +81,8 @@ public class TitleActivity extends AppCompatActivity {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_title);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_title);
         ButterKnife.bind(this);
-        Icepick.restoreInstanceState(this, savedInstanceState);
 
         kyouenDb = new KyouenDb(this);
 
@@ -104,7 +91,7 @@ public class TitleActivity extends AppCompatActivity {
 
         // 広告の表示
         AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+        binding.adView.loadAd(adRequest);
 
         final LoginUtil loginUtil = new LoginUtil(this);
         final TwitterAuthToken loginInfo = loginUtil.loadLoginInfo();
@@ -146,9 +133,9 @@ public class TitleActivity extends AppCompatActivity {
      * ステージ取得ボタンの設定
      */
     @OnClick(R.id.get_stage_button)
-    void onClickGetStage() {
-        mGetStageButton.setClickable(false);
-        mGetStageButton.setText(getString(R.string.get_more_loading));
+    void onClickGetStage(Button v) {
+        v.setClickable(false);
+        v.setText(getString(R.string.get_more_loading));
 
         final StageGetDialog dialog = new StageGetDialog(this,
                 mSuccessListener, mCancelListener);
@@ -227,7 +214,7 @@ public class TitleActivity extends AppCompatActivity {
     @OnClick(R.id.sync_button)
     void onClickSyncButton() {
         // ボタンを無効化
-        mSyncButton.setEnabled(false);
+        binding.syncButton.setEnabled(false);
 
         // クリア情報を同期
         new AsyncTask<Void, Void, Void>() {
@@ -251,7 +238,7 @@ public class TitleActivity extends AppCompatActivity {
     @OnClick(R.id.sound_button)
     void changeSound() {
         SoundManager.getInstance(this).switchPlayable();
-        refreshSoundState();
+        refresh();
     }
 
     @MainThread
@@ -312,9 +299,9 @@ public class TitleActivity extends AppCompatActivity {
      */
     @MainThread
     private void onSuccessTwitterAuth() {
-        mConnectButton.setEnabled(false);
-        mConnectButton.setVisibility(View.INVISIBLE);
-        mSyncButton.setVisibility(View.VISIBLE);
+        binding.connectButton.setEnabled(false);
+        binding.connectButton.setVisibility(View.INVISIBLE);
+        binding.syncButton.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -322,7 +309,7 @@ public class TitleActivity extends AppCompatActivity {
      */
     @MainThread
     private void onFailedTwitterAuth() {
-        mConnectButton.setEnabled(true);
+        binding.connectButton.setEnabled(true);
         final LoginUtil loginUtil = new LoginUtil(this);
         loginUtil.saveLoginInfo(null);
         new AlertDialog.Builder(this)
@@ -333,7 +320,7 @@ public class TitleActivity extends AppCompatActivity {
     @MainThread
     private void enableSyncButton() {
         // ボタンを有効化
-        mSyncButton.setEnabled(true);
+        binding.syncButton.setEnabled(true);
         refreshAll();
     }
 
@@ -358,8 +345,7 @@ public class TitleActivity extends AppCompatActivity {
      */
     private void refreshAll() {
         refreshGetStageButton();
-        refreshStageCount();
-        refreshSoundState();
+        refresh();
     }
 
     /**
@@ -367,34 +353,20 @@ public class TitleActivity extends AppCompatActivity {
      */
     private void refreshGetStageButton() {
         if (InsertDataTask.isRunning()) {
-            mGetStageButton.setClickable(false);
-            mGetStageButton.setText(getString(R.string.get_more_loading));
+            binding.getStageButton.setClickable(false);
+            binding.getStageButton.setText(getString(R.string.get_more_loading));
         } else {
-            mGetStageButton.setClickable(true);
-            mGetStageButton.setText(getString(R.string.get_more));
+            binding.getStageButton.setClickable(true);
+            binding.getStageButton.setText(getString(R.string.get_more));
         }
     }
 
     /**
      * ステージ数領域を再設定します。
      */
-    private void refreshStageCount() {
+    private void refresh() {
         final StageCountModel stageCountModel = kyouenDb.selectStageCount();
-        stageCountView.setText(
-                getString(R.string.stage_count,
-                        stageCountModel.getClearStageCount(),
-                        stageCountModel.getStageCount()));
-    }
-
-    /**
-     * 音量領域を再設定します。
-     */
-    private void refreshSoundState() {
-        if (SoundManager.getInstance(this).isPlayable()) {
-            mSoundImageView.setImageResource(R.drawable.sound_on);
-        } else {
-            mSoundImageView.setImageResource(R.drawable.sound_off);
-        }
+        binding.setModel(new TitleActivityViewModel(stageCountModel, this));
     }
 
     /** サーバに認証情報を送信するタスク */
@@ -402,7 +374,7 @@ public class TitleActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            mConnectButton.setEnabled(false);
+            binding.connectButton.setEnabled(false);
         }
 
         @Override
@@ -420,7 +392,7 @@ public class TitleActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(final Boolean result) {
-            mConnectButton.setEnabled(true);
+            binding.connectButton.setEnabled(true);
             if (!result) {
                 // 失敗した場合
                 return;
