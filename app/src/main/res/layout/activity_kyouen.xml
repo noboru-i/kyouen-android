@@ -6,6 +6,10 @@
     <data>
 
         <variable
+            name="handlers"
+            type="hm.orz.chaos114.android.tumekyouen.handlers.KyouenActivityHandlers"/>
+
+        <variable
             name="stageModel"
             type="hm.orz.chaos114.android.tumekyouen.viewmodel.KyouenActivityViewModel"/>
     </data>
@@ -32,8 +36,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/title_button"
-                android:padding="5dp"
                 android:clickable="@{stageModel.hasPrev()}"
+                android:onClick="@{handlers.onClickMoveStage}"
+                android:padding="5dp"
                 android:text="@string/button_prev"
                 android:textColor="#eeeeee"/>
 
@@ -46,6 +51,7 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="2dp"
                 android:layout_weight="1"
+                android:onClick="@{handlers.showSelectStageDialog}"
                 android:orientation="vertical">
 
                 <TextView
@@ -63,8 +69,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="right"
-                    android:textColor="@{stageModel.stageNoTextColor}"
                     android:text="@{stageModel.titleCreator}"
+                    android:textColor="@{stageModel.stageNoTextColor}"
                     android:textSize="10sp"
                     tools:text="created by no name"/>
             </LinearLayout>
@@ -75,6 +81,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/title_button"
+                android:onClick="@{handlers.onClickMoveStage}"
                 android:padding="5dp"
                 android:text="@string/button_next"
                 android:textColor="#eeeeee"/>
@@ -110,6 +117,7 @@
             android:layout_marginRight="20dp"
             android:layout_marginTop="5dp"
             android:background="@drawable/title_button"
+            android:onClick="@{handlers.onClickCheckKyouen}"
             android:padding="5dp"
             android:text="@string/check_kyouen"
             android:textColor="#eeeeee"/>
