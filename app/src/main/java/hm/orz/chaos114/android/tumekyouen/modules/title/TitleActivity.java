@@ -1,4 +1,4 @@
-package hm.orz.chaos114.android.tumekyouen;
+package hm.orz.chaos114.android.tumekyouen.modules.title;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -30,10 +30,11 @@ import com.twitter.sdk.android.core.identity.TwitterAuthClient;
 import java.io.IOException;
 import java.util.List;
 
+import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
+import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.app.StageGetDialog;
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityTitleBinding;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
-import hm.orz.chaos114.android.tumekyouen.handlers.TitleActivityHandlers;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
@@ -41,7 +42,6 @@ import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
-import hm.orz.chaos114.android.tumekyouen.viewmodel.TitleActivityViewModel;
 import icepick.Icepick;
 
 /**

@@ -9,7 +9,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
 import hm.orz.chaos114.android.tumekyouen.R;
-import hm.orz.chaos114.android.tumekyouen.TitleActivity;
+import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
 
 /**
  * ステータスバーに通知するためのユーティリティクラス。

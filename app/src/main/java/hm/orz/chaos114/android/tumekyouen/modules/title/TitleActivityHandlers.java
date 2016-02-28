@@ -1,4 +1,4 @@
-package hm.orz.chaos114.android.tumekyouen.handlers;
+package hm.orz.chaos114.android.tumekyouen.modules.title;
 
 import android.view.View;
 import android.widget.Button;

@@ -1,4 +1,4 @@
-package hm.orz.chaos114.android.tumekyouen;
+package hm.orz.chaos114.android.tumekyouen.modules.kyouen;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -16,18 +16,16 @@ import android.view.View;
 
 import com.google.android.gms.ads.AdRequest;
 
+import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.app.StageSelectDialog;
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityKyouenBinding;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
-import hm.orz.chaos114.android.tumekyouen.fragment.TumeKyouenFragment;
-import hm.orz.chaos114.android.tumekyouen.handlers.KyouenActivityHandlers;
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
-import hm.orz.chaos114.android.tumekyouen.viewmodel.KyouenActivityViewModel;
 
 /**
  * 詰め共円のプレイ画面。

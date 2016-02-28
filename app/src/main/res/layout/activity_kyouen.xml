@@ -7,11 +7,11 @@
 
         <variable
             name="handlers"
-            type="hm.orz.chaos114.android.tumekyouen.handlers.KyouenActivityHandlers"/>
+            type="hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivityHandlers"/>
 
         <variable
             name="stageModel"
-            type="hm.orz.chaos114.android.tumekyouen.viewmodel.KyouenActivityViewModel"/>
+            type="hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivityViewModel"/>
     </data>
 
     <LinearLayout
@@ -100,12 +100,12 @@
                 android:orientation="horizontal">
             </LinearLayout>
 
-            <hm.orz.chaos114.android.tumekyouen.OverlayView
+            <hm.orz.chaos114.android.tumekyouen.modules.kyouen.OverlayView
                 android:id="@+id/kyouen_overlay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="invisible">
-            </hm.orz.chaos114.android.tumekyouen.OverlayView>
+            </hm.orz.chaos114.android.tumekyouen.modules.kyouen.OverlayView>
         </FrameLayout>
 
         <Button

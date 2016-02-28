@@ -1,4 +1,4 @@
-package hm.orz.chaos114.android.tumekyouen.viewmodel;
+package hm.orz.chaos114.android.tumekyouen.modules.kyouen;
 
 import android.content.Context;
 import android.support.annotation.ColorRes;
