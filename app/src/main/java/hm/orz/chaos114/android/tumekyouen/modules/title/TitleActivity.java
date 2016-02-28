@@ -30,19 +30,18 @@ import com.twitter.sdk.android.core.identity.TwitterAuthClient;
 import java.io.IOException;
 import java.util.List;
 
-import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.app.StageGetDialog;
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityTitleBinding;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
+import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
-import icepick.Icepick;
 
 /**
  * タイトル画面を表示するアクティビティ。
@@ -113,11 +112,6 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         refreshAll();
     }
 
-    @Override
-    protected void onSaveInstanceState(final Bundle outState) {
-        Icepick.saveInstanceState(this, outState);
-    }
-
     /**
      * スタートボタンの設定
      */
@@ -134,7 +128,7 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
     @Override
     public void onClickGetStage(View v) {
         v.setClickable(false);
-        ((Button)v).setText(getString(R.string.get_more_loading));
+        ((Button) v).setText(getString(R.string.get_more_loading));
 
         final StageGetDialog dialog = new StageGetDialog(this,
                 mSuccessListener, mCancelListener);
