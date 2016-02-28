@@ -1,4 +1,4 @@
-package hm.orz.chaos114.android.tumekyouen;
+package hm.orz.chaos114.android.tumekyouen.modules.initial;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -8,6 +8,9 @@ import android.util.Log;
 
 import com.google.android.gcm.GCMRegistrar;
 
+import hm.orz.chaos114.android.tumekyouen.GCMIntentService;
+import hm.orz.chaos114.android.tumekyouen.R;
+import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 

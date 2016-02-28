@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#333333"
-    tools:context="hm.orz.chaos114.android.tumekyouen.InitialActivity">
+    tools:context=".modules.initial.InitialActivity">
 
     <TextView
         android:id="@+id/loading_text"

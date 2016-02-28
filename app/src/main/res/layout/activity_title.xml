@@ -6,11 +6,11 @@
 
         <variable
             name="handlers"
-            type="hm.orz.chaos114.android.tumekyouen.handlers.TitleActivityHandlers"/>
+            type="hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivityHandlers"/>
 
         <variable
             name="model"
-            type="hm.orz.chaos114.android.tumekyouen.viewmodel.TitleActivityViewModel"/>
+            type="hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivityViewModel"/>
     </data>
 
     <LinearLayout
