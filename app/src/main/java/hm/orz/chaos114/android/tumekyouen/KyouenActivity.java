@@ -16,12 +16,11 @@ import android.view.View;
 
 import com.google.android.gms.ads.AdRequest;
 
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import hm.orz.chaos114.android.tumekyouen.app.StageSelectDialog;
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityKyouenBinding;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.fragment.TumeKyouenFragment;
+import hm.orz.chaos114.android.tumekyouen.handlers.KyouenActivityHandlers;
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
@@ -33,7 +32,7 @@ import hm.orz.chaos114.android.tumekyouen.viewmodel.KyouenActivityViewModel;
 /**
  * 詰め共円のプレイ画面。
  */
-public class KyouenActivity extends AppCompatActivity {
+public class KyouenActivity extends AppCompatActivity implements KyouenActivityHandlers {
 
     private static final String EXTRA_TUME_KYOUEN_MODEL
             = "hm.orz.chaos114.android.tumekyouen.EXTRA_TUME_KYOUEN_MODEL";
@@ -58,7 +57,7 @@ public class KyouenActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_kyouen);
-        ButterKnife.bind(this);
+        binding.setHandlers(this);
 
         kyouenDb = new KyouenDb(this);
 
@@ -199,8 +198,8 @@ public class KyouenActivity extends AppCompatActivity {
         init();
     }
 
-    @OnClick(R.id.kyouen_button)
-    void checkKyouen() {
+    @Override
+    public void onClickCheckKyouen(View view) {
         if (tumeKyouenFragment.getGameModel().getWhiteStoneCount() != 4) {
             // 4つの石が選択されていない場合
             new AlertDialog.Builder(KyouenActivity.this)
@@ -232,8 +231,8 @@ public class KyouenActivity extends AppCompatActivity {
         setKyouen();
     }
 
-    @OnClick({R.id.next_button, R.id.prev_button})
-    void moveStage(final View v) {
+    @Override
+    public void onClickMoveStage(View v) {
 
         Direction direction;
         if (v == binding.prevButton) {
@@ -247,8 +246,8 @@ public class KyouenActivity extends AppCompatActivity {
         moveStage(direction);
     }
 
-    @OnClick(R.id.stage_no_layout)
-    void showSelectStageDialog() {
+    @Override
+    public void showSelectStageDialog(View view) {
         final StageSelectDialog dialog = new StageSelectDialog(
                 KyouenActivity.this, ((count) -> {
             final long maxStageNo = kyouenDb.selectMaxStageNo();

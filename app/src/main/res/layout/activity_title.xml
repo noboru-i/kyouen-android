@@ -5,6 +5,10 @@
     <data>
 
         <variable
+            name="handlers"
+            type="hm.orz.chaos114.android.tumekyouen.handlers.TitleActivityHandlers"/>
+
+        <variable
             name="model"
             type="hm.orz.chaos114.android.tumekyouen.viewmodel.TitleActivityViewModel"/>
     </data>
@@ -42,6 +46,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/title_button"
                 android:gravity="center"
+                android:onClick="@{handlers.onClickStartButton}"
                 android:padding="5dp"
                 android:text="@string/puzzle"
                 android:textColor="#eeeeee"/>
@@ -65,6 +70,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/title_button"
                 android:gravity="center"
+                android:onClick="@{handlers.onClickGetStage}"
                 android:padding="5dp"
                 android:text="@string/get_more"
                 android:textColor="#eeeeee"/>
@@ -75,6 +81,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/title_button"
+                android:onClick="@{handlers.onClickCreateStage}"
                 android:gravity="center"
                 android:padding="5dp"
                 android:text="@string/create_stage"
@@ -90,6 +97,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/title_button"
+                    android:onClick="@{handlers.onClickConnectButton}"
                     android:gravity="center"
                     android:padding="5dp"
                     android:text="@string/twitter_connect"
@@ -102,6 +110,7 @@
                     android:layout_marginTop="10dp"
                     android:background="@drawable/title_button"
                     android:gravity="center"
+                    android:onClick="@{handlers.onClickSyncButton}"
                     android:padding="5dp"
                     android:text="@string/sync_stage_user"
                     android:textColor="#eeeeee"
@@ -111,6 +120,7 @@
             <ImageView
                 android:id="@+id/sound_button"
                 android:layout_width="36dp"
+                android:onClick="@{handlers.switchPlayable}"
                 android:layout_height="36dp"
                 android:layout_marginLeft="90dp"
                 android:src="@{model.soundResource}"/>
