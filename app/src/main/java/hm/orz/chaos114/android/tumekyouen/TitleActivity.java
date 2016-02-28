@@ -30,11 +30,10 @@ import com.twitter.sdk.android.core.identity.TwitterAuthClient;
 import java.io.IOException;
 import java.util.List;
 
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import hm.orz.chaos114.android.tumekyouen.app.StageGetDialog;
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityTitleBinding;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
+import hm.orz.chaos114.android.tumekyouen.handlers.TitleActivityHandlers;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
@@ -48,7 +47,7 @@ import icepick.Icepick;
 /**
  * タイトル画面を表示するアクティビティ。
  */
-public class TitleActivity extends AppCompatActivity {
+public class TitleActivity extends AppCompatActivity implements TitleActivityHandlers {
     private static final String TAG = TitleActivity.class.getSimpleName();
 
     /** DBオブジェクト */
@@ -82,7 +81,7 @@ public class TitleActivity extends AppCompatActivity {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_title);
-        ButterKnife.bind(this);
+        binding.setHandlers(this);
 
         kyouenDb = new KyouenDb(this);
 
@@ -122,8 +121,8 @@ public class TitleActivity extends AppCompatActivity {
     /**
      * スタートボタンの設定
      */
-    @OnClick(R.id.start_puzzle_button)
-    public void onClickStartButton() {
+    @Override
+    public void onClickStartButton(View view) {
         final int stageNo = getLastStageNo();
         final TumeKyouenModel item = kyouenDb.selectCurrentStage(stageNo);
         KyouenActivity.start(this, item);
@@ -132,10 +131,10 @@ public class TitleActivity extends AppCompatActivity {
     /**
      * ステージ取得ボタンの設定
      */
-    @OnClick(R.id.get_stage_button)
-    void onClickGetStage(Button v) {
+    @Override
+    public void onClickGetStage(View v) {
         v.setClickable(false);
-        v.setText(getString(R.string.get_more_loading));
+        ((Button)v).setText(getString(R.string.get_more_loading));
 
         final StageGetDialog dialog = new StageGetDialog(this,
                 mSuccessListener, mCancelListener);
@@ -145,8 +144,8 @@ public class TitleActivity extends AppCompatActivity {
     /**
      * ステージ作成ボタン押下時の処理
      */
-    @OnClick(R.id.create_stage_button)
-    void onClickCreateStage() {
+    @Override
+    public void onClickCreateStage(View v) {
         boolean hasKyouenChecker;
         try {
             // 共円チェッカーの存在有無チェック
@@ -179,8 +178,8 @@ public class TitleActivity extends AppCompatActivity {
     }
 
     /** twitter接続ボタン押下後の処理 */
-    @OnClick(R.id.connect_button)
-    void onClickConnectButton() {
+    @Override
+    public void onClickConnectButton(View view) {
         ProgressDialog dialog;
         // ローディングダイアログの表示
         dialog = new ProgressDialog(TitleActivity.this);
@@ -211,8 +210,8 @@ public class TitleActivity extends AppCompatActivity {
     /**
      * クリア情報を同期ボタン押下時の処理
      */
-    @OnClick(R.id.sync_button)
-    void onClickSyncButton() {
+    @Override
+    public void onClickSyncButton(View view) {
         // ボタンを無効化
         binding.syncButton.setEnabled(false);
 
@@ -235,8 +234,8 @@ public class TitleActivity extends AppCompatActivity {
     /**
      * 音量領域の設定
      */
-    @OnClick(R.id.sound_button)
-    void changeSound() {
+    @Override
+    public void switchPlayable(View view) {
         SoundManager.getInstance(this).switchPlayable();
         refresh();
     }
