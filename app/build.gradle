@@ -15,8 +15,8 @@ android {
         applicationId "hm.orz.chaos114.android.tumekyouen"
         minSdkVersion 17
         targetSdkVersion 23
-        versionCode 17
-        versionName "0.9.5"
+        versionCode 18
+        versionName "0.10.0"
     }
     buildTypes {
         release {
