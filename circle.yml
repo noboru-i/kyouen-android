@@ -5,7 +5,7 @@ machine:
 dependencies:
   pre:
     - echo y | android update sdk --no-ui --all --filter "tools"
-    - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.2,extra-google-m2repository"
+    - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.3,extra-google-m2repository"
     - scripts/env2file app/fabric.properties
 test:
   override:
