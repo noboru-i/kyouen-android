@@ -1,20 +1,24 @@
 package hm.orz.chaos114.android.tumekyouen.util;
 
-import android.content.Context;
 import android.support.annotation.Nullable;
 
 import com.twitter.sdk.android.core.TwitterAuthToken;
 
+import javax.inject.Inject;
+
+import hm.orz.chaos114.android.tumekyouen.App;
+
 public class LoginUtil {
     /** Preferenceユーティリティ */
-    private final PreferenceUtil preferenceUtil;
+    @Inject
+    PreferenceUtil preferenceUtil;
 
     /** 暗号化ユーティリティ */
-    private final EncryptionUtil encryptionUtil;
+    @Inject
+    EncryptionUtil encryptionUtil;
 
-    public LoginUtil(Context context) {
-        preferenceUtil = new PreferenceUtil(context.getApplicationContext());
-        encryptionUtil = new EncryptionUtil(context);
+    public LoginUtil(App app) {
+        app.getApplicationComponent().inject(this);
     }
 
     /**

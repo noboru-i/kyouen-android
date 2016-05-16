@@ -5,6 +5,10 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
+import javax.inject.Inject;
+
+import hm.orz.chaos114.android.tumekyouen.App;
+
 /**
  * Preferenceのユーティリティクラス
  *
@@ -27,11 +31,11 @@ public class PreferenceUtil {
     /** 最後に表示していたステージ番号：int */
     public static final String KEY_LAST_STAGE_NO = "last_stage_no";
 
-    private SharedPreferences sp;
+    @Inject
+    SharedPreferences sp;
 
-    public PreferenceUtil(Context context) {
-        sp = PreferenceManager.getDefaultSharedPreferences(context
-                .getApplicationContext());
+    public PreferenceUtil(App app) {
+        app.getApplicationComponent().inject(this);
     }
 
     public void putString(String key, String value) {

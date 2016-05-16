@@ -30,10 +30,14 @@ import com.twitter.sdk.android.core.identity.TwitterAuthClient;
 import java.io.IOException;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.app.StageGetDialog;
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityTitleBinding;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
+import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
@@ -48,6 +52,13 @@ import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
  */
 public class TitleActivity extends AppCompatActivity implements TitleActivityHandlers {
     private static final String TAG = TitleActivity.class.getSimpleName();
+
+    @Inject
+    LoginUtil loginUtil;
+    @Inject
+    PreferenceUtil preferenceUtil;
+    @Inject
+    SoundManager soundManager;
 
     /** DBオブジェクト */
     private KyouenDb kyouenDb;
@@ -67,9 +78,7 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
     });
 
     /** キャンセルボタン押下後の処理 */
-    private final DialogInterface.OnCancelListener mCancelListener = (dialog -> {
-        refreshAll();
-    });
+    private final DialogInterface.OnCancelListener mCancelListener = (dialog -> refreshAll());
 
     public static void start(Activity activity) {
         final Intent intent = new Intent(activity, TitleActivity.class);
@@ -84,6 +93,8 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
 
         kyouenDb = new KyouenDb(this);
 
+        getApplicationComponent().inject(this);
+
         // 音量ボタンの動作変更
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -91,7 +102,6 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         AdRequest adRequest = new AdRequest.Builder().build();
         binding.adView.loadAd(adRequest);
 
-        final LoginUtil loginUtil = new LoginUtil(this);
         final TwitterAuthToken loginInfo = loginUtil.loadLoginInfo();
         if (loginInfo != null) {
             // 認証情報が存在する場合
@@ -100,6 +110,10 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
 
         // 描画内容を更新
         refreshAll();
+    }
+
+    private AppComponent getApplicationComponent() {
+        return ((App) getApplication()).getApplicationComponent();
     }
 
     @Override
@@ -230,7 +244,7 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
      */
     @Override
     public void switchPlayable(View view) {
-        SoundManager.getInstance(this).switchPlayable();
+        soundManager.switchPlayable();
         refresh();
     }
 
@@ -279,7 +293,6 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         }
 
         // ログイン情報を保存
-        final LoginUtil loginUtil = new LoginUtil(this);
         Log.d(TAG, "loginUtil.saveLoginInfo");
         loginUtil.saveLoginInfo(authToken);
 
@@ -303,7 +316,6 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
     @MainThread
     private void onFailedTwitterAuth() {
         binding.connectButton.setEnabled(true);
-        final LoginUtil loginUtil = new LoginUtil(this);
         loginUtil.saveLoginInfo(null);
         new AlertDialog.Builder(this)
                 .setMessage(R.string.alert_error_authenticate_twitter)
@@ -323,7 +335,6 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
      * @return ステージ番号
      */
     private int getLastStageNo() {
-        final PreferenceUtil preferenceUtil = new PreferenceUtil(getApplicationContext());
         int lastStageNo = preferenceUtil.getInt(PreferenceUtil.KEY_LAST_STAGE_NO);
         if (lastStageNo == 0) {
             // デフォルト値を設定
@@ -359,7 +370,8 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
      */
     private void refresh() {
         final StageCountModel stageCountModel = kyouenDb.selectStageCount();
-        binding.setModel(new TitleActivityViewModel(stageCountModel, this));
+        App app = (App) getApplication();
+        binding.setModel(new TitleActivityViewModel(app, stageCountModel, this));
     }
 
     /** サーバに認証情報を送信するタスク */

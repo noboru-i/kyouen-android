@@ -10,6 +10,9 @@ import java.security.SecureRandom;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.spec.SecretKeySpec;
+import javax.inject.Inject;
+
+import hm.orz.chaos114.android.tumekyouen.App;
 
 public class EncryptionUtil {
     /** 鍵のbit数 */
@@ -18,17 +21,16 @@ public class EncryptionUtil {
     /** 暗号化キー */
     private final Key key;
 
+    @Inject
+    PreferenceUtil preferenceUtil;
+
     /**
      * コンストラクタ。
      * 暗号化キーを生成、もしくは復元します。
-     *
-     * @param context コンテキスト
      */
-    public EncryptionUtil(Context context) {
-        context = context.getApplicationContext();
-
+    public EncryptionUtil(App app) {
+        app.getApplicationComponent().inject(this);
         // Preferenceから暗号化キーを取得
-        PreferenceUtil preferenceUtil = new PreferenceUtil(context);
         String keyStr = preferenceUtil.getString(PreferenceUtil.KEY_SECRET_KEY);
 
         if (keyStr == null) {

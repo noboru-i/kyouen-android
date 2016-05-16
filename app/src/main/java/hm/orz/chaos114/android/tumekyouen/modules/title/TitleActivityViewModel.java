@@ -5,6 +5,10 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
 import android.support.v4.content.ContextCompat;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
@@ -14,11 +18,15 @@ import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
  */
 public final class TitleActivityViewModel {
 
+    @Inject
+    SoundManager soundManager;
+
     private StageCountModel stageCountModel;
 
     private Context context;
 
-    public TitleActivityViewModel(StageCountModel stageCountModel, Context context) {
+    public TitleActivityViewModel(App app, StageCountModel stageCountModel, Context context) {
+        app.getApplicationComponent().inject(this);
         this.stageCountModel = stageCountModel;
         this.context = context;
     }
@@ -30,7 +38,7 @@ public final class TitleActivityViewModel {
     }
 
     public Drawable getSoundResource() {
-        boolean playable = SoundManager.getInstance(context).isPlayable();
+        boolean playable = soundManager.isPlayable();
         @DrawableRes int imageRes = playable ? R.drawable.sound_on : R.drawable.sound_off;
         return ContextCompat.getDrawable(context, imageRes);
     }

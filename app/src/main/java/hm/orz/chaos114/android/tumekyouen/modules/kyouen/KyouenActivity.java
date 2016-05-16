@@ -16,10 +16,14 @@ import android.view.View;
 
 import com.google.android.gms.ads.AdRequest;
 
+import javax.inject.Inject;
+
+import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.app.StageSelectDialog;
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityKyouenBinding;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
+import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
@@ -34,6 +38,11 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
 
     private static final String EXTRA_TUME_KYOUEN_MODEL
             = "hm.orz.chaos114.android.tumekyouen.EXTRA_TUME_KYOUEN_MODEL";
+
+    @Inject
+    PreferenceUtil preferenceUtil;
+    @Inject
+    SoundManager soundManager;
 
     /** ステージ情報オブジェクト */
     private TumeKyouenModel stageModel;
@@ -58,6 +67,8 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         binding.setHandlers(this);
 
         kyouenDb = new KyouenDb(this);
+
+        getApplicationComponent().inject(this);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -84,9 +95,12 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         init();
     }
 
+    private AppComponent getApplicationComponent() {
+        return ((App) getApplication()).getApplicationComponent();
+    }
+
     private void init() {
         // プリファレンスに設定
-        final PreferenceUtil preferenceUtil = new PreferenceUtil(getApplicationContext());
         preferenceUtil.putInt(PreferenceUtil.KEY_LAST_STAGE_NO, stageModel.getStageNo());
 
         // 共円ボタンの設定
@@ -217,7 +231,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         }
 
         // 共円の場合
-        SoundManager.getInstance(KyouenActivity.this).play(R.raw.se_maoudamashii_onepoint23);
+        soundManager.play(R.raw.se_maoudamashii_onepoint23);
         new AlertDialog.Builder(KyouenActivity.this)
                 .setTitle(R.string.kyouen)
                 .setNeutralButton("Next", ((dialog, which) -> {
