@@ -1,6 +1,5 @@
 package hm.orz.chaos114.android.tumekyouen.di;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -37,25 +36,25 @@ public class AppModule {
 
     @Provides
     @Singleton
-    PreferenceUtil providePreferenceUtil() {
-        return new PreferenceUtil(application);
+    PreferenceUtil providePreferenceUtil(SharedPreferences sp) {
+        return new PreferenceUtil(sp);
     }
 
     @Provides
     @Singleton
-    LoginUtil provideLoginUtil() {
-        return new LoginUtil(application);
+    LoginUtil provideLoginUtil(PreferenceUtil preferenceUtil, EncryptionUtil encryptionUtil) {
+        return new LoginUtil(preferenceUtil, encryptionUtil);
     }
 
     @Provides
     @Singleton
-    EncryptionUtil provideEncryptionUtil() {
-        return new EncryptionUtil(application);
+    EncryptionUtil provideEncryptionUtil(PreferenceUtil preferenceUtil) {
+        return new EncryptionUtil(preferenceUtil);
     }
 
     @Provides
     @Singleton
-    SoundManager provideSoundManager() {
-        return new SoundManager(application);
+    SoundManager provideSoundManager(PreferenceUtil preferenceUtil, Context context) {
+        return new SoundManager(preferenceUtil, context);
     }
 }

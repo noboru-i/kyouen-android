@@ -21,13 +21,5 @@ public interface AppComponent {
 
     void inject(TumeKyouenFragment fragment);
 
-    void inject(LoginUtil loginUtil);
-
-    void inject(EncryptionUtil encryptionUtil);
-
-    void inject(PreferenceUtil preferenceUtil);
-
-    void inject(SoundManager soundManager);
-
     void inject(TitleActivityViewModel titleActivityViewModel);
 }

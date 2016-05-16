@@ -7,16 +7,11 @@ import android.util.SparseIntArray;
 
 import javax.inject.Inject;
 
-import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
 
 public class SoundManager {
 
-    @Inject
     PreferenceUtil preferenceUtil;
-
-    /** 唯一のインスタンス */
-    private static SoundManager instance;
 
     /** サウンドプール */
     private SoundPool soundPool;
@@ -27,23 +22,16 @@ public class SoundManager {
     /**
      * プライベートコンストラクタ。
      */
-    public SoundManager(App app) {
-        app.getApplicationComponent().inject(this);
-        init(app);
-    }
+    @Inject
+    public SoundManager(PreferenceUtil preferenceUtil, Context context) {
+        this.preferenceUtil = preferenceUtil;
 
-    /**
-     * 初期化します。
-     *
-     * @param paramContext コンテキスト
-     */
-    public void init(Context paramContext) {
         soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
         soundIds = new SparseIntArray();
         soundIds.put(R.raw.se_maoudamashii_se_finger01,
-                soundPool.load(paramContext, R.raw.se_maoudamashii_se_finger01, 1));
+                soundPool.load(context, R.raw.se_maoudamashii_se_finger01, 1));
         soundIds.put(R.raw.se_maoudamashii_onepoint23,
-                soundPool.load(paramContext, R.raw.se_maoudamashii_onepoint23, 1));
+                soundPool.load(context, R.raw.se_maoudamashii_onepoint23, 1));
     }
 
     /**

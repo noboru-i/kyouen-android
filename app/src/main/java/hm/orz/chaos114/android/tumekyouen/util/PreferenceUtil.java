@@ -31,11 +31,11 @@ public class PreferenceUtil {
     /** 最後に表示していたステージ番号：int */
     public static final String KEY_LAST_STAGE_NO = "last_stage_no";
 
-    @Inject
     SharedPreferences sp;
 
-    public PreferenceUtil(App app) {
-        app.getApplicationComponent().inject(this);
+    @Inject
+    public PreferenceUtil(SharedPreferences sp) {
+        this.sp = sp;
     }
 
     public void putString(String key, String value) {

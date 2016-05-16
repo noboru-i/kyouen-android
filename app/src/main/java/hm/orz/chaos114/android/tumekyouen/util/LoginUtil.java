@@ -5,20 +5,22 @@ import android.support.annotation.Nullable;
 import com.twitter.sdk.android.core.TwitterAuthToken;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import hm.orz.chaos114.android.tumekyouen.App;
 
+@Singleton
 public class LoginUtil {
     /** Preferenceユーティリティ */
-    @Inject
     PreferenceUtil preferenceUtil;
 
     /** 暗号化ユーティリティ */
-    @Inject
     EncryptionUtil encryptionUtil;
 
-    public LoginUtil(App app) {
-        app.getApplicationComponent().inject(this);
+    @Inject
+    public LoginUtil(PreferenceUtil preferenceUtil, EncryptionUtil encryptionUtil) {
+        this.preferenceUtil = preferenceUtil;
+        this.encryptionUtil = encryptionUtil;
     }
 
     /**
