@@ -5,12 +5,13 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.SparseIntArray;
 
+import javax.inject.Inject;
+
 import hm.orz.chaos114.android.tumekyouen.R;
 
 public class SoundManager {
 
-    /** 唯一のインスタンス */
-    private static SoundManager instance;
+    PreferenceUtil preferenceUtil;
 
     /** サウンドプール */
     private SoundPool soundPool;
@@ -18,35 +19,13 @@ public class SoundManager {
     /** サウンドのID */
     private SparseIntArray soundIds;
 
-    /** コンテキスト */
-    private Context context;
-
     /**
      * プライベートコンストラクタ。
      */
-    private SoundManager() {
-    }
+    @Inject
+    public SoundManager(PreferenceUtil preferenceUtil, Context context) {
+        this.preferenceUtil = preferenceUtil;
 
-    /**
-     * インスタンスを返します。
-     *
-     * @return このクラスのインスタンス
-     */
-    public static SoundManager getInstance(Context paramContext) {
-        if (instance == null) {
-            instance = new SoundManager();
-            instance.init(paramContext);
-        }
-        return instance;
-    }
-
-    /**
-     * 初期化します。
-     *
-     * @param paramContext コンテキスト
-     */
-    public void init(Context paramContext) {
-        context = paramContext;
         soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
         soundIds = new SparseIntArray();
         soundIds.put(R.raw.se_maoudamashii_se_finger01,
@@ -61,7 +40,6 @@ public class SoundManager {
      * @return 音再生フラグ
      */
     public boolean isPlayable() {
-        PreferenceUtil preferenceUtil = new PreferenceUtil(context);
         return preferenceUtil.getBoolean(PreferenceUtil.KEY_SOUND);
     }
 
@@ -71,7 +49,6 @@ public class SoundManager {
      * @param playable 音再生フラグ
      */
     public void setPlayable(boolean playable) {
-        PreferenceUtil preferenceUtil = new PreferenceUtil(context);
         preferenceUtil.putBoolean(PreferenceUtil.KEY_SOUND, playable);
     }
 

@@ -1,6 +1,5 @@
 package hm.orz.chaos114.android.tumekyouen.util;
 
-import android.content.Context;
 import android.util.Base64;
 
 import java.security.GeneralSecurityException;
@@ -10,7 +9,10 @@ import java.security.SecureRandom;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.spec.SecretKeySpec;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class EncryptionUtil {
     /** 鍵のbit数 */
     private static final int ENCRYPT_KEY_LENGTH = 128;
@@ -18,17 +20,15 @@ public class EncryptionUtil {
     /** 暗号化キー */
     private final Key key;
 
+    PreferenceUtil preferenceUtil;
+
     /**
      * コンストラクタ。
      * 暗号化キーを生成、もしくは復元します。
-     *
-     * @param context コンテキスト
      */
-    public EncryptionUtil(Context context) {
-        context = context.getApplicationContext();
-
+    @Inject
+    public EncryptionUtil(PreferenceUtil preferenceUtil) {
         // Preferenceから暗号化キーを取得
-        PreferenceUtil preferenceUtil = new PreferenceUtil(context);
         String keyStr = preferenceUtil.getString(PreferenceUtil.KEY_SECRET_KEY);
 
         if (keyStr == null) {

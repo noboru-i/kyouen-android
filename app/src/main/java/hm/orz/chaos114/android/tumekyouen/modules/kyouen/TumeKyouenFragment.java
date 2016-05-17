@@ -20,13 +20,20 @@ import android.widget.TableRow;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
+import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.model.GameModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 
 public class TumeKyouenFragment extends Fragment {
-    Context context;
+
+    @Inject
+    SoundManager soundManager;
+
     /** メインのレイアウト */
     private TableLayout layout;
     /** スクリーンの幅 */
@@ -56,18 +63,18 @@ public class TumeKyouenFragment extends Fragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              final Bundle savedInstanceState) {
-        context = getActivity().getApplicationContext();
+        getApplicationComponent().inject(this);
 
         final TumeKyouenModel stageModel = (TumeKyouenModel) getArguments()
                 .getSerializable("stage");
         gameModel = new GameModel(stageModel.getSize(), stageModel.getStage());
 
         // ディスプレイサイズの取得
-        final Display display = ((WindowManager) context
+        final Display display = ((WindowManager) getContext()
                 .getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         maxScrnWidth = display.getWidth();
 
-        layout = new TableLayout(context);
+        layout = new TableLayout(getContext());
         buttons = new ArrayList<>();
 
         init();
@@ -75,12 +82,17 @@ public class TumeKyouenFragment extends Fragment {
         return layout;
     }
 
+    private AppComponent getApplicationComponent() {
+        return ((App) getContext().getApplicationContext()).getApplicationComponent();
+    }
+
+
     private void init() {
         for (int i = 0; i < gameModel.getSize(); i++) {
-            final TableRow tableRow = new TableRow(context);
+            final TableRow tableRow = new TableRow(getContext());
             layout.addView(tableRow);
             for (int j = 0; j < gameModel.getSize(); j++) {
-                final Button button = new Button(context);
+                final Button button = new Button(getContext());
                 button.setBackgroundDrawable(new BitmapDrawable(
                         createBackgroundBitmap()));
                 final int stoneSize = maxScrnWidth / gameModel.getSize();
@@ -95,22 +107,21 @@ public class TumeKyouenFragment extends Fragment {
                 buttons.add(button);
                 tableRow.addView(button, stoneSize, stoneSize);
                 button.setOnClickListener((v) -> {
-                        final int index = buttons.indexOf(v);
-                        final Button b = (Button) v;
-                        if (v.getTag() == ButtonState.NONE) {
-                            // 石が設定されていない場合
-                            return;
-                        }
+                    final int index = buttons.indexOf(v);
+                    final Button b = (Button) v;
+                    if (v.getTag() == ButtonState.NONE) {
+                        // 石が設定されていない場合
+                        return;
+                    }
 
-                        // 効果音の再生
-                        SoundManager.getInstance(context).play(
-                                R.raw.se_maoudamashii_se_finger01);
+                    // 効果音の再生
+                    soundManager.play(R.raw.se_maoudamashii_se_finger01);
 
-                        // 色の反転
-                        final int col = index % gameModel.getSize();
-                        final int row = index / gameModel.getSize();
-                        switchStoneColor(b);
-                        gameModel.switchColor(col, row);
+                    // 色の反転
+                    final int col = index % gameModel.getSize();
+                    final int row = index / gameModel.getSize();
+                    switchStoneColor(b);
+                    gameModel.switchColor(col, row);
                 });
             }
         }

@@ -1,9 +1,9 @@
 package hm.orz.chaos114.android.tumekyouen.util;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.preference.PreferenceManager;
+
+import javax.inject.Inject;
 
 /**
  * Preferenceのユーティリティクラス
@@ -27,11 +27,11 @@ public class PreferenceUtil {
     /** 最後に表示していたステージ番号：int */
     public static final String KEY_LAST_STAGE_NO = "last_stage_no";
 
-    private SharedPreferences sp;
+    SharedPreferences sp;
 
-    public PreferenceUtil(Context context) {
-        sp = PreferenceManager.getDefaultSharedPreferences(context
-                .getApplicationContext());
+    @Inject
+    public PreferenceUtil(SharedPreferences sp) {
+        this.sp = sp;
     }
 
     public void putString(String key, String value) {
