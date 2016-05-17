@@ -8,9 +8,13 @@ import android.util.Log;
 
 import com.google.android.gcm.GCMRegistrar;
 
+import javax.inject.Inject;
+
+import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.GCMIntentService;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
+import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 
@@ -19,15 +23,15 @@ import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
  */
 public class InitialActivity extends AppCompatActivity {
 
-    /** DBオブジェクト */
-    private KyouenDb kyouenDb;
+    @Inject
+    KyouenDb kyouenDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial);
 
-        kyouenDb = new KyouenDb(this);
+        getApplicationComponent().inject(this);
 
         // GCMへの登録
         registGcm();
@@ -80,6 +84,10 @@ public class InitialActivity extends AppCompatActivity {
         for (final String data : initData) {
             kyouenDb.insert(data);
         }
+    }
+
+    private AppComponent getApplicationComponent() {
+        return ((App) getApplication()).getApplicationComponent();
     }
 
     private void registGcm() {

@@ -9,6 +9,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import hm.orz.chaos114.android.tumekyouen.App;
+import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.util.EncryptionUtil;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
@@ -56,5 +57,10 @@ public class AppModule {
     @Singleton
     SoundManager provideSoundManager(PreferenceUtil preferenceUtil, Context context) {
         return new SoundManager(preferenceUtil, context);
+    }
+
+    @Provides
+    KyouenDb provideKyouenDb(Context context) {
+        return new KyouenDb(context);
     }
 }

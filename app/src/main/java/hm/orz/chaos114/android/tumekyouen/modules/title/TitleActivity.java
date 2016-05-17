@@ -59,9 +59,8 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
     PreferenceUtil preferenceUtil;
     @Inject
     SoundManager soundManager;
-
-    /** DBオブジェクト */
-    private KyouenDb kyouenDb;
+    @Inject
+    KyouenDb kyouenDb;
 
     private ActivityTitleBinding binding;
 
@@ -90,8 +89,6 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_title);
         binding.setHandlers(this);
-
-        kyouenDb = new KyouenDb(this);
 
         getApplicationComponent().inject(this);
 
