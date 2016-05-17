@@ -7,8 +7,6 @@ import com.twitter.sdk.android.core.TwitterAuthToken;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import hm.orz.chaos114.android.tumekyouen.App;
-
 @Singleton
 public class LoginUtil {
     /** Preferenceユーティリティ */

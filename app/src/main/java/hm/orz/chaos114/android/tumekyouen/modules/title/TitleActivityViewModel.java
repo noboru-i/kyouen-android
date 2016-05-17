@@ -6,7 +6,6 @@ import android.support.annotation.DrawableRes;
 import android.support.v4.content.ContextCompat;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;

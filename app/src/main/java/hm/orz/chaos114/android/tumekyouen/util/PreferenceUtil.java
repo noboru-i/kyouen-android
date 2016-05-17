@@ -1,13 +1,9 @@
 package hm.orz.chaos114.android.tumekyouen.util;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.preference.PreferenceManager;
 
 import javax.inject.Inject;
-
-import hm.orz.chaos114.android.tumekyouen.App;
 
 /**
  * Preferenceのユーティリティクラス

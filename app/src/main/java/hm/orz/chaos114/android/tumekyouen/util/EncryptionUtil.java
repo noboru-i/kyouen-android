@@ -12,8 +12,6 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import hm.orz.chaos114.android.tumekyouen.App;
-
 @Singleton
 public class EncryptionUtil {
     /** 鍵のbit数 */

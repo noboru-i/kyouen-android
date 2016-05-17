@@ -10,8 +10,8 @@ import com.google.android.gcm.GCMRegistrar;
 
 import hm.orz.chaos114.android.tumekyouen.GCMIntentService;
 import hm.orz.chaos114.android.tumekyouen.R;
-import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
+import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 
 /**

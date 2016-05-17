@@ -7,10 +7,6 @@ import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.TumeKyouenFragment;
 import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
 import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivityViewModel;
-import hm.orz.chaos114.android.tumekyouen.util.EncryptionUtil;
-import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
-import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
-import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 
 @Singleton
 @Component(modules = {AppModule.class})
