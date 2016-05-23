@@ -43,14 +43,14 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
     PreferenceUtil preferenceUtil;
     @Inject
     SoundManager soundManager;
+    @Inject
+    KyouenDb kyouenDb;
 
     /** ステージ情報オブジェクト */
     private TumeKyouenModel stageModel;
 
     private ActivityKyouenBinding binding;
 
-    /** DBアクセスオブジェクト */
-    private KyouenDb kyouenDb;
     /** 共円描画用view */
     private TumeKyouenFragment tumeKyouenFragment;
 
@@ -65,8 +65,6 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_kyouen);
         binding.setHandlers(this);
-
-        kyouenDb = new KyouenDb(this);
 
         getApplicationComponent().inject(this);
 
