@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.google.android.gms.ads.AdRequest;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterAuthToken;
@@ -61,6 +62,8 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
     SoundManager soundManager;
     @Inject
     KyouenDb kyouenDb;
+    @Inject
+    FirebaseAnalytics firebaseAnalytics;
 
     private ActivityTitleBinding binding;
 
@@ -107,6 +110,13 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
 
         // 描画内容を更新
         refreshAll();
+
+        // TODO test access
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "1");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "hoge");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image");
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 
     private AppComponent getApplicationComponent() {

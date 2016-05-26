@@ -132,6 +132,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
             ads:adSize="BANNER"
-            ads:adUnitId="@string/unit_id"/>
+            ads:adUnitId="@string/banner_ad_unit_id"/>
     </LinearLayout>
 </layout>

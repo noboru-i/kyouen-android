@@ -3,8 +3,6 @@ package hm.orz.chaos114.android.tumekyouen.util;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.android.gcm.GCMRegistrar;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -60,13 +58,12 @@ public final class ServerUtil {
     public static boolean registGcm(final Context context, final String regId) {
         Log.i(TAG, "#regist regId = " + regId);
         String url = context.getString(R.string.server_url) + "/gcm/regist";
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         params.put("regId", regId);
         long backoff = BACKOFF_MILLI_SECONDS;
         for (int i = 1; i <= MAX_ATTEMPTS; i++) {
             try {
                 post(url, params);
-                GCMRegistrar.setRegisteredOnServer(context, true);
                 Log.i(TAG, "regist success");
                 return true;
             } catch (IOException e) {
@@ -90,25 +87,6 @@ public final class ServerUtil {
     }
 
     /**
-     * GCM用の登録IDをAPサーバより解除する。
-     *
-     * @param context コンテキスト
-     * @param regId   登録ID
-     */
-    public static void unregistGcm(final Context context, final String regId) {
-        String url = context.getString(R.string.server_url) + "/gcm/unregist";
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("regId", regId);
-        try {
-            post(url, params);
-            GCMRegistrar.setRegisteredOnServer(context, false);
-        } catch (IOException e) {
-            // GCMからは解除されたが、APサーバには登録されている状態
-            // APサーバ側で送信時に"NotRegistered"エラーを検出可能なため、処理なし
-        }
-    }
-
-    /**
      * ユーザ登録を行う。
      *
      * @param context     コンテキスト
@@ -119,7 +97,7 @@ public final class ServerUtil {
     public static void registUser(final Context context, final String token,
                                   final String tokenSecret) throws IOException {
         String url = context.getString(R.string.server_url) + "/page/api_login";
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         params.put("token", token);
         params.put("token_secret", tokenSecret);
 
@@ -135,7 +113,7 @@ public final class ServerUtil {
     public static void addStageUser(final Context context,
                                     final TumeKyouenModel stageModel) {
         String url = context.getString(R.string.server_url) + "/page/add";
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         params.put("stageNo", Integer.toString(stageModel.getStageNo()));
 
         try {
@@ -172,7 +150,7 @@ public final class ServerUtil {
             }
             sendData.put(map);
         }
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         params.put("data", sendData.toString());
 
         String responseString;
@@ -183,7 +161,7 @@ public final class ServerUtil {
             return null;
         }
 
-        List<TumeKyouenModel> resultList = new ArrayList<TumeKyouenModel>();
+        List<TumeKyouenModel> resultList = new ArrayList<>();
         try {
             JSONObject obj = new JSONObject(responseString);
             JSONArray dataArray = obj.getJSONArray("data");
