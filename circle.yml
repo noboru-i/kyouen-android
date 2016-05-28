@@ -8,7 +8,7 @@ machine:
     GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
 dependencies:
   pre:
-    - echo y | android update sdk --no-ui --all --filter "tools"
+    - echo y | android update sdk --no-ui --all --filter "tools,extra-android-support"
     - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.3,extra-google-m2repository"
     - scripts/env2file app/fabric.properties
 test:
@@ -22,3 +22,8 @@ test:
     # Save for Test Failures Report
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/test-results/*/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+deployment:
+  master:
+    branch: master
+    commands:
+      - ./gradlew :app:uploadDeployGateDebug :app:uploadDeployGateRelease -PdisablePreDex
