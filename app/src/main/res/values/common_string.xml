@@ -9,4 +9,6 @@
 	<string name="bug_sense_api_key" translatable="false"></string>
 	
 	<string name="gcm_sender_id" translatable="false"></string>
+	
+	<string name="banner_ad_unit_id" translatable="false"></string>
 </resources>
