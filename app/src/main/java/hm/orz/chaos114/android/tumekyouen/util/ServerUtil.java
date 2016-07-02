@@ -49,44 +49,6 @@ public final class ServerUtil {
     private static List<Cookie> cookies = new ArrayList<>();
 
     /**
-     * GCM用の登録IDをAPサーバに登録する。
-     *
-     * @param context コンテキスト
-     * @param regId   登録ID
-     * @return 登録に成功した場合true
-     */
-    public static boolean registGcm(final Context context, final String regId) {
-        Log.i(TAG, "#regist regId = " + regId);
-        String url = context.getString(R.string.server_url) + "/gcm/regist";
-        Map<String, String> params = new HashMap<>();
-        params.put("regId", regId);
-        long backoff = BACKOFF_MILLI_SECONDS;
-        for (int i = 1; i <= MAX_ATTEMPTS; i++) {
-            try {
-                post(url, params);
-                Log.i(TAG, "regist success");
-                return true;
-            } catch (IOException e) {
-                Log.e(TAG, "regist not success", e);
-                // サーバエラー時
-                if (i == MAX_ATTEMPTS) {
-                    break;
-                }
-                try {
-                    Thread.sleep(backoff);
-                } catch (InterruptedException e1) {
-                    // abort
-                    Thread.currentThread().interrupt();
-                    return false;
-                }
-                // バックオフ値を倍加
-                backoff *= 2;
-            }
-        }
-        return false;
-    }
-
-    /**
      * ユーザ登録を行う。
      *
      * @param context     コンテキスト

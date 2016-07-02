@@ -20,7 +20,6 @@ import android.view.View;
 import android.widget.Button;
 
 import com.google.android.gms.ads.AdRequest;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterAuthToken;
