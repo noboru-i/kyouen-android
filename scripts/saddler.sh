@@ -10,7 +10,7 @@ gem install --no-document checkstyle_filter-git saddler saddler-reporter-github 
 echo "********************"
 echo "* exec gradle      *"
 echo "********************"
-./gradlew :app:check -PdisablePreDex
+./gradlew :app:check -PdisablePreDex -x test
 
 echo "********************"
 echo "* save outputs     *"

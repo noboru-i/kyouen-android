@@ -17,6 +17,8 @@ import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +35,8 @@ public class TumeKyouenFragment extends Fragment {
 
     @Inject
     SoundManager soundManager;
+    @Inject
+    FirebaseAnalytics firebaseAnalytics;
 
     /** メインのレイアウト */
     private TableLayout layout;
@@ -78,6 +82,12 @@ public class TumeKyouenFragment extends Fragment {
         buttons = new ArrayList<>();
 
         init();
+
+        // TODO create util class
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, Integer.toString(stageModel.getStageNo()));
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "stage");
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
 
         return layout;
     }

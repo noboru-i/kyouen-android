@@ -2,6 +2,7 @@ package hm.orz.chaos114.android.tumekyouen;
 
 import android.app.Application;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterCore;
 
@@ -28,6 +29,8 @@ public class App extends Application {
                 getString(R.string.twitter_secret)
         );
         Fabric.with(this, new TwitterCore(authConfig));
+
+        FirebaseMessaging.getInstance().subscribeToTopic("all");
 
         applicationComponent = DaggerAppComponent.builder()
                 .appModule(new AppModule(this))
