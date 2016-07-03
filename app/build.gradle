@@ -17,8 +17,8 @@ android {
         applicationId "hm.orz.chaos114.android.tumekyouen"
         minSdkVersion 17
         targetSdkVersion 23
-        versionCode 18
-        versionName "0.10.0"
+        versionCode 19
+        versionName "0.10.1"
     }
     signingConfigs {
         debug {
