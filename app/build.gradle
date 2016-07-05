@@ -65,7 +65,7 @@ android {
 
 ext {
     supportLibVersion = '23.4.0'
-    firebaseLibVersion = '9.0.0'
+    firebaseLibVersion = '9.2.0'
 }
 
 dependencies {
@@ -78,6 +78,7 @@ dependencies {
     compile "com.google.firebase:firebase-analytics:${firebaseLibVersion}"
     compile "com.google.firebase:firebase-messaging:${firebaseLibVersion}"
     compile "com.google.firebase:firebase-ads:${firebaseLibVersion}"
+    compile "com.google.firebase:firebase-crash:${firebaseLibVersion}"
 
     compile 'org.projectlombok:lombok:1.16.6'
     compile('com.twitter.sdk.android:twitter:1.13.1@aar') {
