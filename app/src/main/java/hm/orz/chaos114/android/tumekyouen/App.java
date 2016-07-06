@@ -50,7 +50,7 @@ public class App extends Application {
                 .build();
     }
 
-    private final static class FirebaseTree extends Timber.Tree {
+    private static final class FirebaseTree extends Timber.Tree {
 
         @Override
         protected void log(int priority, String tag, String message, Throwable t) {
