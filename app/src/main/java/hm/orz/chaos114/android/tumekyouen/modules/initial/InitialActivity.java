@@ -55,7 +55,7 @@ public class InitialActivity extends AppCompatActivity {
      * 初期データを登録する。
      */
     @WorkerThread
-    void insertInitialDatatInBackground() {
+    private void insertInitialDatatInBackground() {
         final String[] initData = new String[]{
                 "1,6,000000010000001100001100000000001000,noboru",
                 "2,6,000000000000000100010010001100000000,noboru",

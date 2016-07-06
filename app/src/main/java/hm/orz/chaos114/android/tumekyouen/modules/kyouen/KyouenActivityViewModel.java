@@ -16,7 +16,7 @@ public final class KyouenActivityViewModel {
 
     private Context context;
 
-    public KyouenActivityViewModel(TumeKyouenModel tumeKyouenModel, Context context) {
+    KyouenActivityViewModel(TumeKyouenModel tumeKyouenModel, Context context) {
         this.tumeKyouenModel = tumeKyouenModel;
         this.context = context;
     }

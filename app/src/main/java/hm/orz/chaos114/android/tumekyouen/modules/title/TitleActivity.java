@@ -3,10 +3,7 @@ package hm.orz.chaos114.android.tumekyouen.modules.title;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.databinding.DataBindingUtil;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -42,6 +39,7 @@ import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
+import hm.orz.chaos114.android.tumekyouen.util.PackageChecker;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
@@ -63,19 +61,6 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
     private ActivityTitleBinding binding;
 
     private TwitterAuthClient twitterAuthClient = new TwitterAuthClient();
-
-    /** 取得ボタン押下後の処理 */
-    private final StageGetDialog.OnSuccessListener mSuccessListener = (count -> {
-        int taskCount = count == -1 ? Integer.MAX_VALUE : count;
-        final InsertDataTask task = new InsertDataTask(TitleActivity.this,
-                taskCount, this::refreshAll);
-        final long maxStageNo = kyouenDb.selectMaxStageNo();
-        task.execute(String.valueOf(maxStageNo));
-
-    });
-
-    /** キャンセルボタン押下後の処理 */
-    private final DialogInterface.OnCancelListener mCancelListener = (dialog -> refreshAll());
 
     public static void start(Activity activity) {
         final Intent intent = new Intent(activity, TitleActivity.class);
@@ -140,7 +125,15 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         ((Button) v).setText(getString(R.string.get_more_loading));
 
         final StageGetDialog dialog = new StageGetDialog(this,
-                mSuccessListener, mCancelListener);
+                (count -> {
+                    int taskCount = count == -1 ? Integer.MAX_VALUE : count;
+                    final InsertDataTask task = new InsertDataTask(TitleActivity.this,
+                            taskCount, this::refreshAll);
+                    final long maxStageNo = kyouenDb.selectMaxStageNo();
+                    task.execute(String.valueOf(maxStageNo));
+
+                }),
+                (d -> refreshAll()));
         dialog.show();
     }
 
@@ -149,21 +142,11 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
      */
     @Override
     public void onClickCreateStage(View v) {
-        boolean hasKyouenChecker;
-        try {
-            // 共円チェッカーの存在有無チェック
-            final PackageManager pm = getPackageManager();
-            pm.getApplicationInfo("hm.orz.chaos114.android.kyouenchecker", 0);
-            hasKyouenChecker = true;
-        } catch (final NameNotFoundException e) {
-            // 存在しない場合
-            hasKyouenChecker = false;
-        }
-        if (hasKyouenChecker) {
+        final String packageName = "hm.orz.chaos114.android.kyouenchecker";
+        if (PackageChecker.check(this, packageName)) {
             // 共円チェッカーの起動
             final Intent intent = new Intent();
-            intent.setClassName("hm.orz.chaos114.android.kyouenchecker",
-                    "hm.orz.chaos114.android.kyouenchecker.KyouenActivity");
+            intent.setClassName(packageName, packageName + ".KyouenActivity");
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         } else {
@@ -172,7 +155,7 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
                     .setMessage(R.string.alert_install_kyouenchecker)
                     .setPositiveButton("YES", ((dialog, which) -> {
                         // マーケットを開く
-                        final Uri uri = Uri.parse("market://details?id=hm.orz.chaos114.android.kyouenchecker");
+                        final Uri uri = Uri.parse("market://details?id=" + packageName);
                         final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                         startActivity(intent);
                     }))
