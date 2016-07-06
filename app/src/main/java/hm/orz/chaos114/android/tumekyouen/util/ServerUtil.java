@@ -1,17 +1,14 @@
 package hm.orz.chaos114.android.tumekyouen.util;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,18 +29,12 @@ import java.util.TimeZone;
 
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
+import timber.log.Timber;
 
 /**
  * APサーバと通信するユーティリティクラス
  */
 public final class ServerUtil {
-
-    private static final String TAG = ServerUtil.class.getSimpleName();
-
-    /** 最大試行回数 */
-    private static final int MAX_ATTEMPTS = 5;
-    /** 次の送信までの待ち時間初期値 */
-    private static final int BACKOFF_MILLI_SECONDS = 2000;
 
     /** cookie情報を保持 */
     private static List<Cookie> cookies = new ArrayList<>();
@@ -81,7 +72,7 @@ public final class ServerUtil {
         try {
             post(url, params);
         } catch (Exception e) {
-            Log.e(TAG, "クリア情報の送信に失敗", e);
+            Timber.e(e, "クリア情報の送信に失敗");
         }
     }
 
@@ -119,7 +110,7 @@ public final class ServerUtil {
         try {
             responseString = post(url, params);
         } catch (Exception e) {
-            Log.e(TAG, "クリア情報の送信に失敗", e);
+            Timber.e(e, "クリア情報の送信に失敗");
             return null;
         }
 
@@ -146,35 +137,6 @@ public final class ServerUtil {
         return resultList;
     }
 
-    private static void get(final String endpoint,
-                            final Map<String, String> params) throws IOException {
-        Log.i(TAG, "endpoint = " + endpoint);
-        DefaultHttpClient httpClient = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(endpoint);
-        BasicHttpParams getParams = new BasicHttpParams();
-        for (String name : params.keySet()) {
-            String value = params.get(name);
-            getParams.setParameter(name, value);
-        }
-        httpGet.setParams(getParams);
-
-        // Cookieの登録
-        for (Cookie c : cookies) {
-            httpClient.getCookieStore().addCookie(c);
-        }
-
-        HttpResponse response = httpClient.execute(httpGet);
-        Log.i(TAG, "response = " + EntityUtils.toString(response.getEntity()));
-        int statusCode = response.getStatusLine().getStatusCode();
-        if (statusCode != 200) {
-            throw new IOException("Post failed. statusCode=" + statusCode);
-        }
-
-        // Cookie取得
-        cookies = httpClient.getCookieStore().getCookies();
-        Log.d(TAG, "cookies = " + cookies);
-    }
-
     /**
      * APサーバにPOSTリクエストを発行する。
      *
@@ -185,7 +147,7 @@ public final class ServerUtil {
      */
     private static String post(final String endpoint,
                                final Map<String, String> params) throws IOException {
-        Log.i(TAG, "endpoint = " + endpoint);
+        Timber.i("endpoint = %s", endpoint);
         DefaultHttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(endpoint);
         List<NameValuePair> post_params = new ArrayList<NameValuePair>();
@@ -207,7 +169,7 @@ public final class ServerUtil {
         }
         HttpResponse response = httpClient.execute(httpPost);
         String responseString = EntityUtils.toString(response.getEntity());
-        Log.i(TAG, "response = " + responseString);
+        Timber.i("response = %s", responseString);
         int statusCode = response.getStatusLine().getStatusCode();
         if (statusCode != 200) {
             throw new IOException("Post failed. statusCode=" + statusCode);
@@ -215,7 +177,7 @@ public final class ServerUtil {
 
         // Cookie取得
         cookies = httpClient.getCookieStore().getCookies();
-        Log.d(TAG, "cookies = " + cookies);
+        Timber.d("cookies = %s", cookies);
         return responseString;
     }
 }

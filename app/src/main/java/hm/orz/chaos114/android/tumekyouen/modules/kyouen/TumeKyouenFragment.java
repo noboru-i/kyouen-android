@@ -85,8 +85,8 @@ public class TumeKyouenFragment extends Fragment {
 
         // TODO create util class
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, Integer.toString(stageModel.getStageNo()));
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "stage");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, Integer.toString(stageModel.getStageNo()));
         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
 
         return layout;

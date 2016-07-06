@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.WorkerThread;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -46,13 +45,12 @@ import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
+import timber.log.Timber;
 
 /**
  * タイトル画面を表示するアクティビティ。
  */
 public class TitleActivity extends AppCompatActivity implements TitleActivityHandlers {
-    private static final String TAG = TitleActivity.class.getSimpleName();
-
     @Inject
     LoginUtil loginUtil;
     @Inject
@@ -195,14 +193,14 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         twitterAuthClient.authorize(TitleActivity.this, new Callback<TwitterSession>() {
             @Override
             public void success(Result<TwitterSession> result) {
-                Log.d(TAG, "success");
+                Timber.d("success");
                 dialog.dismiss();
                 sendAuthToken(result.data.getAuthToken());
             }
 
             @Override
             public void failure(TwitterException e) {
-                Log.d(TAG, "failure");
+                Timber.d("failure");
                 new AlertDialog.Builder(TitleActivity.this)
                         .setMessage(R.string.alert_error_authenticate_twitter)
                         .setPositiveButton(android.R.string.ok, null)
@@ -283,14 +281,14 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
     private boolean authTwitterInBackground(final TwitterAuthToken authToken) {
         // サーバに認証情報を送信
         try {
-            Log.d(TAG, "ServerUtil.registUser");
+            Timber.d("ServerUtil.registUser");
             ServerUtil.registUser(this, authToken.token, authToken.secret);
         } catch (final IOException e) {
             return false;
         }
 
         // ログイン情報を保存
-        Log.d(TAG, "loginUtil.saveLoginInfo");
+        Timber.d("loginUtil.saveLoginInfo");
         loginUtil.saveLoginInfo(authToken);
 
         return true;
