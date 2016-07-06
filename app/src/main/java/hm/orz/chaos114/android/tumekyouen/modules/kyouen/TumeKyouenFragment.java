@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -55,7 +56,7 @@ public class TumeKyouenFragment extends Fragment {
     public TumeKyouenFragment() {
     }
 
-    public static TumeKyouenFragment newInstance(final TumeKyouenModel stageModel) {
+    static TumeKyouenFragment newInstance(final TumeKyouenModel stageModel) {
         final TumeKyouenFragment tumeKyouenFragment = new TumeKyouenFragment();
         final Bundle bundle = new Bundle();
         bundle.putSerializable("stage", stageModel);
@@ -71,12 +72,15 @@ public class TumeKyouenFragment extends Fragment {
 
         final TumeKyouenModel stageModel = (TumeKyouenModel) getArguments()
                 .getSerializable("stage");
+        assert stageModel != null;
         gameModel = new GameModel(stageModel.getSize(), stageModel.getStage());
 
         // ディスプレイサイズの取得
         final Display display = ((WindowManager) getContext()
                 .getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        maxScrnWidth = display.getWidth();
+        Point displaySize = new Point();
+        display.getSize(displaySize);
+        maxScrnWidth = displaySize.x;
 
         layout = new TableLayout(getContext());
         buttons = new ArrayList<>();
@@ -103,8 +107,7 @@ public class TumeKyouenFragment extends Fragment {
             layout.addView(tableRow);
             for (int j = 0; j < gameModel.getSize(); j++) {
                 final Button button = new Button(getContext());
-                button.setBackgroundDrawable(new BitmapDrawable(
-                        createBackgroundBitmap()));
+                button.setBackground(new BitmapDrawable(null, createBackgroundBitmap()));
                 final int stoneSize = maxScrnWidth / gameModel.getSize();
                 button.setWidth(stoneSize);
                 button.setHeight(stoneSize);
@@ -117,8 +120,8 @@ public class TumeKyouenFragment extends Fragment {
                 buttons.add(button);
                 tableRow.addView(button, stoneSize, stoneSize);
                 button.setOnClickListener((v) -> {
-                    final int index = buttons.indexOf(v);
                     final Button b = (Button) v;
+                    final int index = buttons.indexOf(b);
                     if (v.getTag() == ButtonState.NONE) {
                         // 石が設定されていない場合
                         return;
@@ -140,7 +143,7 @@ public class TumeKyouenFragment extends Fragment {
     /**
      * 盤の状態を初期状態に戻す。
      */
-    public void reset() {
+    void reset() {
         for (int i = 0; i < buttons.size(); i++) {
             final Button button = buttons.get(i);
             if (button.getTag() == ButtonState.WHITE) {
@@ -153,7 +156,7 @@ public class TumeKyouenFragment extends Fragment {
         }
     }
 
-    public void setClickable(final boolean clickable) {
+    void setClickable(final boolean clickable) {
         for (final Button b : buttons) {
             b.setClickable(clickable);
         }
@@ -232,12 +235,12 @@ public class TumeKyouenFragment extends Fragment {
      *
      * @return ゲーム情報保持用オブジェクト
      */
-    public GameModel getGameModel() {
+    GameModel getGameModel() {
         return gameModel;
     }
 
     /** ボタン色を表すenum */
-    enum ButtonState {
+    private enum ButtonState {
         NONE, BLACK, WHITE,
     }
 }

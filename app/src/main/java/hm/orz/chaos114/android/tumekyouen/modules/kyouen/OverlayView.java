@@ -51,6 +51,7 @@ public class OverlayView extends View {
     }
 
     @Override
+    @SuppressWarnings("SuspiciousNameCombination")
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (data == null) {
@@ -61,10 +62,10 @@ public class OverlayView extends View {
         if (data.isLineKyouen()) {
             // 直線の場合
             Line line = data.getLine();
-            float startX = 0;
-            float startY = 0;
-            float stopX = 0;
-            float stopY = 0;
+            float startX;
+            float startY;
+            float stopX;
+            float stopY;
             if (line.getA() == 0) {
                 // x軸と平行な場合
                 startX = 0;
@@ -107,7 +108,7 @@ public class OverlayView extends View {
      * @param aSize 盤面のサイズ
      * @param aData 共円の情報
      */
-    public void setData(int aSize, KyouenData aData) {
+    void setData(int aSize, KyouenData aData) {
         this.size = aSize;
         this.data = aData;
     }

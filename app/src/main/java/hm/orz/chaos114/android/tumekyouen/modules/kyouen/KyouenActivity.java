@@ -232,9 +232,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         soundManager.play(R.raw.se_maoudamashii_onepoint23);
         new AlertDialog.Builder(KyouenActivity.this)
                 .setTitle(R.string.kyouen)
-                .setNeutralButton("Next", ((dialog, which) -> {
-                    moveStage(Direction.NEXT);
-                }))
+                .setNeutralButton("Next", ((dialog, which) -> moveStage(Direction.NEXT)))
                 .create().show();
         binding.kyouenOverlay.setData(stageModel.getSize(), data);
         binding.kyouenOverlay.setVisibility(View.VISIBLE);
