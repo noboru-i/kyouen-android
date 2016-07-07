@@ -17,10 +17,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -28,7 +26,10 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import hm.orz.chaos114.android.tumekyouen.R;
+import hm.orz.chaos114.android.tumekyouen.model.AddAllResponse;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
+import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
+import rx.Observable;
 import timber.log.Timber;
 
 /**
@@ -38,24 +39,6 @@ public final class ServerUtil {
 
     /** cookie情報を保持 */
     private static List<Cookie> cookies = new ArrayList<>();
-
-    /**
-     * ユーザ登録を行う。
-     *
-     * @param context     コンテキスト
-     * @param token       twitterトークン
-     * @param tokenSecret twitter秘密鍵
-     * @throws IOException ネットワーク例外
-     */
-    public static void registUser(final Context context, final String token,
-                                  final String tokenSecret) throws IOException {
-        String url = context.getString(R.string.server_url) + "/page/api_login";
-        Map<String, String> params = new HashMap<>();
-        params.put("token", token);
-        params.put("token_secret", tokenSecret);
-
-        post(url, params);
-    }
 
     /**
      * ステージクリア情報を送信する。
@@ -76,17 +59,9 @@ public final class ServerUtil {
         }
     }
 
-    /**
-     * すべてのデータを送信する。
-     *
-     * @param context コンテキスト
-     * @param stages  クリアステージ情報リスト
-     * @return 返却JSON
-     */
-    public static List<TumeKyouenModel> addAllStageUser(final Context context,
-                                                        List<TumeKyouenModel> stages) {
-        // 全ステージを送信する
-        String url = context.getString(R.string.server_url) + "/page/add_all";
+    public static Observable<AddAllResponse> addAll(TumeKyouenService tumeKyouenService,
+                                                    List<TumeKyouenModel> stages) {
+        // ステージデータを送信
         JSONArray sendData = new JSONArray();
         DateFormat simpleDateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss",
@@ -103,38 +78,7 @@ public final class ServerUtil {
             }
             sendData.put(map);
         }
-        Map<String, String> params = new HashMap<>();
-        params.put("data", sendData.toString());
-
-        String responseString;
-        try {
-            responseString = post(url, params);
-        } catch (Exception e) {
-            Timber.e(e, "クリア情報の送信に失敗");
-            return null;
-        }
-
-        List<TumeKyouenModel> resultList = new ArrayList<>();
-        try {
-            JSONObject obj = new JSONObject(responseString);
-            JSONArray dataArray = obj.getJSONArray("data");
-            for (int i = 0; i < dataArray.length(); i++) {
-                JSONObject data = dataArray.getJSONObject(i);
-                int stageNo = data.getInt("stageNo");
-                Date clearDate = simpleDateFormat.parse(data
-                        .getString("clearDate"));
-                TumeKyouenModel model = new TumeKyouenModel();
-                model.setStageNo(stageNo);
-                model.setClearDate(clearDate);
-                resultList.add(model);
-            }
-        } catch (JSONException e) {
-            return null;
-        } catch (ParseException e) {
-            return null;
-        }
-
-        return resultList;
+        return tumeKyouenService.addAll(sendData.toString());
     }
 
     /**
