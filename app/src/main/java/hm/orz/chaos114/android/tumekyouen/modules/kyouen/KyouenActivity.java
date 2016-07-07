@@ -6,7 +6,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.media.AudioManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,10 +25,11 @@ import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
+import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
-import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
+import rx.schedulers.Schedulers;
 
 /**
  * 詰め共円のプレイ画面。
@@ -45,6 +45,8 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
     SoundManager soundManager;
     @Inject
     KyouenDb kyouenDb;
+    @Inject
+    TumeKyouenService tumeKyouenService;
 
     /** ステージ情報オブジェクト */
     private TumeKyouenModel stageModel;
@@ -120,7 +122,9 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         kyouenDb.updateClearFlag(stageModel);
 
         // サーバに送信
-        new AddStageUserTask().execute(stageModel);
+        tumeKyouenService.add(stageModel.getStageNo())
+                .subscribeOn(Schedulers.io())
+                .subscribe();
 
         binding.setStageModel(new KyouenActivityViewModel(stageModel, this));
     }
@@ -275,16 +279,5 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
     /** 方向を表すenum */
     private enum Direction {
         PREV, NEXT, NONE
-    }
-
-    /**
-     * クリア情報を送信するタスククラス
-     */
-    private final class AddStageUserTask extends AsyncTask<TumeKyouenModel, Void, Void> {
-        @Override
-        protected Void doInBackground(final TumeKyouenModel... params) {
-            ServerUtil.addStageUser(KyouenActivity.this, params[0]);
-            return null;
-        }
     }
 }
