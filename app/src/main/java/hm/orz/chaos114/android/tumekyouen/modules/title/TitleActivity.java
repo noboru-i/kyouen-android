@@ -146,7 +146,7 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
                 (count -> {
                     int taskCount = count == -1 ? Integer.MAX_VALUE : count;
                     final InsertDataTask task = new InsertDataTask(TitleActivity.this,
-                            taskCount, this::refreshAll);
+                            taskCount, this::refreshAll, tumeKyouenService);
                     final long maxStageNo = kyouenDb.selectMaxStageNo();
                     task.execute(String.valueOf(maxStageNo));
 

@@ -171,7 +171,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
 
                 stageModel = model;
                 showOtherStage(direction);
-            }))
+            }), tumeKyouenService)
                     .execute(String.valueOf(maxStageNo));
 
             return false;
