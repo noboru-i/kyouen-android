@@ -1,26 +1,24 @@
 package hm.orz.chaos114.android.tumekyouen.util;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-
 import java.io.IOException;
+import java.util.Arrays;
 
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
+import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * サーバよりデータを取得し、DBに登録するクラス。
  *
  * @author noboru
  */
-public class InsertDataTask extends AsyncTask<String, Integer, Integer> {
+public class InsertDataTask {
 
     /** タスク実行中フラグ */
     private static boolean running = false;
@@ -37,14 +35,16 @@ public class InsertDataTask extends AsyncTask<String, Integer, Integer> {
     /** 処理終了時の処理 */
     private Runnable mRun;
 
+    private TumeKyouenService mTumeKyouenService;
+
     /**
      * コンストラクタ。
      *
      * @param context コンテキスト
      * @param run     処理終了時の処理
      */
-    public InsertDataTask(Context context, Runnable run) {
-        this(context, 1, run);
+    public InsertDataTask(Context context, Runnable run, TumeKyouenService tumeKyouenService) {
+        this(context, 1, run, tumeKyouenService);
     }
 
     /**
@@ -54,10 +54,11 @@ public class InsertDataTask extends AsyncTask<String, Integer, Integer> {
      * @param count   取得する回数
      * @param run     処理終了時の処理
      */
-    public InsertDataTask(Context context, int count, Runnable run) {
+    public InsertDataTask(Context context, int count, Runnable run, TumeKyouenService tumeKyouenService) {
         this.mContext = context;
         this.mCount = count;
         this.mRun = run;
+        this.mTumeKyouenService = tumeKyouenService;
 
         mKyouenDb = new KyouenDb(context);
     }
@@ -80,76 +81,44 @@ public class InsertDataTask extends AsyncTask<String, Integer, Integer> {
         InsertDataTask.running = running;
     }
 
-    @Override
-    protected Integer doInBackground(String... params) {
+    public void execute(String params) {
         if (isRunning()) {
             // 実施中の場合は排他エラー
-            return -2;
+            onPostExecute(-2);
+            return;
         }
         setRunning(true);
 
-        // データの取得
-        int addedCount = 0;
-        int stageNo = Integer.parseInt(params[0]);
-        for (int i = 0; i < mCount; i++) {
-            int c = process(stageNo + addedCount);
-            switch (c) {
-                case 0:
-                    // 取得件数が0の場合は処理中断
-                    return addedCount;
-                case -1:
-                    // エラーが返却された場合
-                    return -1;
-                default:
-                    // 取得件数を追加して処理続行
-                    addedCount += c;
-            }
-        }
-
-        // 最終的な処理件数を返却
-        return addedCount;
+        int stageNo = Integer.parseInt(params);
+        fetch(stageNo, 0);
     }
 
-    /**
-     * 追加ステージを取得します。
-     *
-     * @param currentMaxStageNo 現在の最大ステージ番号
-     * @return 取得件数（エラーの場合は"-1"）
-     */
-    private int process(int currentMaxStageNo) {
-        String data = getStageData(currentMaxStageNo);
-        if (data == null) {
-            // 例外発生時
-            return -1;
-        } else if ("no_data".equals(data)) {
-            // データ無しの場合
-            return 0;
-        }
-
-        // データの登録
-        return insertData(data.split("\n"));
-    }
-
-    /**
-     * サーバよりステージを取得します。
-     *
-     * @param currentMaxStageNo 現在の最大ステージ番号
-     * @return 取得データ（改行区切り。取得出来なかった場合は"no_data"。例外発生時はnull）
-     */
-    private String getStageData(int currentMaxStageNo) {
-        // URLの作成
-        String url = mContext.getString(R.string.server_url) + "/kyouen/get?stageNo="
-                + currentMaxStageNo;
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(url);
-        try {
-            HttpResponse response = httpClient.execute(httpGet);
-            return EntityUtils.toString(response.getEntity());
-        } catch (IOException e) {
-            return null;
-        } finally {
-            httpClient.getConnectionManager().shutdown();
-        }
+    private void fetch(int stageNo, int count) {
+        mTumeKyouenService.getStage(stageNo)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                            String s = null;
+                            try {
+                                s = response.body().string();
+                            } catch (IOException e) {
+                                s = "";
+                            }
+                            if ("no_data".equals(s)) {
+                                onPostExecute(stageNo);
+                                return;
+                            }
+                            int addedCount = insertData(s.split("\n"));
+                            if (count + 1 >= mCount) {
+                                onPostExecute(stageNo + addedCount);
+                                return;
+                            }
+                            fetch(stageNo + addedCount, count + 1);
+                        },
+                        throwable -> {
+                            Timber.e(throwable, "cannot get stage.");
+                            onPostExecute(-1);
+                        });
     }
 
     /**
@@ -159,19 +128,22 @@ public class InsertDataTask extends AsyncTask<String, Integer, Integer> {
      * @return 登録件数
      */
     private int insertData(String[] insertData) {
+        Timber.d("insertData is %s", Arrays.asList(insertData));
         int count = 0;
         for (String csvString : insertData) {
             long id = mKyouenDb.insert(csvString);
+            Timber.d("id is %d", id);
             if (id != -1) {
                 count++;
             }
         }
 
+        Timber.d("count is %d", count);
         return count;
     }
 
-    @Override
     protected void onPostExecute(Integer result) {
+        Timber.d("in onPostExecute result is %d", result);
         if (result != -2) {
             // 排他エラー以外の場合はfalseを設定
             setRunning(false);

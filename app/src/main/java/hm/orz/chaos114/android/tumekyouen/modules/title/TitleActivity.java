@@ -23,7 +23,6 @@ import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterAuthClient;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -37,12 +36,15 @@ import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
+import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PackageChecker;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -57,6 +59,8 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
     SoundManager soundManager;
     @Inject
     KyouenDb kyouenDb;
+    @Inject
+    TumeKyouenService tumeKyouenService;
 
     private ActivityTitleBinding binding;
 
@@ -83,9 +87,23 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         binding.adView.loadAd(adRequest);
 
         final TwitterAuthToken loginInfo = loginUtil.loadLoginInfo();
+        Timber.d("loginInfo = %s", loginInfo);
         if (loginInfo != null) {
             // 認証情報が存在する場合
-            new ServerRegistTask().execute(loginInfo);
+            binding.connectButton.setEnabled(false);
+            tumeKyouenService.login(loginInfo.token, loginInfo.secret)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(s -> {
+                                Timber.d("sucess : %s", s);
+                                binding.connectButton.setEnabled(true);
+                                // 成功した場合
+                                onSuccessTwitterAuth();
+                            },
+                            throwable -> {
+                                Timber.d(throwable, "fail");
+                                binding.connectButton.setEnabled(true);
+                            });
         }
 
         // 描画内容を更新
@@ -128,7 +146,7 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
                 (count -> {
                     int taskCount = count == -1 ? Integer.MAX_VALUE : count;
                     final InsertDataTask task = new InsertDataTask(TitleActivity.this,
-                            taskCount, this::refreshAll);
+                            taskCount, this::refreshAll, tumeKyouenService);
                     final long maxStageNo = kyouenDb.selectMaxStageNo();
                     task.execute(String.valueOf(maxStageNo));
 
@@ -228,22 +246,18 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
 
     @MainThread
     private void sendAuthToken(TwitterAuthToken authToken) {
-        new AsyncTask<TwitterAuthToken, Void, Boolean>() {
-
-            @Override
-            protected Boolean doInBackground(TwitterAuthToken... authToken) {
-                return authTwitterInBackground(authToken[0]);
-            }
-
-            @Override
-            protected void onPostExecute(Boolean aBoolean) {
-                if (aBoolean) {
-                    onSuccessTwitterAuth();
-                } else {
-                    onFailedTwitterAuth();
-                }
-            }
-        }.execute(authToken);
+        // サーバに認証情報を送信
+        tumeKyouenService.login(authToken.token, authToken.secret)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> {
+                            // ログイン情報を保存
+                            loginUtil.saveLoginInfo(authToken);
+                            onSuccessTwitterAuth();
+                        },
+                        throwable -> {
+                            onFailedTwitterAuth();
+                        });
     }
 
     /**
@@ -253,28 +267,19 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
     private void syncClearDataInBackground() {
         // クリアした情報を取得
         final List<TumeKyouenModel> stages = kyouenDb.selectAllClearStage();
-        // ステージデータを送信
-        final List<TumeKyouenModel> clearList = ServerUtil.addAllStageUser(this, stages);
-        if (clearList != null) {
-            kyouenDb.updateSyncClearData(clearList);
-        }
-    }
 
-    @WorkerThread
-    private boolean authTwitterInBackground(final TwitterAuthToken authToken) {
-        // サーバに認証情報を送信
-        try {
-            Timber.d("ServerUtil.registUser");
-            ServerUtil.registUser(this, authToken.token, authToken.secret);
-        } catch (final IOException e) {
-            return false;
-        }
-
-        // ログイン情報を保存
-        Timber.d("loginUtil.saveLoginInfo");
-        loginUtil.saveLoginInfo(authToken);
-
-        return true;
+        ServerUtil.addAll(tumeKyouenService, stages)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(s -> {
+                            if (s.getData() != null) {
+                                kyouenDb.updateSyncClearData(s.getData());
+                            }
+                            refresh();
+                        },
+                        throwable -> {
+                            Timber.e(throwable, "クリア情報の送信に失敗");
+                        });
     }
 
     /**
@@ -350,38 +355,5 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         final StageCountModel stageCountModel = kyouenDb.selectStageCount();
         App app = (App) getApplication();
         binding.setModel(new TitleActivityViewModel(app, stageCountModel, this));
-    }
-
-    /** サーバに認証情報を送信するタスク */
-    private class ServerRegistTask extends AsyncTask<TwitterAuthToken, Void, Boolean> {
-
-        @Override
-        protected void onPreExecute() {
-            binding.connectButton.setEnabled(false);
-        }
-
-        @Override
-        protected Boolean doInBackground(final TwitterAuthToken... params) {
-            final TwitterAuthToken token = params[0];
-
-            // サーバに認証情報を送信
-            try {
-                ServerUtil.registUser(TitleActivity.this, token.token, token.secret);
-            } catch (final IOException e) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean result) {
-            binding.connectButton.setEnabled(true);
-            if (!result) {
-                // 失敗した場合
-                return;
-            }
-            // 成功した場合
-            onSuccessTwitterAuth();
-        }
     }
 }
