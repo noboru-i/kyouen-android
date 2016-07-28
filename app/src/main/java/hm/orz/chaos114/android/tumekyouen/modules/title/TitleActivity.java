@@ -101,7 +101,7 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
                                 onSuccessTwitterAuth();
                             },
                             throwable -> {
-                                Timber.d("fail", throwable);
+                                Timber.d(throwable, "fail");
                                 binding.connectButton.setEnabled(true);
                             });
         }
