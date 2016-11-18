@@ -42,5 +42,7 @@ deployment:
           background: true
       - git clone git@github.com:noboru-i/kyouen-ui-test.git
       - circle-android wait-for-boot
+      - sleep 30
       - adb shell input keyevent 82
       - cd kyouen-ui-test; bundle install; OS=android bundle exec rspec spec
+      - mv ss $CIRCLE_ARTIFACTS/
