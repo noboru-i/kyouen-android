@@ -29,3 +29,14 @@ deployment:
     branch: master
     commands:
       - ./gradlew :app:uploadDeployGateDebug :app:uploadDeployGateRelease -PdisablePreDex
+  uitest:
+    branch: id-for-appium
+    commands:
+      - emulator -avd circleci-android22 -no-audio -no-window:
+          background: true
+          parallel: true
+      - circle-android wait-for-boot
+      - npm install -g appium
+      - appium &
+      - git clone git@github.com:noboru-i/kyouen-ui-test.git
+      - cd kyouen-ui-test; bundle install; OS=android bundle exec rspec spec
