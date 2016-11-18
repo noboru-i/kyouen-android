@@ -38,7 +38,7 @@ deployment:
           background: true
           parallel: true
       - npm install -g appium
-      - appium
+      - appium > $CIRCLE_ARTIFACTS/appium_log.txt:
           background: true
       - git clone git@github.com:noboru-i/kyouen-ui-test.git
       - circle-android wait-for-boot
