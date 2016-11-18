@@ -1,6 +1,8 @@
 machine:
   java:
     version: oraclejdk8
+  node:
+    version: v6.1.0
   timezone: Asia/Tokyo
   environment:
     TERM: "dumb"
@@ -35,8 +37,8 @@ deployment:
       - emulator -avd circleci-android22 -no-audio -no-window:
           background: true
           parallel: true
-      - circle-android wait-for-boot
       - npm install -g appium
       - appium &
       - git clone git@github.com:noboru-i/kyouen-ui-test.git
+      - circle-android wait-for-boot
       - cd kyouen-ui-test; bundle install; OS=android bundle exec rspec spec
