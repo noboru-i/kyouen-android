@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:ads="http://schemas.android.com/apk/res-auto"
-        xmlns:android="http://schemas.android.com/apk/res/android">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -45,11 +46,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/title_button"
+                android:contentDescription="TITLE_01"
                 android:gravity="center"
                 android:onClick="@{handlers.onClickStartButton}"
                 android:padding="5dp"
                 android:text="@string/puzzle"
-                android:textColor="#eeeeee"/>
+                android:textColor="#eeeeee"
+                tools:ignore="HardcodedText"/>
 
             <TextView
                 android:id="@+id/stage_count"
@@ -81,8 +84,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/title_button"
-                android:onClick="@{handlers.onClickCreateStage}"
                 android:gravity="center"
+                android:onClick="@{handlers.onClickCreateStage}"
                 android:padding="5dp"
                 android:text="@string/create_stage"
                 android:textColor="#eeeeee"/>
@@ -97,8 +100,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/title_button"
-                    android:onClick="@{handlers.onClickConnectButton}"
                     android:gravity="center"
+                    android:onClick="@{handlers.onClickConnectButton}"
                     android:padding="5dp"
                     android:text="@string/twitter_connect"
                     android:textColor="#eeeeee"/>
@@ -120,9 +123,9 @@
             <ImageView
                 android:id="@+id/sound_button"
                 android:layout_width="36dp"
-                android:onClick="@{handlers.switchPlayable}"
                 android:layout_height="36dp"
                 android:layout_marginLeft="90dp"
+                android:onClick="@{handlers.switchPlayable}"
                 android:src="@{model.soundResource}"/>
         </LinearLayout>
 
