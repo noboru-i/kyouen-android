@@ -45,4 +45,4 @@ deployment:
       - sleep 30
       - adb shell input keyevent 82
       - cd kyouen-ui-test; bundle install; OS=android bundle exec rspec spec
-      - mv ss $CIRCLE_ARTIFACTS/
+      - mv kyouen-ui-test/ss $CIRCLE_ARTIFACTS/
