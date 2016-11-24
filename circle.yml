@@ -1,6 +1,8 @@
 machine:
   java:
     version: oraclejdk8
+  node:
+    version: v6.1.0
   timezone: Asia/Tokyo
   environment:
     TERM: "dumb"
@@ -28,4 +30,19 @@ deployment:
   master:
     branch: master
     commands:
+      # prepare
+      - emulator -avd circleci-android22 -no-audio -no-window:
+          background: true
+          parallel: true
+      - npm install -g appium
+      - appium > $CIRCLE_ARTIFACTS/appium_log.txt:
+          background: true
+      - git clone git@github.com:noboru-i/kyouen-ui-test.git
+      - circle-android wait-for-boot
+      - sleep 30
+      - adb shell input keyevent 82
+      # test by Appium
+      - cd kyouen-ui-test; bundle install; OS=android bundle exec rspec spec
+      - mv kyouen-ui-test/ss $CIRCLE_ARTIFACTS/
+      # upload to DeployGate
       - ./gradlew :app:uploadDeployGateDebug :app:uploadDeployGateRelease -PdisablePreDex
