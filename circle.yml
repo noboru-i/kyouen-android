@@ -15,14 +15,12 @@ dependencies:
     - scripts/env2file app/fabric.properties
 test:
   override:
-    # TODO robolectric don't work with firebase?
-    # - ./gradlew clean :app:testDebugUnitTestCoverage -PdisablePreDex
+    - ./gradlew clean :app:testDebugUnitTestCoverage -PdisablePreDex
     - sh scripts/saddler.sh
   post:
     # Save reports to see
-    # TODO robolectric don't work with firebase?
-    # - cp -r app/build/reports/jacoco $CIRCLE_ARTIFACTS
-    # - cp -r app/build/reports/tests $CIRCLE_ARTIFACTS
+    - cp -r app/build/reports/jacoco $CIRCLE_ARTIFACTS
+    - cp -r app/build/reports/tests $CIRCLE_ARTIFACTS
     # Save for Test Failures Report
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/test-results/*/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
