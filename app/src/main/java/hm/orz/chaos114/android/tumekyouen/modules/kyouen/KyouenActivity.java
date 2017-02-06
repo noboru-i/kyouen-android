@@ -25,6 +25,7 @@ import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
+import hm.orz.chaos114.android.tumekyouen.network.NewKyouenService;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
@@ -47,6 +48,8 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
     KyouenDb kyouenDb;
     @Inject
     TumeKyouenService tumeKyouenService;
+    @Inject
+    NewKyouenService kyouenService;
 
     /** ステージ情報オブジェクト */
     private TumeKyouenModel stageModel;
@@ -171,7 +174,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
 
                 stageModel = model;
                 showOtherStage(direction);
-            }), tumeKyouenService)
+            }), kyouenService)
                     .execute(String.valueOf(maxStageNo));
 
             return false;

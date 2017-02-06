@@ -3,12 +3,9 @@ package hm.orz.chaos114.android.tumekyouen.util;
 import android.content.Context;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.util.Arrays;
-
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
-import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
+import hm.orz.chaos114.android.tumekyouen.network.NewKyouenService;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
@@ -20,22 +17,24 @@ import timber.log.Timber;
  */
 public class InsertDataTask {
 
-    /** タスク実行中フラグ */
+    private static final int FETCH_SIZE = 10;
+
+    // タスク実行中フラグ
     private static boolean running = false;
 
-    /** コンテキスト */
+    // コンテキスト
     private Context mContext;
 
-    /** DBアクセスオブジェクト */
+    // DBアクセスオブジェクト
     private KyouenDb mKyouenDb;
 
-    /** 取得する回数 */
+    // 取得する回数
     private int mCount;
 
-    /** 処理終了時の処理 */
+    // 処理終了時の処理
     private Runnable mRun;
 
-    private TumeKyouenService mTumeKyouenService;
+    private NewKyouenService kyouenService;
 
     /**
      * コンストラクタ。
@@ -43,8 +42,8 @@ public class InsertDataTask {
      * @param context コンテキスト
      * @param run     処理終了時の処理
      */
-    public InsertDataTask(Context context, Runnable run, TumeKyouenService tumeKyouenService) {
-        this(context, 1, run, tumeKyouenService);
+    public InsertDataTask(Context context, Runnable run, NewKyouenService kyouenService) {
+        this(context, 1, run, kyouenService);
     }
 
     /**
@@ -54,11 +53,11 @@ public class InsertDataTask {
      * @param count   取得する回数
      * @param run     処理終了時の処理
      */
-    public InsertDataTask(Context context, int count, Runnable run, TumeKyouenService tumeKyouenService) {
+    public InsertDataTask(Context context, int count, Runnable run, NewKyouenService kyouenService) {
         this.mContext = context;
         this.mCount = count;
         this.mRun = run;
-        this.mTumeKyouenService = tumeKyouenService;
+        this.kyouenService = kyouenService;
 
         mKyouenDb = new KyouenDb(context);
     }
@@ -89,31 +88,25 @@ public class InsertDataTask {
         }
         setRunning(true);
 
-        int stageNo = Integer.parseInt(params);
-        fetch(stageNo, 0);
+        int offset = Integer.parseInt(params);
+        fetch(offset, 0);
     }
 
-    private void fetch(int stageNo, int count) {
-        mTumeKyouenService.getStage(stageNo)
+    private void fetch(int offset, int count) {
+        kyouenService.getStage(offset, FETCH_SIZE)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(response -> {
-                            String s = null;
-                            try {
-                                s = response.body().string();
-                            } catch (IOException e) {
-                                s = "";
-                            }
-                            if ("no_data".equals(s)) {
-                                onPostExecute(stageNo);
+                .subscribe(list -> {
+                            if (list.isEmpty()) {
+                                onPostExecute(offset);
                                 return;
                             }
-                            int addedCount = insertData(s.split("\n"));
+                            mKyouenDb.insert(list);
                             if (count + 1 >= mCount) {
-                                onPostExecute(stageNo + addedCount);
+                                onPostExecute(offset + list.size());
                                 return;
                             }
-                            fetch(stageNo + addedCount, count + 1);
+                            fetch(offset + list.size(), count + 1);
                         },
                         throwable -> {
                             Timber.e(throwable, "cannot get stage.");
@@ -121,28 +114,7 @@ public class InsertDataTask {
                         });
     }
 
-    /**
-     * DBにデータを登録します。
-     *
-     * @param insertData 登録データ（CSV文字列の配列）
-     * @return 登録件数
-     */
-    private int insertData(String[] insertData) {
-        Timber.d("insertData is %s", Arrays.asList(insertData));
-        int count = 0;
-        for (String csvString : insertData) {
-            long id = mKyouenDb.insert(csvString);
-            Timber.d("id is %d", id);
-            if (id != -1) {
-                count++;
-            }
-        }
-
-        Timber.d("count is %d", count);
-        return count;
-    }
-
-    protected void onPostExecute(Integer result) {
+    private void onPostExecute(Integer result) {
         Timber.d("in onPostExecute result is %d", result);
         if (result != -2) {
             // 排他エラー以外の場合はfalseを設定

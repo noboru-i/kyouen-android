@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="server_url" translatable="false">https://my-android-server.appspot.com</string>
+    <string name="new_server_url" translatable="false">https://kyouen-server.herokuapp.com</string>
 
     <string name="twitter_key" translatable="false">7o7Mn96LxBHSPomoXdK8Yw</string>
     <string name="twitter_secret" translatable="false">zN2xVBE7QqjS3tJLEH8MPmzIpa9FQ3gWDclSALCMBE</string>

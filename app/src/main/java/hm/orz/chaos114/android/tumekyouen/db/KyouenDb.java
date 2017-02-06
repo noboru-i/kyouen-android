@@ -13,6 +13,7 @@ import java.util.List;
 
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
+import hm.orz.chaos114.android.tumekyouen.network.entity.Stage;
 
 /**
  * 詰め共円情報テーブルを管理するクラス
@@ -43,14 +44,6 @@ public class KyouenDb {
     }
 
     /**
-     * データベースのオープンを試みます。
-     */
-    public void check() {
-        mHelper.getWritableDatabase();
-        mHelper.close();
-    }
-
-    /**
      * レコードを登録します。
      *
      * @param csvString CSV文字列
@@ -69,13 +62,32 @@ public class KyouenDb {
         }
     }
 
+    public void insert(List<Stage> stageList) {
+        SQLiteDatabase database = null;
+        try {
+            database = mHelper.getWritableDatabase();
+            for (Stage stage : stageList) {
+                ContentValues values = new ContentValues();
+                values.put(TumeKyouenDataColumns.STAGE_NO, stage.getStageNo());
+                values.put(TumeKyouenDataColumns.SIZE, stage.getSize());
+                values.put(TumeKyouenDataColumns.STAGE, stage.getStage());
+                values.put(TumeKyouenDataColumns.CREATOR, stage.getCreator());
+                database.insert(TABLE_NAME, "", values);
+            }
+        } finally {
+            if (database != null) {
+                database.close();
+            }
+        }
+    }
+
     /**
      * レコードを登録します。
      *
      * @param csvString CSV文字列
      * @return ID
      */
-    public long insert(SQLiteDatabase db, String csvString) {
+    private long insert(SQLiteDatabase db, String csvString) {
         String[] splitString = csvString.split(",", -1);
         if (splitString.length != 4) {
             return -1;
@@ -107,7 +119,7 @@ public class KyouenDb {
      * @param item 更新オブジェクト
      * @return 更新件数
      */
-    public int updateClearFlag(TumeKyouenModel item, Date date) {
+    private int updateClearFlag(TumeKyouenModel item, Date date) {
 
         ContentValues values = new ContentValues();
         values.put(TumeKyouenDataColumns.CLEAR_FLAG, item.getClearFlag());
@@ -328,7 +340,7 @@ public class KyouenDb {
     }
 
     /** カラム名 */
-    public interface TumeKyouenDataColumns extends BaseColumns {
+    private interface TumeKyouenDataColumns extends BaseColumns {
         /** ステージ番号 */
         String STAGE_NO = "stage_no";
 
@@ -353,7 +365,7 @@ public class KyouenDb {
      *
      * @author noboru
      */
-    final class KyouenDbOpenHelper extends SQLiteOpenHelper {
+    private final class KyouenDbOpenHelper extends SQLiteOpenHelper {
 
         /** DBのバージョン */
         private static final int DB_VERSION = 2;

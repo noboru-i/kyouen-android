@@ -36,6 +36,7 @@ import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
+import hm.orz.chaos114.android.tumekyouen.network.NewKyouenService;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
@@ -61,6 +62,8 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
     KyouenDb kyouenDb;
     @Inject
     TumeKyouenService tumeKyouenService;
+    @Inject
+    NewKyouenService kyouenService;
 
     private ActivityTitleBinding binding;
 
@@ -146,7 +149,7 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
                 (count -> {
                     int taskCount = count == -1 ? Integer.MAX_VALUE : count;
                     final InsertDataTask task = new InsertDataTask(TitleActivity.this,
-                            taskCount, this::refreshAll, tumeKyouenService);
+                            taskCount, this::refreshAll, kyouenService);
                     final long maxStageNo = kyouenDb.selectMaxStageNo();
                     task.execute(String.valueOf(maxStageNo));
 
