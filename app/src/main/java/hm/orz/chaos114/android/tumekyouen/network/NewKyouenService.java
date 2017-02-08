@@ -3,7 +3,9 @@ package hm.orz.chaos114.android.tumekyouen.network;
 import java.util.List;
 
 import hm.orz.chaos114.android.tumekyouen.model.AddAllResponse;
+import hm.orz.chaos114.android.tumekyouen.network.entity.AuthInfo;
 import hm.orz.chaos114.android.tumekyouen.network.entity.Stage;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
@@ -14,9 +16,8 @@ import rx.Observable;
  * Interface of kyouen API.
  */
 public interface NewKyouenService {
-    @POST("/page/api_login")
-    Observable<Void> login(@Field("token") String token,
-                           @Field("token_secret") String tokenSecret);
+    @POST("/users/login")
+    Observable<Void> login(@Body AuthInfo authInfo);
 
     @POST("/page/add_all")
     Observable<AddAllResponse> addAll(@Field("data") String data);

@@ -38,6 +38,7 @@ import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
 import hm.orz.chaos114.android.tumekyouen.network.NewKyouenService;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
+import hm.orz.chaos114.android.tumekyouen.network.entity.AuthInfo;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PackageChecker;
@@ -94,7 +95,7 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         if (loginInfo != null) {
             // 認証情報が存在する場合
             binding.connectButton.setEnabled(false);
-            tumeKyouenService.login(loginInfo.token, loginInfo.secret)
+            kyouenService.login(new AuthInfo(loginInfo.token, loginInfo.secret))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(s -> {
@@ -250,7 +251,7 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
     @MainThread
     private void sendAuthToken(TwitterAuthToken authToken) {
         // サーバに認証情報を送信
-        tumeKyouenService.login(authToken.token, authToken.secret)
+        kyouenService.login(new AuthInfo(authToken.token, authToken.secret))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(s -> {
