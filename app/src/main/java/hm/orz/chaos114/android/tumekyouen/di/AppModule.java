@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -17,6 +18,8 @@ import dagger.Provides;
 import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
+import hm.orz.chaos114.android.tumekyouen.network.AuthInterceptor;
+import hm.orz.chaos114.android.tumekyouen.network.NewKyouenService;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
 import hm.orz.chaos114.android.tumekyouen.util.EncryptionUtil;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
@@ -105,5 +108,27 @@ public class AppModule {
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
         return retrofit.create(TumeKyouenService.class);
+    }
+
+    @Provides
+    @Singleton
+    NewKyouenService provideNewKyouenService(Context context) {
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(message -> Timber.tag("NewOkHttp").d(message));
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .addInterceptor(new AuthInterceptor())
+                .build();
+
+        Gson gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .create();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(context.getString(R.string.new_server_url))
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build();
+        return retrofit.create(NewKyouenService.class);
     }
 }

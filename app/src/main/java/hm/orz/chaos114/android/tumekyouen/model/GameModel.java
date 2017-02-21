@@ -48,6 +48,16 @@ public class GameModel {
         return whiteStonePoints.size();
     }
 
+    public String getSelectedStageAsString() {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < size * size; i++) {
+            int col = i % size;
+            int row = i / size;
+            result.append(whiteStonePoints.contains(new Point(col, row)) ? "1" : "0");
+        }
+        return result.toString();
+    }
+
     public KyouenData isKyouen() {
         if (whiteStonePoints.size() < 4) {
             return null;
