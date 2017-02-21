@@ -18,6 +18,7 @@ import dagger.Provides;
 import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
+import hm.orz.chaos114.android.tumekyouen.network.AuthInterceptor;
 import hm.orz.chaos114.android.tumekyouen.network.NewKyouenService;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
 import hm.orz.chaos114.android.tumekyouen.util.EncryptionUtil;
@@ -116,6 +117,7 @@ public class AppModule {
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(logging)
+                .addInterceptor(new AuthInterceptor())
                 .build();
 
         Gson gson = new GsonBuilder()

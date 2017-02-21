@@ -14,8 +14,4 @@ public interface TumeKyouenService {
     @FormUrlEncoded
     @POST("/page/add_all")
     Observable<AddAllResponse> addAll(@Field("data") String data);
-
-    @FormUrlEncoded
-    @POST("/page/add")
-    Observable<Void> add(@Field("stageNo") int stageNo);
 }

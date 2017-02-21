@@ -27,6 +27,7 @@ import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.network.NewKyouenService;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
+import hm.orz.chaos114.android.tumekyouen.network.entity.Answer;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
@@ -117,7 +118,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
     /**
      * 共円状態を設定します。
      */
-    private void setKyouen() {
+    private void setKyouen(String stage) {
         binding.kyouenButton.setClickable(false);
         tumeKyouenFragment.setClickable(false);
 
@@ -125,7 +126,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         kyouenDb.updateClearFlag(stageModel);
 
         // サーバに送信
-        tumeKyouenService.add(stageModel.getStageNo())
+        kyouenService.answer(new Answer(stageModel.getStageNo(), stage))
                 .subscribeOn(Schedulers.io())
                 .subscribe();
 
@@ -243,7 +244,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
                 .create().show();
         binding.kyouenOverlay.setData(stageModel.getSize(), data);
         binding.kyouenOverlay.setVisibility(View.VISIBLE);
-        setKyouen();
+        setKyouen(tumeKyouenFragment.getGameModel().getSelectedStageAsString());
     }
 
     @Override
