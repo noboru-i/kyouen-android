@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @EqualsAndHashCode
 @ToString
-@AllArgsConstructor(suppressConstructorProperties = true)
+@AllArgsConstructor
 public class Point {
     double x;
     double y;
