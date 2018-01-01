@@ -4,7 +4,7 @@ apply plugin: 'deploygate'
 apply plugin: 'com.github.ben-manes.versions'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion "26.0.2"
 
     useLibrary 'org.apache.http.legacy'
@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId "hm.orz.chaos114.android.tumekyouen"
         minSdkVersion 17
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 19
         versionName "0.10.1"
 
@@ -69,8 +69,8 @@ android {
 }
 
 ext {
-    supportLibVersion = '25.2.0'
-    firebaseLibVersion = '11.4.2'
+    supportLibVersion = '26.1.0'
+    firebaseLibVersion = '11.8.0'
     okhttpLibVersion = '3.9.0'
     retrofitLibVersion = '2.3.0'
 }
