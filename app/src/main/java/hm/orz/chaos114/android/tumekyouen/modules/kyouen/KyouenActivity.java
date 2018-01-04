@@ -1,5 +1,6 @@
 package hm.orz.chaos114.android.tumekyouen.modules.kyouen;
 
+import android.animation.Animator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -11,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 
 import com.google.android.gms.ads.AdRequest;
 
@@ -187,29 +189,53 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
      * @param direction 移動するステージの方向（PREV/NEXT/NONE）
      */
     private void showOtherStage(@NonNull final Direction direction) {
+        TumeKyouenFragment oldFragment = tumeKyouenFragment;
         tumeKyouenFragment = new TumeKyouenFragment(this);
         tumeKyouenFragment.setData(stageModel);
 
-        // TODO
-//        switch (direction) {
-//            case PREV:
-//                ft.setCustomAnimations(
-//                        R.anim.fragment_slide_right_enter,
-//                        R.anim.fragment_slide_right_exit);
-//                break;
-//            case NEXT:
-//                ft.setCustomAnimations(
-//                        R.anim.fragment_slide_left_enter,
-//                        R.anim.fragment_slide_left_exit);
-//                break;
-//            case NONE:
-//                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-//                break;
-//        }
-//        ft.replace(R.id.fragment_container, tumeKyouenFragment);
-//        ft.commit();
-        binding.fragmentContainer.removeAllViews();
+        int width = binding.fragmentContainer.getWidth();
+        float oldTranslationX = 0;
+        switch (direction) {
+            case PREV:
+                tumeKyouenFragment.setTranslationX(-width);
+                oldTranslationX = width;
+                break;
+            case NEXT:
+                tumeKyouenFragment.setTranslationX(width);
+                oldTranslationX = -width;
+                break;
+        }
         binding.fragmentContainer.addView(tumeKyouenFragment);
+
+        oldFragment.animate()
+                .translationX(oldTranslationX)
+                .setDuration(250)
+                .setInterpolator(new AccelerateInterpolator());
+        tumeKyouenFragment.animate()
+                .translationX(0)
+                .setDuration(250)
+                .setInterpolator(new AccelerateInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        binding.fragmentContainer.removeView(oldFragment);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
 
         init();
     }
