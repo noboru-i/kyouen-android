@@ -9,7 +9,6 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
@@ -48,12 +47,12 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
     @Inject
     TumeKyouenService tumeKyouenService;
 
-    /** ステージ情報オブジェクト */
+    // ステージ情報オブジェクト
     private TumeKyouenModel stageModel;
 
     private ActivityKyouenBinding binding;
 
-    /** 共円描画用view */
+    // 共円描画用view
     private TumeKyouenFragment tumeKyouenFragment;
 
     public static void start(Activity activity, TumeKyouenModel tumeKyouenModel) {
@@ -81,10 +80,9 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
 
         if (savedInstanceState == null) {
             // 詰め共円領域の追加
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            tumeKyouenFragment = TumeKyouenFragment.newInstance(stageModel);
-            fragmentTransaction.add(R.id.fragment_container, tumeKyouenFragment);
-            fragmentTransaction.commit();
+            tumeKyouenFragment = new TumeKyouenFragment(this);
+            binding.fragmentContainer.addView(tumeKyouenFragment);
+            tumeKyouenFragment.setData(stageModel);
         }
 
         // 広告の表示
@@ -106,7 +104,8 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         // 共円ボタンの設定
         binding.kyouenButton.setClickable(true);
 
-        binding.kyouenOverlay.setVisibility(View.INVISIBLE);
+        // TODO
+        binding.kyouenOverlay.setVisibility(View.GONE);
 
         binding.setStageModel(new KyouenActivityViewModel(stageModel, this));
     }
@@ -188,26 +187,29 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
      * @param direction 移動するステージの方向（PREV/NEXT/NONE）
      */
     private void showOtherStage(@NonNull final Direction direction) {
-        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        tumeKyouenFragment = TumeKyouenFragment.newInstance(stageModel);
+        tumeKyouenFragment = new TumeKyouenFragment(this);
+        tumeKyouenFragment.setData(stageModel);
 
-        switch (direction) {
-            case PREV:
-                ft.setCustomAnimations(
-                        R.anim.fragment_slide_right_enter,
-                        R.anim.fragment_slide_right_exit);
-                break;
-            case NEXT:
-                ft.setCustomAnimations(
-                        R.anim.fragment_slide_left_enter,
-                        R.anim.fragment_slide_left_exit);
-                break;
-            case NONE:
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                break;
-        }
-        ft.replace(R.id.fragment_container, tumeKyouenFragment);
-        ft.commit();
+        // TODO
+//        switch (direction) {
+//            case PREV:
+//                ft.setCustomAnimations(
+//                        R.anim.fragment_slide_right_enter,
+//                        R.anim.fragment_slide_right_exit);
+//                break;
+//            case NEXT:
+//                ft.setCustomAnimations(
+//                        R.anim.fragment_slide_left_enter,
+//                        R.anim.fragment_slide_left_exit);
+//                break;
+//            case NONE:
+//                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//                break;
+//        }
+//        ft.replace(R.id.fragment_container, tumeKyouenFragment);
+//        ft.commit();
+        binding.fragmentContainer.removeAllViews();
+        binding.fragmentContainer.addView(tumeKyouenFragment);
 
         init();
     }
@@ -276,7 +278,9 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         dialog.show();
     }
 
-    /** 方向を表すenum */
+    /**
+     * 方向を表すenum
+     */
     private enum Direction {
         PREV, NEXT, NONE
     }
