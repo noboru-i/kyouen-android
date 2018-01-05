@@ -29,7 +29,7 @@ import hm.orz.chaos114.android.tumekyouen.model.GameModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 
-public class TumeKyouenFragment extends TableLayout {
+public class TumeKyouenView extends TableLayout {
 
     @Inject
     SoundManager soundManager;
@@ -45,11 +45,11 @@ public class TumeKyouenFragment extends TableLayout {
     // ゲーム情報保持用オブジェクト
     private GameModel gameModel;
 
-    public TumeKyouenFragment(Context context) {
+    public TumeKyouenView(Context context) {
         this(context, null);
     }
 
-    public TumeKyouenFragment(Context context, AttributeSet attrs) {
+    public TumeKyouenView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         setWindowSize();

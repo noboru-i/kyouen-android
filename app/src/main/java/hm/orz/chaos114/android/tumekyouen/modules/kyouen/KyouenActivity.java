@@ -55,7 +55,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
     private ActivityKyouenBinding binding;
 
     // 共円描画用view
-    private TumeKyouenFragment tumeKyouenFragment;
+    private TumeKyouenView tumeKyouenView;
 
     public static void start(Activity activity, TumeKyouenModel tumeKyouenModel) {
         final Intent intent = new Intent(activity, KyouenActivity.class);
@@ -82,9 +82,9 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
 
         if (savedInstanceState == null) {
             // 詰め共円領域の追加
-            tumeKyouenFragment = new TumeKyouenFragment(this);
-            binding.fragmentContainer.addView(tumeKyouenFragment);
-            tumeKyouenFragment.setData(stageModel);
+            tumeKyouenView = new TumeKyouenView(this);
+            binding.fragmentContainer.addView(tumeKyouenView);
+            tumeKyouenView.setData(stageModel);
         }
 
         // 広告の表示
@@ -106,7 +106,6 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         // 共円ボタンの設定
         binding.kyouenButton.setClickable(true);
 
-        // TODO
         binding.kyouenOverlay.setVisibility(View.GONE);
 
         binding.setStageModel(new KyouenActivityViewModel(stageModel, this));
@@ -117,7 +116,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
      */
     private void setKyouen() {
         binding.kyouenButton.setClickable(false);
-        tumeKyouenFragment.setClickable(false);
+        tumeKyouenView.setClickable(false);
 
         stageModel.setClearFlag(TumeKyouenModel.CLEAR);
         kyouenDb.updateClearFlag(stageModel);
@@ -153,7 +152,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         }
 
         if (newModel == null) {
-            // 次のステージが存在しない場合、WEBより取得する
+            // 次のステージが存在しない場合、APIより取得する
             final ProgressDialog dialog = new ProgressDialog(this);
             dialog.setTitle("通信中");
             dialog.setMessage("Loading...");
@@ -189,29 +188,29 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
      * @param direction 移動するステージの方向（PREV/NEXT/NONE）
      */
     private void showOtherStage(@NonNull final Direction direction) {
-        TumeKyouenFragment oldFragment = tumeKyouenFragment;
-        tumeKyouenFragment = new TumeKyouenFragment(this);
-        tumeKyouenFragment.setData(stageModel);
+        TumeKyouenView oldView = tumeKyouenView;
+        tumeKyouenView = new TumeKyouenView(this);
+        tumeKyouenView.setData(stageModel);
 
         int width = binding.fragmentContainer.getWidth();
         float oldTranslationX = 0;
         switch (direction) {
             case PREV:
-                tumeKyouenFragment.setTranslationX(-width);
+                tumeKyouenView.setTranslationX(-width);
                 oldTranslationX = width;
                 break;
             case NEXT:
-                tumeKyouenFragment.setTranslationX(width);
+                tumeKyouenView.setTranslationX(width);
                 oldTranslationX = -width;
                 break;
         }
-        binding.fragmentContainer.addView(tumeKyouenFragment);
+        binding.fragmentContainer.addView(tumeKyouenView);
 
-        oldFragment.animate()
+        oldView.animate()
                 .translationX(oldTranslationX)
                 .setDuration(250)
                 .setInterpolator(new AccelerateInterpolator());
-        tumeKyouenFragment.animate()
+        tumeKyouenView.animate()
                 .translationX(0)
                 .setDuration(250)
                 .setInterpolator(new AccelerateInterpolator())
@@ -223,7 +222,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        binding.fragmentContainer.removeView(oldFragment);
+                        binding.fragmentContainer.removeView(oldView);
                     }
 
                     @Override
@@ -242,21 +241,21 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
 
     @Override
     public void onClickCheckKyouen(View view) {
-        if (tumeKyouenFragment.getGameModel().getWhiteStoneCount() != 4) {
+        if (tumeKyouenView.getGameModel().getWhiteStoneCount() != 4) {
             // 4つの石が選択されていない場合
             new AlertDialog.Builder(KyouenActivity.this)
                     .setTitle(R.string.alert_less_stone)
                     .setPositiveButton("OK", null).create().show();
             return;
         }
-        final KyouenData data = tumeKyouenFragment.getGameModel().isKyouen();
+        final KyouenData data = tumeKyouenView.getGameModel().isKyouen();
         if (data == null) {
             // 共円でない場合
             new AlertDialog.Builder(KyouenActivity.this)
                     .setTitle(R.string.alert_not_kyouen)
                     .setPositiveButton("OK", null).create().show();
             // 全ての石を未選択状態に戻す
-            tumeKyouenFragment.reset();
+            tumeKyouenView.reset();
             return;
         }
 
