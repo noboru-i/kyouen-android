@@ -8,11 +8,8 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.util.AttributeSet;
 import android.view.Display;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TableLayout;
@@ -32,79 +29,82 @@ import hm.orz.chaos114.android.tumekyouen.model.GameModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 
-public class TumeKyouenFragment extends Fragment {
+public class TumeKyouenFragment extends TableLayout {
 
     @Inject
     SoundManager soundManager;
     @Inject
     FirebaseAnalytics firebaseAnalytics;
 
-    /** メインのレイアウト */
-    private TableLayout layout;
-    /** スクリーンの幅 */
+    // スクリーンの幅
     private int maxScrnWidth;
-    /** 背景描画用Bitmap */
+    // 背景描画用Bitmap
     private Bitmap background;
-    /** ボタンリスト */
+    // ボタンリスト
     private List<Button> buttons;
-    /** ゲーム情報保持用オブジェクト */
+    // ゲーム情報保持用オブジェクト
     private GameModel gameModel;
 
-    /**
-     * デフォルトコンストラクタ。
-     */
-    public TumeKyouenFragment() {
+    public TumeKyouenFragment(Context context) {
+        this(context, null);
     }
 
-    static TumeKyouenFragment newInstance(final TumeKyouenModel stageModel) {
-        final TumeKyouenFragment tumeKyouenFragment = new TumeKyouenFragment();
-        final Bundle bundle = new Bundle();
-        bundle.putSerializable("stage", stageModel);
-        tumeKyouenFragment.setArguments(bundle);
+    public TumeKyouenFragment(Context context, AttributeSet attrs) {
+        super(context, attrs);
 
-        return tumeKyouenFragment;
+        setWindowSize();
+        initViews();
     }
 
     @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
-                             final Bundle savedInstanceState) {
-        getApplicationComponent().inject(this);
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightSize = (int) (widthSize);
 
-        final TumeKyouenModel stageModel = (TumeKyouenModel) getArguments()
-                .getSerializable("stage");
-        assert stageModel != null;
-        gameModel = new GameModel(stageModel.getSize(), stageModel.getStage());
+        setMeasuredDimension(widthSize, heightSize);
 
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, widthMode);
+        heightMeasureSpec = MeasureSpec.makeMeasureSpec(heightSize, heightMode);
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    private void setWindowSize() {
         // ディスプレイサイズの取得
         final Display display = ((WindowManager) getContext()
                 .getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         Point displaySize = new Point();
         display.getSize(displaySize);
         maxScrnWidth = displaySize.x;
+    }
 
-        layout = new TableLayout(getContext());
-        buttons = new ArrayList<>();
-
+    public void setData(TumeKyouenModel stageModel) {
+        gameModel = new GameModel(stageModel.getSize(), stageModel.getStage());
         init();
+    }
+
+    private void initViews() {
+        getApplicationComponent().inject(this);
+
+        buttons = new ArrayList<>();
 
         // TODO create util class
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "stage");
-        bundle.putString(FirebaseAnalytics.Param.VALUE, Integer.toString(stageModel.getStageNo()));
+//        bundle.putString(FirebaseAnalytics.Param.VALUE, Integer.toString(stageModel.getStageNo()));
         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
-
-        return layout;
     }
 
     private AppComponent getApplicationComponent() {
         return ((App) getContext().getApplicationContext()).getApplicationComponent();
     }
 
-
     private void init() {
         for (int i = 0; i < gameModel.getSize(); i++) {
             final TableRow tableRow = new TableRow(getContext());
-            layout.addView(tableRow);
+            addView(tableRow);
             for (int j = 0; j < gameModel.getSize(); j++) {
                 final Button button = new Button(getContext());
                 button.setBackground(new BitmapDrawable(null, createBackgroundBitmap()));
@@ -156,7 +156,8 @@ public class TumeKyouenFragment extends Fragment {
         }
     }
 
-    void setClickable(final boolean clickable) {
+    @Override
+    public void setClickable(final boolean clickable) {
         for (final Button b : buttons) {
             b.setClickable(clickable);
         }
@@ -239,7 +240,9 @@ public class TumeKyouenFragment extends Fragment {
         return gameModel;
     }
 
-    /** ボタン色を表すenum */
+    /**
+     * ボタン色を表すenum
+     */
     private enum ButtonState {
         NONE, BLACK, WHITE,
     }

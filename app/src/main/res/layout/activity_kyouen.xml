@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:ads="http://schemas.android.com/apk/res-auto"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
         <variable
             name="handlers"
-            type="hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivityHandlers"/>
+            type="hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivityHandlers" />
 
         <variable
             name="stageModel"
-            type="hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivityViewModel"/>
+            type="hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivityViewModel" />
     </data>
 
     <LinearLayout
@@ -40,7 +40,7 @@
                 android:onClick="@{handlers.onClickMoveStage}"
                 android:padding="5dp"
                 android:text="@string/button_prev"
-                android:textColor="#eeeeee"/>
+                android:textColor="#eeeeee" />
 
             <LinearLayout
                 android:id="@+id/stage_no_layout"
@@ -62,7 +62,7 @@
                     android:text="@{stageModel.titleStageNo}"
                     android:textColor="@{stageModel.stageNoTextColor}"
                     android:textSize="28sp"
-                    tools:text="STAGE:300"/>
+                    tools:text="STAGE:300" />
 
                 <TextView
                     android:id="@+id/stage_creator"
@@ -72,7 +72,7 @@
                     android:text="@{stageModel.titleCreator}"
                     android:textColor="@{stageModel.stageNoTextColor}"
                     android:textSize="10sp"
-                    tools:text="created by no name"/>
+                    tools:text="created by no name" />
             </LinearLayout>
 
             <Button
@@ -84,28 +84,25 @@
                 android:onClick="@{handlers.onClickMoveStage}"
                 android:padding="5dp"
                 android:text="@string/button_next"
-                android:textColor="#eeeeee"/>
+                android:textColor="#eeeeee" />
         </LinearLayout>
 
         <FrameLayout
             android:id="@+id/frame_layout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#4A9E3D">
 
-            <LinearLayout
+            <FrameLayout
                 android:id="@+id/fragment_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-            </LinearLayout>
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
             <hm.orz.chaos114.android.tumekyouen.modules.kyouen.OverlayView
                 android:id="@+id/kyouen_overlay"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="invisible">
-            </hm.orz.chaos114.android.tumekyouen.modules.kyouen.OverlayView>
+                android:visibility="gone" />
         </FrameLayout>
 
         <Button
@@ -120,7 +117,7 @@
             android:onClick="@{handlers.onClickCheckKyouen}"
             android:padding="5dp"
             android:text="@string/check_kyouen"
-            android:textColor="#eeeeee"/>
+            android:textColor="#eeeeee" />
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/adView"
@@ -128,6 +125,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
             ads:adSize="BANNER"
-            ads:adUnitId="@string/banner_ad_unit_id"/>
+            ads:adUnitId="@string/banner_ad_unit_id" />
     </LinearLayout>
 </layout>

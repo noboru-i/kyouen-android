@@ -4,8 +4,11 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
 import hm.orz.chaos114.android.tumekyouen.model.Line;
@@ -16,16 +19,16 @@ import hm.orz.chaos114.android.tumekyouen.model.Line;
  * @author noboru
  */
 public class OverlayView extends View {
-    /** スクリーンの幅 */
+    // スクリーンの幅
     private int maxScrnWidth;
 
-    /** 盤面のサイズ */
+    // 盤面のサイズ
     private int size;
 
-    /** 共円の情報 */
+    // 共円の情報
     private KyouenData data;
 
-    /** 描画用オブジェクト */
+    // 描画用オブジェクト
     private Paint paint;
 
     public OverlayView(Context context, AttributeSet attrs) {
@@ -39,15 +42,28 @@ public class OverlayView extends View {
         paint.setColor(Color.rgb(128, 128, 128));
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(3);
+
+        // ディスプレイサイズの取得
+        final Display display = ((WindowManager) getContext()
+                .getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        Point displaySize = new Point();
+        display.getSize(displaySize);
+        maxScrnWidth = displaySize.x;
     }
 
     @Override
-    public void onWindowFocusChanged(boolean hasWindowFocus) {
-        super.onWindowFocusChanged(hasWindowFocus);
-        this.maxScrnWidth = getWidth();
-        if (getWidth() != getHeight()) {
-            getLayoutParams().height = getWidth();
-        }
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightSize = (int) (widthSize);
+
+        setMeasuredDimension(widthSize, heightSize);
+
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, widthMode);
+        heightMeasureSpec = MeasureSpec.makeMeasureSpec(heightSize, heightMode);
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     @Override
