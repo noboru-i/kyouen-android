@@ -1,7 +1,7 @@
 package hm.orz.chaos114.android.tumekyouen.modules.kyouen;
 
 import android.content.Context;
-import android.support.annotation.ColorRes;
+import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
 
 import hm.orz.chaos114.android.tumekyouen.R;
@@ -29,7 +29,7 @@ public final class KyouenActivityViewModel {
         return context.getString(R.string.creator, tumeKyouenModel.getCreator());
     }
 
-    @ColorRes
+    @ColorInt
     public int getStageNoTextColor() {
         boolean isClear = tumeKyouenModel.getClearFlag() == TumeKyouenModel.CLEAR;
 
