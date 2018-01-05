@@ -4,8 +4,8 @@ apply plugin: 'deploygate'
 apply plugin: 'com.github.ben-manes.versions'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
 
     testOptions.unitTests.includeAndroidResources true
 
@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId "hm.orz.chaos114.android.tumekyouen"
         minSdkVersion 17
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 19
         versionName "0.10.1"
 
@@ -66,9 +66,9 @@ android {
 }
 
 ext {
-    supportLibVersion = '26.1.0'
+    supportLibVersion = '27.0.2'
     firebaseLibVersion = '11.8.0'
-    okhttpLibVersion = '3.9.0'
+    okhttpLibVersion = '3.9.1'
     retrofitLibVersion = '2.3.0'
 }
 
@@ -85,8 +85,8 @@ dependencies {
     compile "com.google.firebase:firebase-crash:${firebaseLibVersion}"
 
     compile "org.projectlombok:lombok:1.16.18"
-    compile 'com.twitter.sdk.android:twitter-core:3.1.1'
-    compile 'com.jakewharton.timber:timber:4.5.1'
+    compile 'com.twitter.sdk.android:twitter-core:3.2.0'
+    compile 'com.jakewharton.timber:timber:4.6.0'
     compile 'com.google.code.gson:gson:2.8.2'
     compile "com.squareup.okhttp3:okhttp:${okhttpLibVersion}"
     compile "com.squareup.okhttp3:logging-interceptor:${okhttpLibVersion}"
@@ -95,10 +95,10 @@ dependencies {
     compile "com.squareup.retrofit2:adapter-rxjava:${retrofitLibVersion}"
     compile "com.squareup.retrofit2:converter-gson:${retrofitLibVersion}"
     compile 'io.reactivex:rxandroid:1.2.1'
-    compile 'io.reactivex:rxjava:1.3.3'
+    compile 'io.reactivex:rxjava:1.3.4'
 
-    compile 'com.google.dagger:dagger:2.12'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.12'
+    compile 'com.google.dagger:dagger:2.14.1'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.14.1'
     provided 'javax.annotation:jsr250-api:1.0'
 
     testCompile 'junit:junit:4.12'
