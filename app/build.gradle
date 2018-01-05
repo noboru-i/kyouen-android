@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'deploygate'
 apply plugin: 'com.github.ben-manes.versions'
+apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
     compileSdkVersion 27
@@ -82,6 +83,7 @@ dependencies {
     compile "com.google.firebase:firebase-analytics:${firebaseLibVersion}"
     compile "com.google.firebase:firebase-messaging:${firebaseLibVersion}"
     compile "com.google.firebase:firebase-ads:${firebaseLibVersion}"
+    compile "com.google.firebase:firebase-perf:${firebaseLibVersion}"
     compile('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
         transitive = true
     }
