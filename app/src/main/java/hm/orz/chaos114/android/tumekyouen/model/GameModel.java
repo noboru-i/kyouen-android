@@ -1,5 +1,8 @@
 package hm.orz.chaos114.android.tumekyouen.model;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,15 +36,24 @@ public class GameModel {
 
     public void switchColor(int x, int y) {
         Point p = new Point(x, y);
-        if (whiteStonePoints.contains(p)) {
+        if (isSelected(x, y)) {
             whiteStonePoints.remove(p);
         } else {
             whiteStonePoints.add(p);
         }
     }
 
+    public boolean isSelected(int x, int y) {
+        Point p = new Point(x, y);
+        return whiteStonePoints.contains(p);
+    }
+
     public boolean hasStone(int x, int y) {
         return stonePoints.contains(new Point(x, y));
+    }
+
+    public void reset() {
+        whiteStonePoints.clear();
     }
 
     public int getWhiteStoneCount() {
@@ -65,7 +77,8 @@ public class GameModel {
         return null;
     }
 
-    public KyouenData isKyouen(Point p1, Point p2, Point p3, Point p4) {
+    @Nullable
+    private KyouenData isKyouen(Point p1, Point p2, Point p3, Point p4) {
         // p1,p2の垂直二等分線を求める
         Line l12 = getMidperpendicular(p1, p2);
         // p2,p3の垂直二等分線を求める
@@ -98,7 +111,7 @@ public class GameModel {
      * @param p2 座標2
      * @return 距離
      */
-    public double getDistance(Point p1, Point p2) {
+    private double getDistance(Point p1, Point p2) {
         Point dist = p1.difference(p2);
 
         return dist.getAbs();
@@ -111,7 +124,8 @@ public class GameModel {
      * @param l2 直線2
      * @return 交点座標（交点が存在しない場合、null）
      */
-    public Point getIntersection(Line l1, Line l2) {
+    @Nullable
+    private Point getIntersection(Line l1, Line l2) {
         double f1 = l1.p2.x - l1.p1.x;
         double g1 = l1.p2.y - l1.p1.y;
         double f2 = l2.p2.x - l2.p1.x;
@@ -136,7 +150,9 @@ public class GameModel {
      * @param p2 座標2
      * @return 垂直二等分線
      */
-    public Line getMidperpendicular(Point p1, Point p2) {
+    @NonNull
+    @SuppressWarnings("SuspiciousNameCombination")
+    private Line getMidperpendicular(Point p1, Point p2) {
         Point midpoint = getMidpoint(p1, p2);
         Point dif = p1.difference(p2);
         Point gradient = new Point(dif.y, -1 * dif.x);
@@ -151,7 +167,8 @@ public class GameModel {
      * @param p2 座標2
      * @return 中点座標
      */
-    public Point getMidpoint(Point p1, Point p2) {
+    @NonNull
+    private Point getMidpoint(Point p1, Point p2) {
 
         return new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
     }
