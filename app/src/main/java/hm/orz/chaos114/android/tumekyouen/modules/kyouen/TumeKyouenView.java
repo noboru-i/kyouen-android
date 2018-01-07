@@ -77,6 +77,11 @@ public class TumeKyouenView extends TableLayout {
     }
 
     public void setData(TumeKyouenModel stageModel) {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "stage");
+        bundle.putString(FirebaseAnalytics.Param.VALUE, Integer.toString(stageModel.getStageNo()));
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
+
         gameModel = new GameModel(stageModel.getSize(), stageModel.getStage());
         initButtons();
         applyButtons();
@@ -86,12 +91,6 @@ public class TumeKyouenView extends TableLayout {
         getApplicationComponent().inject(this);
 
         buttons = new ArrayList<>();
-
-        // TODO create util class
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "stage");
-//        bundle.putString(FirebaseAnalytics.Param.VALUE, Integer.toString(stageModel.getStageNo()));
-        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
     }
 
     private AppComponent getApplicationComponent() {
