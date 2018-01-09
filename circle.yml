@@ -2,7 +2,7 @@ machine:
   java:
     version: oraclejdk8
   node:
-    version: v6.1.0
+    version: v8.2.0
   timezone: Asia/Tokyo
   environment:
     TERM: "dumb"
