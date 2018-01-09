@@ -76,10 +76,10 @@ jobs:
           background: true
       - run:
           name: Install Appium
-          command: npm install -g appium
+          command: sudo npm install appium
       - run:
           name: Start emulator
-          command: appium > /tmp/appium_log.txt
+          command: npm run appium > /tmp/appium_log.txt
           background: true
       - run:
           name: UI test
