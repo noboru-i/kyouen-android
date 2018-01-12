@@ -173,7 +173,7 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
                     .setMessage(R.string.alert_install_kyouenchecker)
                     .setPositiveButton("YES", ((dialog, which) -> {
                         // マーケットを開く
-                        final Uri uri = Uri.parse("market://details?id=" + packageName);
+                        final Uri uri = Uri.parse("https://play.google.com/store/apps/details?id=" + packageName);
                         final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                         startActivity(intent);
                     }))

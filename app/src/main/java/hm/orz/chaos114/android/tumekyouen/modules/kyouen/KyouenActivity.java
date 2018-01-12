@@ -30,6 +30,8 @@ import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
+import icepick.Icepick;
+import icepick.State;
 import rx.schedulers.Schedulers;
 
 /**
@@ -50,7 +52,8 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
     TumeKyouenService tumeKyouenService;
 
     // ステージ情報オブジェクト
-    private TumeKyouenModel stageModel;
+    @State
+    TumeKyouenModel stageModel;
 
     private ActivityKyouenBinding binding;
 
@@ -69,6 +72,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         binding = DataBindingUtil.setContentView(this, R.layout.activity_kyouen);
         binding.setHandlers(this);
 
+        Icepick.restoreInstanceState(this, savedInstanceState);
         getApplicationComponent().inject(this);
 
         Intent intent = getIntent();
@@ -80,12 +84,10 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         // 音量ボタンの動作変更
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        if (savedInstanceState == null) {
-            // 詰め共円領域の追加
-            tumeKyouenView = new TumeKyouenView(this);
-            binding.fragmentContainer.addView(tumeKyouenView);
-            tumeKyouenView.setData(stageModel);
-        }
+        // 詰め共円領域の追加
+        tumeKyouenView = new TumeKyouenView(this);
+        binding.fragmentContainer.addView(tumeKyouenView);
+        tumeKyouenView.setData(stageModel);
 
         // 広告の表示
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -93,6 +95,12 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
 
         // 初期化
         init();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Icepick.saveInstanceState(this, outState);
     }
 
     private AppComponent getApplicationComponent() {
