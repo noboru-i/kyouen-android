@@ -32,7 +32,8 @@ import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 import icepick.Icepick;
 import icepick.State;
-import rx.schedulers.Schedulers;
+import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * 詰め共円のプレイ画面。
@@ -132,7 +133,11 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         // サーバに送信
         tumeKyouenService.add(stageModel.getStageNo())
                 .subscribeOn(Schedulers.io())
-                .subscribe();
+                .subscribe((a) -> {
+                    Timber.d("success");
+                }, (throwable) -> {
+                    Timber.d(throwable, "error");
+                });
 
         binding.setStageModel(new KyouenActivityViewModel(stageModel, this));
     }
