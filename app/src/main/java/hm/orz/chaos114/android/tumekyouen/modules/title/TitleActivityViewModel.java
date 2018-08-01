@@ -32,8 +32,8 @@ public final class TitleActivityViewModel {
 
     public String getDisplayStageCount() {
         return context.getString(R.string.stage_count,
-                stageCountModel.getClearStageCount(),
-                stageCountModel.getStageCount());
+                stageCountModel.clearStageCount(),
+                stageCountModel.stageCount());
     }
 
     public Drawable getSoundResource() {

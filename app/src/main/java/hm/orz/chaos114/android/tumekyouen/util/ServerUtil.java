@@ -31,9 +31,9 @@ public final class ServerUtil {
         for (TumeKyouenModel stageModel : stages) {
             JSONObject map = new JSONObject();
             try {
-                map.put("stageNo", Integer.toString(stageModel.getStageNo()));
+                map.put("stageNo", Integer.toString(stageModel.stageNo()));
                 map.put("clearDate",
-                        simpleDateFormat.format(stageModel.getClearDate()));
+                        simpleDateFormat.format(stageModel.clearDate()));
             } catch (JSONException e) {
                 continue;
             }

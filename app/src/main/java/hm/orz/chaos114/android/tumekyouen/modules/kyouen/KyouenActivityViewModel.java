@@ -22,21 +22,21 @@ public final class KyouenActivityViewModel {
     }
 
     public String getTitleStageNo() {
-        return context.getString(R.string.stage_no, tumeKyouenModel.getStageNo());
+        return context.getString(R.string.stage_no, tumeKyouenModel.stageNo());
     }
 
     public String getTitleCreator() {
-        return context.getString(R.string.creator, tumeKyouenModel.getCreator());
+        return context.getString(R.string.creator, tumeKyouenModel.creator());
     }
 
     @ColorInt
     public int getStageNoTextColor() {
-        boolean isClear = tumeKyouenModel.getClearFlag() == TumeKyouenModel.CLEAR;
+        boolean isClear = tumeKyouenModel.clearFlag() == TumeKyouenModel.CLEAR;
 
         return ContextCompat.getColor(context, isClear ? R.color.text_clear : R.color.text_not_clear);
     }
 
     public boolean hasPrev() {
-        return tumeKyouenModel.getStageNo() > 1;
+        return tumeKyouenModel.stageNo() > 1;
     }
 }

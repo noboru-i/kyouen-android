@@ -17,6 +17,7 @@ import dagger.Provides;
 import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
+import hm.orz.chaos114.android.tumekyouen.network.GsonAutoValueAdapterFactory;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
 import hm.orz.chaos114.android.tumekyouen.util.EncryptionUtil;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
@@ -97,6 +98,7 @@ public class AppModule {
 
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                .registerTypeAdapterFactory(GsonAutoValueAdapterFactory.create())
                 .create();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(context.getString(R.string.server_url))

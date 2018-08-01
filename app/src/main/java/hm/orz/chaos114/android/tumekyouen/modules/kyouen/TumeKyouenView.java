@@ -79,10 +79,10 @@ public class TumeKyouenView extends TableLayout {
     public void setData(TumeKyouenModel stageModel) {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "stage");
-        bundle.putString(FirebaseAnalytics.Param.VALUE, Integer.toString(stageModel.getStageNo()));
+        bundle.putString(FirebaseAnalytics.Param.VALUE, Integer.toString(stageModel.stageNo()));
         firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle);
 
-        gameModel = new GameModel(stageModel.getSize(), stageModel.getStage());
+        gameModel = GameModel.create(stageModel.size(), stageModel.stage());
         initButtons();
         applyButtons();
     }
@@ -98,12 +98,12 @@ public class TumeKyouenView extends TableLayout {
     }
 
     private void initButtons() {
-        for (int i = 0; i < gameModel.getSize(); i++) {
+        for (int i = 0; i < gameModel.size(); i++) {
             final TableRow tableRow = new TableRow(getContext());
             addView(tableRow);
-            for (int j = 0; j < gameModel.getSize(); j++) {
+            for (int j = 0; j < gameModel.size(); j++) {
                 final StoneButtonView button = new StoneButtonView(getContext());
-                final int stoneSize = maxScrnWidth / gameModel.getSize();
+                final int stoneSize = maxScrnWidth / gameModel.size();
                 buttons.add(button);
                 tableRow.addView(button, stoneSize, stoneSize);
 
@@ -111,8 +111,8 @@ public class TumeKyouenView extends TableLayout {
                     final StoneButtonView b = (StoneButtonView) v;
                     final int index = buttons.indexOf(b);
 
-                    final int col = index % gameModel.getSize();
-                    final int row = index / gameModel.getSize();
+                    final int col = index % gameModel.size();
+                    final int row = index / gameModel.size();
                     if (!gameModel.hasStone(col, row)) {
                         return;
                     }
@@ -127,7 +127,7 @@ public class TumeKyouenView extends TableLayout {
     }
 
     private void applyButtons() {
-        final int size = gameModel.getSize();
+        final int size = gameModel.size();
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 final StoneButtonView button = buttons.get(row * size + col);

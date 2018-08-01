@@ -13,7 +13,6 @@ import com.twitter.sdk.android.core.TwitterConfig;
 import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.di.AppModule;
 import hm.orz.chaos114.android.tumekyouen.di.DaggerAppComponent;
-import lombok.Getter;
 import timber.log.Timber;
 
 /**
@@ -21,7 +20,6 @@ import timber.log.Timber;
  */
 public class App extends Application {
 
-    @Getter
     private AppComponent applicationComponent;
 
     @Override
@@ -51,6 +49,10 @@ public class App extends Application {
         applicationComponent = DaggerAppComponent.builder()
                 .appModule(new AppModule(this))
                 .build();
+    }
+
+    public AppComponent getApplicationComponent() {
+        return applicationComponent;
     }
 
     private static final class FirebaseTree extends Timber.Tree {

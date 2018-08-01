@@ -271,9 +271,9 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         ServerUtil.addAll(tumeKyouenService, stages)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(s -> {
-                            if (s.getData() != null) {
-                                kyouenDb.updateSyncClearData(s.getData());
+                .subscribe(addAllResponse -> {
+                            if (addAllResponse.data() != null) {
+                                kyouenDb.updateSyncClearData(addAllResponse.data());
                             }
                             refresh();
                         },
