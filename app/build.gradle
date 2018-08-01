@@ -113,6 +113,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     testImplementation "org.robolectric:robolectric:3.6.1"
     testImplementation "org.robolectric:shadows-support-v4:3.3.2"
+    testImplementation "org.robolectric:shadows-multidex:3.6.1"
 }
 
 apply from: '../tasks/ci.gradle'
