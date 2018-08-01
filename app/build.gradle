@@ -19,6 +19,7 @@ android {
         targetSdkVersion 27
         versionCode 21
         versionName "0.10.3"
+        multiDexEnabled true
     }
     signingConfigs {
         debug {
@@ -68,6 +69,8 @@ ext {
 }
 
 dependencies {
+    implementation 'com.android.support:multidex:1.0.3'
+
     implementation "com.android.support:support-v4:${supportLibVersion}"
     implementation "com.android.support:appcompat-v7:${supportLibVersion}"
     implementation "com.android.support:design:${supportLibVersion}"
@@ -112,6 +115,6 @@ dependencies {
     testImplementation "org.robolectric:shadows-support-v4:3.3.2"
 }
 
-apply from: 'https://raw.githubusercontent.com/monstar-lab/gradle-android-ci-check/1.3.2/ci.gradle'
+apply from: '../tasks/ci.gradle'
 apply from: '../tasks/jacoco.gradle'
 apply plugin: 'com.google.gms.google-services'

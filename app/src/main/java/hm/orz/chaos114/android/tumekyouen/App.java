@@ -1,6 +1,8 @@
 package hm.orz.chaos114.android.tumekyouen;
 
 import android.app.Application;
+import android.content.Context;
+import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -49,6 +51,12 @@ public class App extends Application {
         applicationComponent = DaggerAppComponent.builder()
                 .appModule(new AppModule(this))
                 .build();
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 
     public AppComponent getApplicationComponent() {
