@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import hm.orz.chaos114.android.tumekyouen.model.AddAllResponse;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 
@@ -94,27 +95,15 @@ public class KyouenDb {
     /**
      * クリアフラグを更新する。
      *
-     * @param item 更新オブジェクト
+     * @param stageNo 更新対象ステージ番号
+     * @param date クリア日時
      * @return 更新件数
      */
-    public int updateClearFlag(TumeKyouenModel item) {
-        return updateClearFlag(item, new Date());
-    }
-
-    /**
-     * クリアフラグを更新する。
-     *
-     * @param item 更新オブジェクト
-     * @return 更新件数
-     */
-    public int updateClearFlag(TumeKyouenModel item, Date date) {
+    public int updateClearFlag(int stageNo, Date date) {
 
         ContentValues values = new ContentValues();
-        values.put(TumeKyouenDataColumns.CLEAR_FLAG, item.getClearFlag());
-        if (item.getClearFlag() == TumeKyouenModel.CLEAR) {
-            // クリア日付を設定
-            values.put(TumeKyouenDataColumns.CLEAR_DATE, date.getTime());
-        }
+        values.put(TumeKyouenDataColumns.CLEAR_FLAG, TumeKyouenModel.CLEAR);
+        values.put(TumeKyouenDataColumns.CLEAR_DATE, date.getTime());
 
         SQLiteDatabase database = null;
         try {
@@ -123,7 +112,7 @@ public class KyouenDb {
             // レコード更新
             return database.update(TABLE_NAME, values,
                     TumeKyouenDataColumns.STAGE_NO + " = ?",
-                    new String[]{Integer.toString(item.getStageNo())});
+                    new String[]{Integer.toString(stageNo)});
         } finally {
             if (database != null) {
                 database.close();
@@ -192,27 +181,20 @@ public class KyouenDb {
      * @return TumeKyouenModelオブジェクト
      */
     private TumeKyouenModel cursorToTumeKyouenModel(Cursor cursor) {
-        TumeKyouenModel item = new TumeKyouenModel();
         int stageNo = cursor.getInt(cursor
                 .getColumnIndex(KyouenDb.TumeKyouenDataColumns.STAGE_NO));
-        item.setStageNo(stageNo);
         int size = cursor.getInt(cursor
                 .getColumnIndex(KyouenDb.TumeKyouenDataColumns.SIZE));
-        item.setSize(size);
         String stage = cursor.getString(cursor
                 .getColumnIndex(KyouenDb.TumeKyouenDataColumns.STAGE));
-        item.setStage(stage);
         String creator = cursor.getString(cursor
                 .getColumnIndex(KyouenDb.TumeKyouenDataColumns.CREATOR));
-        item.setCreator(creator);
         int clearFlag = cursor.getInt(cursor
                 .getColumnIndex(KyouenDb.TumeKyouenDataColumns.CLEAR_FLAG));
-        item.setClearFlag(clearFlag);
         long clearDate = cursor.getLong(cursor
                 .getColumnIndex(KyouenDb.TumeKyouenDataColumns.CLEAR_DATE));
-        item.setClearDate(new Date(clearDate));
 
-        return item;
+        return TumeKyouenModel.create(stageNo, size, stage, creator, clearFlag, new Date(clearDate));
     }
 
     /**
@@ -259,12 +241,11 @@ public class KyouenDb {
             // レコード取得
             cursor = database.rawQuery(SQL_SELECT_STAGE_COUNT, null);
 
-            StageCountModel model = new StageCountModel();
+            StageCountModel model =  null;
             if (cursor.moveToNext()) {
                 int count = cursor.getInt(0);
-                model.setStageCount(count);
                 int clearCount = cursor.getInt(1);
-                model.setClearStageCount(clearCount);
+                model = StageCountModel.create(count, clearCount);
             }
 
             return model;
@@ -315,15 +296,13 @@ public class KyouenDb {
      *
      * @param clearList クリア情報リスト
      */
-    public void updateSyncClearData(List<TumeKyouenModel> clearList) {
-        for (TumeKyouenModel model : clearList) {
-            TumeKyouenModel dbModel = selectCurrentStage(model.getStageNo());
+    public void updateSyncClearData(List<AddAllResponse.Stage> clearList) {
+        for (AddAllResponse.Stage model : clearList) {
+            TumeKyouenModel dbModel = selectCurrentStage(model.stageNo());
             if (dbModel == null) {
                 continue;
             }
-            dbModel.setClearFlag(TumeKyouenModel.CLEAR);
-            dbModel.setClearDate(model.getClearDate());
-            updateClearFlag(dbModel, model.getClearDate());
+            updateClearFlag(dbModel.stageNo(), model.clearDate());
         }
     }
 

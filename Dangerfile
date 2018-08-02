@@ -14,11 +14,6 @@ checkstyle_format.base_path = Dir.pwd
 # checkstyle
 checkstyle_format.report 'app/build/reports/checkstyle/checkstyle.xml'
 
-# Findbugs
-require 'findbugs_translate_checkstyle_format'
-findbugs_xml = ::FindbugsTranslateCheckstyleFormat::Script.translate(File.read('app/build/reports/findbugs/findbugs.xml'))
-checkstyle_format.report_by_text findbugs_xml
-
 # PMD
 require 'pmd_translate_checkstyle_format'
 pmd_xml = ::PmdTranslateCheckstyleFormat::Script.translate(File.read('app/build/reports/pmd/pmd.xml'))

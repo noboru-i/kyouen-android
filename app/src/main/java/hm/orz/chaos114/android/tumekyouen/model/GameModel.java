@@ -3,26 +3,24 @@ package hm.orz.chaos114.android.tumekyouen.model;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.google.auto.value.AutoValue;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Getter;
+@AutoValue
+public abstract class GameModel {
 
-@Getter
-public class GameModel {
+    public abstract int size();
 
-    private int size;
+    public abstract String startState();
 
-    private String startState;
+    public abstract List<Point> stonePoints();
 
-    private List<Point> stonePoints = new ArrayList<>();
+    public abstract List<Point> whiteStonePoints();
 
-    private List<Point> whiteStonePoints = new ArrayList<>();
-
-    public GameModel(int aSize, String aStartState) {
-        this.size = aSize;
-        this.startState = aStartState;
-
+    public static GameModel create(int aSize, String aStartState) {
+        List<Point> stonePoints = new ArrayList<>();
         char[] states = aStartState.toCharArray();
         for (int i = 0; i < states.length; i++) {
             if (states[i] == '0') {
@@ -30,44 +28,46 @@ public class GameModel {
             }
             int col = i % aSize;
             int row = i / aSize;
-            stonePoints.add(new Point(col, row));
+            stonePoints.add(Point.create(col, row));
         }
+
+        return new AutoValue_GameModel(aSize, aStartState, stonePoints, new ArrayList<>());
     }
 
     public void switchColor(int x, int y) {
-        Point p = new Point(x, y);
+        Point p = Point.create(x, y);
         if (isSelected(x, y)) {
-            whiteStonePoints.remove(p);
+            whiteStonePoints().remove(p);
         } else {
-            whiteStonePoints.add(p);
+            whiteStonePoints().add(p);
         }
     }
 
     public boolean isSelected(int x, int y) {
-        Point p = new Point(x, y);
-        return whiteStonePoints.contains(p);
+        Point p = Point.create(x, y);
+        return whiteStonePoints().contains(p);
     }
 
     public boolean hasStone(int x, int y) {
-        return stonePoints.contains(new Point(x, y));
+        return stonePoints().contains(Point.create(x, y));
     }
 
     public void reset() {
-        whiteStonePoints.clear();
+        whiteStonePoints().clear();
     }
 
     public int getWhiteStoneCount() {
-        return whiteStonePoints.size();
+        return whiteStonePoints().size();
     }
 
     public KyouenData isKyouen() {
-        if (whiteStonePoints.size() < 4) {
+        if (whiteStonePoints().size() < 4) {
             return null;
         }
-        Point p1 = whiteStonePoints.get(0);
-        Point p2 = whiteStonePoints.get(1);
-        Point p3 = whiteStonePoints.get(2);
-        Point p4 = whiteStonePoints.get(3);
+        Point p1 = whiteStonePoints().get(0);
+        Point p2 = whiteStonePoints().get(1);
+        Point p3 = whiteStonePoints().get(2);
+        Point p4 = whiteStonePoints().get(3);
 
         KyouenData data = isKyouen(p1, p2, p3, p4);
         if (data != null) {
@@ -92,13 +92,13 @@ public class GameModel {
             Point intersection234 = getIntersection(l23, l34);
             if (intersection234 == null) {
                 // p2,p3,p4が直線状に存在する場合
-                return new KyouenData(p1, p2, p3, p4, new Line(p1, p2));
+                return KyouenData.create(p1, p2, p3, p4, Line.create(p1, p2));
             }
         } else {
             double dist1 = getDistance(p1, intersection123);
             double dist2 = getDistance(p4, intersection123);
             if (Math.abs(dist1 - dist2) < 0.0000001) {
-                return new KyouenData(p1, p2, p3, p4, intersection123, dist1);
+                return KyouenData.create(p1, p2, p3, p4, intersection123, dist1);
             }
         }
         return null;
@@ -126,21 +126,21 @@ public class GameModel {
      */
     @Nullable
     private Point getIntersection(Line l1, Line l2) {
-        double f1 = l1.p2.x - l1.p1.x;
-        double g1 = l1.p2.y - l1.p1.y;
-        double f2 = l2.p2.x - l2.p1.x;
-        double g2 = l2.p2.y - l2.p1.y;
+        double f1 = l1.p2().x() - l1.p1().x();
+        double g1 = l1.p2().y() - l1.p1().y();
+        double f2 = l2.p2().x() - l2.p1().x();
+        double g2 = l2.p2().y() - l2.p1().y();
 
         double det = f2 * g1 - f1 * g2;
         if (det == 0) {
             return null;
         }
 
-        double dx = l2.p1.x - l1.p1.x;
-        double dy = l2.p1.y - l1.p1.y;
+        double dx = l2.p1().x() - l1.p1().x();
+        double dy = l2.p1().y() - l1.p1().y();
         double t1 = (f2 * dy - g2 * dx) / det;
 
-        return new Point(l1.p1.x + f1 * t1, l1.p1.y + g1 * t1);
+        return Point.create(l1.p1().x() + f1 * t1, l1.p1().y() + g1 * t1);
     }
 
     /**
@@ -155,9 +155,9 @@ public class GameModel {
     private Line getMidperpendicular(Point p1, Point p2) {
         Point midpoint = getMidpoint(p1, p2);
         Point dif = p1.difference(p2);
-        Point gradient = new Point(dif.y, -1 * dif.x);
+        Point gradient = Point.create(dif.y(), -1 * dif.x());
 
-        return new Line(midpoint, midpoint.sum(gradient));
+        return Line.create(midpoint, midpoint.sum(gradient));
     }
 
     /**
@@ -170,6 +170,6 @@ public class GameModel {
     @NonNull
     private Point getMidpoint(Point p1, Point p2) {
 
-        return new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+        return Point.create((p1.x() + p2.x()) / 2, (p1.y() + p2.y()) / 2);
     }
 }

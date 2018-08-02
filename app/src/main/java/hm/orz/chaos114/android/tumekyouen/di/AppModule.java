@@ -17,6 +17,7 @@ import dagger.Provides;
 import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
+import hm.orz.chaos114.android.tumekyouen.network.GsonAutoValueAdapterFactory;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
 import hm.orz.chaos114.android.tumekyouen.util.EncryptionUtil;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
@@ -26,7 +27,7 @@ import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import timber.log.Timber;
 
@@ -97,12 +98,13 @@ public class AppModule {
 
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                .registerTypeAdapterFactory(GsonAutoValueAdapterFactory.create())
                 .create();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(context.getString(R.string.server_url))
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
         return retrofit.create(TumeKyouenService.class);
     }

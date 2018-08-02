@@ -16,6 +16,8 @@ import android.view.animation.AccelerateInterpolator;
 
 import com.google.android.gms.ads.AdRequest;
 
+import java.util.Date;
+
 import javax.inject.Inject;
 
 import hm.orz.chaos114.android.tumekyouen.App;
@@ -32,7 +34,8 @@ import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 import icepick.Icepick;
 import icepick.State;
-import rx.schedulers.Schedulers;
+import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * 詰め共円のプレイ画面。
@@ -109,7 +112,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
 
     private void init() {
         // プリファレンスに設定
-        preferenceUtil.putInt(PreferenceUtil.KEY_LAST_STAGE_NO, stageModel.getStageNo());
+        preferenceUtil.putInt(PreferenceUtil.KEY_LAST_STAGE_NO, stageModel.stageNo());
 
         // 共円ボタンの設定
         binding.kyouenButton.setClickable(true);
@@ -126,13 +129,16 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         binding.kyouenButton.setClickable(false);
         tumeKyouenView.setClickable(false);
 
-        stageModel.setClearFlag(TumeKyouenModel.CLEAR);
-        kyouenDb.updateClearFlag(stageModel);
+        kyouenDb.updateClearFlag(stageModel.stageNo(), new Date());
 
         // サーバに送信
-        tumeKyouenService.add(stageModel.getStageNo())
+        tumeKyouenService.add(stageModel.stageNo())
                 .subscribeOn(Schedulers.io())
-                .subscribe();
+                .subscribe((a) -> {
+                    Timber.d("success");
+                }, (throwable) -> {
+                    Timber.d(throwable, "error");
+                });
 
         binding.setStageModel(new KyouenActivityViewModel(stageModel, this));
     }
@@ -148,11 +154,11 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         switch (direction) {
             case PREV:
                 // prev選択時
-                newModel = kyouenDb.selectPrevStage(stageModel.getStageNo());
+                newModel = kyouenDb.selectPrevStage(stageModel.stageNo());
                 break;
             case NEXT:
                 // next選択時
-                newModel = kyouenDb.selectNextStage(stageModel.getStageNo());
+                newModel = kyouenDb.selectNextStage(stageModel.stageNo());
                 break;
             case NONE:
                 // 想定外の引数
@@ -171,7 +177,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
             new InsertDataTask(this, (() -> {
                 dialog.dismiss();
 
-                final TumeKyouenModel model = kyouenDb.selectNextStage(stageModel.getStageNo());
+                final TumeKyouenModel model = kyouenDb.selectNextStage(stageModel.stageNo());
                 if (model == null) {
                     // WEBより取得後も取得できない場合
                     return;
@@ -273,7 +279,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
                 .setTitle(R.string.kyouen)
                 .setNeutralButton("Next", ((dialog, which) -> moveStage(Direction.NEXT)))
                 .create().show();
-        binding.kyouenOverlay.setData(stageModel.getSize(), data);
+        binding.kyouenOverlay.setData(stageModel.size(), data);
         binding.kyouenOverlay.setVisibility(View.VISIBLE);
         setKyouen();
     }
@@ -307,7 +313,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
             stageModel = kyouenDb.selectCurrentStage(nextStageNo);
             showOtherStage(Direction.NONE);
         }), null);
-        dialog.setStageNo(stageModel.getStageNo());
+        dialog.setStageNo(stageModel.stageNo());
         dialog.show();
     }
 

@@ -2,30 +2,29 @@ package hm.orz.chaos114.android.tumekyouen.model;
 
 import android.support.annotation.NonNull;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import com.google.auto.value.AutoValue;
 
-@Getter
-@EqualsAndHashCode
-@ToString
-@AllArgsConstructor
-public class Point {
-    double x;
-    double y;
+@AutoValue
+public abstract class Point {
+    public abstract double x();
+
+    public abstract double y();
+
+    public static Point create(double x, double y) {
+        return new AutoValue_Point(x, y);
+    }
 
     double getAbs() {
-        return Math.sqrt(x * x + y * y);
+        return Math.sqrt(x() * x() + y() * y());
     }
 
     @NonNull
     Point difference(Point p2) {
-        return new Point(x - p2.x, y - p2.y);
+        return Point.create(x() - p2.x(), y() - p2.y());
     }
 
     @NonNull
     Point sum(Point p2) {
-        return new Point(x + p2.x, y + p2.y);
+        return Point.create(x() + p2.x(), y() + p2.y());
     }
 }

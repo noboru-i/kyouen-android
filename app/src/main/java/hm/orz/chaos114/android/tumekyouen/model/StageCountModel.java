@@ -1,11 +1,15 @@
 package hm.orz.chaos114.android.tumekyouen.model;
 
-import lombok.Data;
+import com.google.auto.value.AutoValue;
 
-@Data
-public class StageCountModel {
+@AutoValue
+public abstract class StageCountModel {
 
-    private int stageCount;
+    public abstract int stageCount();
 
-    private int clearStageCount;
+    public abstract int clearStageCount();
+
+    public static StageCountModel create(int stageCount, int clearStageCount) {
+        return new AutoValue_StageCountModel(stageCount, clearStageCount);
+    }
 }

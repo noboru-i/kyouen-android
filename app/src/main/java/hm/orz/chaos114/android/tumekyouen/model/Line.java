@@ -1,34 +1,35 @@
 package hm.orz.chaos114.android.tumekyouen.model;
 
-import lombok.Getter;
-import lombok.ToString;
+import com.google.auto.value.AutoValue;
 
 /**
  * Ax+By+C=0を表現するクラス。
  */
-@Getter
-@ToString
-public class Line {
-    Point p1;
-    Point p2;
-    double a;
-    double b;
-    double c;
+@AutoValue
+public abstract class Line {
+    public abstract Point p1();
 
-    public Line(Point p1, Point p2) {
-        this.p1 = p1;
-        this.p2 = p2;
+    public abstract Point p2();
 
-        a = p1.y - p2.y;
-        b = p2.x - p1.x;
-        c = p1.x * p2.y - p2.x * p1.y;
+    public abstract double a();
+
+    public abstract double b();
+
+    public abstract double c();
+
+    public static Line create(Point p1, Point p2) {
+        double a = p1.y() - p2.y();
+        double b = p2.x() - p1.x();
+        double c = p1.x() * p2.y() - p2.x() * p1.y();
+
+        return new AutoValue_Line(p1, p2, a, b, c);
     }
 
     public double getY(double x) {
-        return -1 * (a * x + c) / b;
+        return -1 * (a() * x + c()) / b();
     }
 
     public double getX(double y) {
-        return -1 * (b * y + c) / a;
+        return -1 * (b() * y + c()) / a();
     }
 }

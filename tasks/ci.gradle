@@ -1,0 +1,59 @@
+apply plugin: 'checkstyle'
+apply plugin: 'pmd'
+
+check.dependsOn 'checkstyle', 'pmd', 'cpd'
+
+task checkstyle(type: Checkstyle) {
+    def conf
+    if (project.hasProperty('checkStyleConfigFile')) {
+        conf = file(checkStyleConfigFile)
+    }
+    configFile conf
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    classpath = files()
+    ignoreFailures = true
+}
+task pmd(type: Pmd) {
+    ignoreFailures = true
+
+    def conf
+    if (project.hasProperty('pmdRuleSetFiles')) {
+        conf = file(pmdRuleSetFiles)
+    }
+    ruleSetFiles = files(conf)
+    ruleSets = []
+
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    reports {
+        xml.enabled = true
+        html.enabled = true
+        xml {
+            destination new File("$project.buildDir/reports/pmd/pmd.xml")
+        }
+        html {
+            destination new File("$project.buildDir/reports/pmd/pmd.html")
+        }
+    }
+}
+
+task 'cpd'
+cpd.doLast {
+    File outDir = new File("$project.buildDir/reports/pmd/")
+    outDir.mkdirs()
+    ant.taskdef(name: 'cpd',
+            classname: 'net.sourceforge.pmd.cpd.CPDTask',
+            classpath: configurations.pmd.asPath)
+    ant.cpd(minimumTokenCount: '100',
+            format: 'xml',
+            outputFile: new File(outDir , 'cpd.xml')) {
+        fileset(dir: "src/main/java") {
+            include(name: '**/*.java')
+        }
+    }
+}

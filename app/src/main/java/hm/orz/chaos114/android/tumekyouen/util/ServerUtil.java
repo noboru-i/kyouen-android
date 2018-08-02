@@ -13,15 +13,15 @@ import java.util.TimeZone;
 import hm.orz.chaos114.android.tumekyouen.model.AddAllResponse;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
-import rx.Observable;
+import io.reactivex.Single;
 
 /**
  * APサーバと通信するユーティリティクラス
  */
 public final class ServerUtil {
 
-    public static Observable<AddAllResponse> addAll(TumeKyouenService tumeKyouenService,
-                                                    List<TumeKyouenModel> stages) {
+    public static Single<AddAllResponse> addAll(TumeKyouenService tumeKyouenService,
+                                                List<TumeKyouenModel> stages) {
         // ステージデータを送信
         JSONArray sendData = new JSONArray();
         DateFormat simpleDateFormat = new SimpleDateFormat(
@@ -31,9 +31,9 @@ public final class ServerUtil {
         for (TumeKyouenModel stageModel : stages) {
             JSONObject map = new JSONObject();
             try {
-                map.put("stageNo", Integer.toString(stageModel.getStageNo()));
+                map.put("stageNo", Integer.toString(stageModel.stageNo()));
                 map.put("clearDate",
-                        simpleDateFormat.format(stageModel.getClearDate()));
+                        simpleDateFormat.format(stageModel.clearDate()));
             } catch (JSONException e) {
                 continue;
             }

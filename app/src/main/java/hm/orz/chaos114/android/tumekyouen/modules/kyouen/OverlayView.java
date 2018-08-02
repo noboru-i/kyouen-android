@@ -75,20 +75,20 @@ public class OverlayView extends View {
         }
 
         double offset = maxScrnWidth / size;
-        if (data.isLineKyouen()) {
+        if (data.lineKyouen()) {
             // 直線の場合
-            Line line = data.getLine();
+            Line line = data.line();
             float startX;
             float startY;
             float stopX;
             float stopY;
-            if (line.getA() == 0) {
+            if (line.a() == 0) {
                 // x軸と平行な場合
                 startX = 0;
                 startY = (float) (line.getY(0) * offset + offset / 2);
                 stopX = maxScrnWidth;
                 stopY = (float) (line.getY(0) * offset + offset / 2);
-            } else if (line.getB() == 0) {
+            } else if (line.b() == 0) {
                 // y軸と平行な場合
                 startX = (float) (line.getX(0) * offset + offset / 2);
                 startY = 0;
@@ -96,7 +96,7 @@ public class OverlayView extends View {
                 stopY = maxScrnWidth;
             } else {
                 // 上記以外の場合
-                if (-1 * line.getC() / line.getB() > 0) {
+                if (-1 * line.c() / line.b() > 0) {
                     startX = 0;
                     startY = (float) (line.getY(-0.5) * offset + offset * 2 / 4);
                     stopX = maxScrnWidth;
@@ -111,9 +111,9 @@ public class OverlayView extends View {
             canvas.drawLine(startX, startY, stopX, stopY, paint);
         } else {
             // 円の場合
-            float cx = (float) (data.getCenter().getX() * offset + offset / 2);
-            float cy = (float) (data.getCenter().getY() * offset + offset / 2);
-            float radius = (float) (data.getRadius() * offset);
+            float cx = (float) (data.center().x() * offset + offset / 2);
+            float cy = (float) (data.center().y() * offset + offset / 2);
+            float radius = (float) (data.radius() * offset);
             canvas.drawCircle(cx, cy, radius, paint);
         }
     }

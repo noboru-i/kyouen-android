@@ -43,8 +43,8 @@ import hm.orz.chaos114.android.tumekyouen.util.PackageChecker;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -271,9 +271,9 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         ServerUtil.addAll(tumeKyouenService, stages)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(s -> {
-                            if (s.getData() != null) {
-                                kyouenDb.updateSyncClearData(s.getData());
+                .subscribe(addAllResponse -> {
+                            if (addAllResponse.data() != null) {
+                                kyouenDb.updateSyncClearData(addAllResponse.data());
                             }
                             refresh();
                         },
