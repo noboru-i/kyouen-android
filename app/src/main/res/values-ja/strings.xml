@@ -38,6 +38,7 @@
 
     <string name="toast_get_stage">%1$d件取得しました。</string>
     <string name="toast_no_stage">追加ステージが取得できませんでした。</string>
+    <string name="toast_fetch_first">ステージが見つかりませんでした。\n先に\"ステージ取得\"からステージを取得してください。</string>
 
     <string name="notification_new_stage">新規ステージが追加されました。</string>
 </resources>

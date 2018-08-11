@@ -1,11 +1,11 @@
 package hm.orz.chaos114.android.tumekyouen.modules.initial;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.WorkerThread;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -92,6 +92,7 @@ public class InitialActivity extends AppCompatActivity {
         final TumeKyouenModel item = kyouenDb.selectCurrentStage(stageNo);
         if (item == null) {
             // cannot get stage info from local DB.
+            Toast.makeText(this, R.string.toast_fetch_first, Toast.LENGTH_LONG).show();
             goToTitle();
             return;
         }
