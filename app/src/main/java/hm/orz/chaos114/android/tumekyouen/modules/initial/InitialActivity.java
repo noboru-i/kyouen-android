@@ -1,9 +1,11 @@
 package hm.orz.chaos114.android.tumekyouen.modules.initial;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.WorkerThread;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -11,6 +13,8 @@ import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
+import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
+import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
 import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
 
 /**
@@ -40,15 +44,13 @@ public class InitialActivity extends AppCompatActivity {
 
                 @Override
                 protected void onPostExecute(Void aVoid) {
-                    TitleActivity.start(InitialActivity.this);
-                    finish();
+                    goNextActivity();
                 }
             }.execute();
             return;
         }
 
-        TitleActivity.start(InitialActivity.this);
-        finish();
+        goNextActivity();
     }
 
     /**
@@ -69,6 +71,50 @@ public class InitialActivity extends AppCompatActivity {
                 "10,6,000100000010010000000100000010010000,noboru"};
         for (final String data : initData) {
             kyouenDb.insert(data);
+        }
+    }
+
+    private void goNextActivity() {
+        Uri uri = getIntent().getData();
+        if (uri == null) {
+            // open without url
+            goToTitle();
+            return;
+        }
+
+        final Integer stageNo = getStageNumberFromUri(uri);
+        if (stageNo == null) {
+            // cannot get stage number from url.
+            goToTitle();
+            return;
+        }
+
+        final TumeKyouenModel item = kyouenDb.selectCurrentStage(stageNo);
+        if (item == null) {
+            // cannot get stage info from local DB.
+            Toast.makeText(this, R.string.toast_fetch_first, Toast.LENGTH_LONG).show();
+            goToTitle();
+            return;
+        }
+        KyouenActivity.start(this, item);
+        finish();
+    }
+
+    private void goToTitle() {
+        TitleActivity.start(InitialActivity.this);
+        finish();
+    }
+
+    private Integer getStageNumberFromUri(Uri uri) {
+        String open = uri.getQueryParameter("open");
+        if (open == null) {
+            return null;
+        }
+
+        try {
+            return Integer.valueOf(open);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 

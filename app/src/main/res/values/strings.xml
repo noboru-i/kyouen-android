@@ -38,6 +38,7 @@
 
     <string name="toast_get_stage">get %1$d stage(s).</string>
     <string name="toast_no_stage">No available data.</string>
+    <string name="toast_fetch_first">Please tap \"GET MORE\" first.</string>
 
     <string name="notification_new_stage">New stage added.</string>
 </resources>
