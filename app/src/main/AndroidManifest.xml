@@ -35,7 +35,7 @@
 
                 <data
                     android:host="my-android-server.appspot.com"
-                    android:path="/page/list.html"
+                    android:pathPrefix="/html/list.html"
                     android:scheme="http"/>
             </intent-filter>
         </activity>
