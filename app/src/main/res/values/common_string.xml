@@ -6,4 +6,5 @@
     <string name="twitter_secret" translatable="false">zN2xVBE7QqjS3tJLEH8MPmzIpa9FQ3gWDclSALCMBE</string>
 
     <string name="banner_ad_unit_id" translatable="false">ca-app-pub-9518171426809425/9886341395</string>
+    <string name="admob_app_id" translatable="false">ca-app-pub-9518171426809425~1025942195</string>
 </resources>

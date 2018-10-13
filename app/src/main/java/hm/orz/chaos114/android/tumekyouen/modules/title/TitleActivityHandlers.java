@@ -12,4 +12,5 @@ public interface TitleActivityHandlers {
     void onClickConnectButton(View view);
     void onClickSyncButton(View view);
     void switchPlayable(View view);
+    void onClickPrivacyPolicy(View view);
 }

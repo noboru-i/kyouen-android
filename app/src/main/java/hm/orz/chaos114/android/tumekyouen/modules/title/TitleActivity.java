@@ -244,6 +244,13 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         refresh();
     }
 
+    @Override
+    public void onClickPrivacyPolicy(View view) {
+        Uri uri = Uri.parse("https://my-android-server.appspot.com/html/privacy.html");
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
+    }
+
     @MainThread
     private void sendAuthToken(TwitterAuthToken authToken) {
         // サーバに認証情報を送信

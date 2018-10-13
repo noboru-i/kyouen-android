@@ -6,6 +6,7 @@ import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.twitter.sdk.android.core.Twitter;
@@ -27,6 +28,8 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        MobileAds.initialize(this, getString(R.string.admob_app_id));
 
         TwitterAuthConfig authConfig = new TwitterAuthConfig(
                 getString(R.string.twitter_key),

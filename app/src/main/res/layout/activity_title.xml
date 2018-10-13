@@ -129,6 +129,15 @@
                 android:src="@{model.soundResource}"/>
         </LinearLayout>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginRight="8dp"
+            android:layout_gravity="right"
+            android:onClick="@{handlers.onClickPrivacyPolicy}"
+            android:text="@string/privacy_link"/>
+
         <com.google.android.gms.ads.AdView
             android:id="@+id/adView"
             android:layout_width="wrap_content"
