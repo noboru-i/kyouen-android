@@ -9,6 +9,7 @@
     <string name="twitter_connect">Sign in with Twitter</string>
     <string name="sync_stage_user">sync stages</string>
     <string name="stage_count">%1$d/%2$d</string>
+    <string name="privacy_link"><u>Privacy Policy</u></string>
 
     <string name="button_prev">prev</string>
     <string name="button_next">next</string>

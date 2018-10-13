@@ -9,6 +9,7 @@
     <string name="twitter_connect">twitterでログイン</string>
     <string name="sync_stage_user">クリア情報を同期</string>
     <string name="stage_count">%1$d/%2$d</string>
+    <string name="privacy_link"><u>Privacy Policy</u></string>
 
     <string name="button_prev">前へ</string>
     <string name="button_next">次へ</string>
