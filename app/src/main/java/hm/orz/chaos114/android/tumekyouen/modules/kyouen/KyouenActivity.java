@@ -14,8 +14,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 
-import com.google.android.gms.ads.AdRequest;
-
 import java.util.Date;
 
 import javax.inject.Inject;
@@ -29,6 +27,7 @@ import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
+import hm.orz.chaos114.android.tumekyouen.util.AdRequestFactory;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
@@ -93,8 +92,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         tumeKyouenView.setData(stageModel);
 
         // 広告の表示
-        AdRequest adRequest = new AdRequest.Builder().build();
-        binding.adView.loadAd(adRequest);
+        binding.adView.loadAd(AdRequestFactory.createAdRequest());
 
         // 初期化
         init();

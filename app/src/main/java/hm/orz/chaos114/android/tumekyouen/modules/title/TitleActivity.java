@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import com.google.android.gms.ads.AdRequest;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.TwitterAuthToken;
@@ -37,6 +36,7 @@ import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
+import hm.orz.chaos114.android.tumekyouen.util.AdRequestFactory;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PackageChecker;
@@ -83,8 +83,7 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         // 広告の表示
-        AdRequest adRequest = new AdRequest.Builder().build();
-        binding.adView.loadAd(adRequest);
+        binding.adView.loadAd(AdRequestFactory.createAdRequest());
 
         final TwitterAuthToken loginInfo = loginUtil.loadLoginInfo();
         Timber.d("loginInfo = %s", loginInfo);
@@ -181,7 +180,9 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         }
     }
 
-    /** twitter接続ボタン押下後の処理 */
+    /**
+     * twitter接続ボタン押下後の処理
+     */
     @Override
     public void onClickConnectButton(View view) {
         ProgressDialog dialog;
