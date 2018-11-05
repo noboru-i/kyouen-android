@@ -1,8 +1,8 @@
 package hm.orz.chaos114.android.tumekyouen.model;
 
-import android.support.annotation.NonNull;
-
 import com.google.auto.value.AutoValue;
+
+import androidx.annotation.NonNull;
 
 @AutoValue
 public abstract class Point {

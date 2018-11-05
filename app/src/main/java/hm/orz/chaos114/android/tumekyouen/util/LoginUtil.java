@@ -1,11 +1,11 @@
 package hm.orz.chaos114.android.tumekyouen.util;
 
-import android.support.annotation.Nullable;
-
 import com.twitter.sdk.android.core.TwitterAuthToken;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import androidx.annotation.Nullable;
 
 @Singleton
 public class LoginUtil {

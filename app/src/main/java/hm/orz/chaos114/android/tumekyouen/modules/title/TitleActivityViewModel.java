@@ -2,11 +2,11 @@ package hm.orz.chaos114.android.tumekyouen.modules.title;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.DrawableRes;
-import android.support.v4.content.ContextCompat;
 
 import javax.inject.Inject;
 
+import androidx.annotation.DrawableRes;
+import androidx.core.content.ContextCompat;
 import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;

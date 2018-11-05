@@ -3,12 +3,12 @@ package hm.orz.chaos114.android.tumekyouen.modules.initial;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.WorkerThread;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import javax.inject.Inject;
 
+import androidx.annotation.WorkerThread;
+import androidx.appcompat.app.AppCompatActivity;
 import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;

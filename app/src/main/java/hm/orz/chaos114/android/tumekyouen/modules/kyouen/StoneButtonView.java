@@ -4,9 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.support.v7.widget.AppCompatImageButton;
 import android.util.AttributeSet;
 
+import androidx.appcompat.widget.AppCompatImageButton;
 import hm.orz.chaos114.android.tumekyouen.R;
 
 public class StoneButtonView extends AppCompatImageButton {

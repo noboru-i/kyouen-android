@@ -1,9 +1,9 @@
 package hm.orz.chaos114.android.tumekyouen.modules.kyouen;
 
 import android.content.Context;
-import android.support.annotation.ColorInt;
-import android.support.v4.content.ContextCompat;
 
+import androidx.annotation.ColorInt;
+import androidx.core.content.ContextCompat;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 
