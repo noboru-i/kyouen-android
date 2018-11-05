@@ -1,11 +1,11 @@
 package hm.orz.chaos114.android.tumekyouen.model;
 
-import android.support.annotation.Nullable;
-
 import com.google.auto.value.AutoValue;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.Nullable;
 
 /**
  * 共円情報を表現するクラス。

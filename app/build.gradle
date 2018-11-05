@@ -5,7 +5,7 @@ apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     buildToolsVersion '28.0.3'
 
     testOptions.unitTests.includeAndroidResources true
@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId "hm.orz.chaos114.android.tumekyouen"
         minSdkVersion 17
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 24
         versionName "0.11.2"
         multiDexEnabled true
@@ -44,8 +44,8 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
@@ -55,6 +55,11 @@ android {
         abortOnError false
         lintConfig file('lint.xml')
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -62,25 +67,22 @@ android {
 }
 
 ext {
-    supportLibVersion = '27.1.1'
     okhttpLibVersion = '3.11.0'
     retrofitLibVersion = '2.4.0'
     icepickVersion = '3.2.0'
 }
 
 dependencies {
-    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'androidx.multidex:multidex:2.0.0'
 
-    implementation "com.android.support:support-v4:${supportLibVersion}"
-    implementation "com.android.support:appcompat-v7:${supportLibVersion}"
-    implementation "com.android.support:design:${supportLibVersion}"
-    implementation "com.android.support:customtabs:${supportLibVersion}"
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'com.google.android.material:material:1.1.0-alpha01'
+    implementation 'androidx.browser:browser:1.0.0'
 
     implementation 'com.google.firebase:firebase-core:16.0.4'
-    implementation 'com.google.firebase:firebase-analytics:16.0.4'
-    implementation 'com.google.firebase:firebase-messaging:17.3.3'
+    implementation 'com.google.firebase:firebase-messaging:17.3.4'
     implementation 'com.google.firebase:firebase-ads:17.0.0'
-    implementation 'com.google.firebase:firebase-perf:16.1.2'
+    implementation 'com.google.firebase:firebase-perf:16.2.0'
 
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
 
@@ -111,9 +113,8 @@ dependencies {
     annotationProcessor 'com.ryanharter.auto.value:auto-value-gson:0.8.0'
 
     testImplementation 'junit:junit:4.12'
-    testImplementation "org.robolectric:robolectric:3.6.1"
-    testImplementation "org.robolectric:shadows-support-v4:3.3.2"
-    testImplementation "org.robolectric:shadows-multidex:3.6.1"
+    testImplementation "org.robolectric:robolectric:4.0.1"
+    testImplementation "org.robolectric:shadows-multidex:4.0.1"
 }
 
 apply from: '../tasks/ci.gradle'

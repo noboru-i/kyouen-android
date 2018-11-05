@@ -2,7 +2,6 @@ package hm.orz.chaos114.android.tumekyouen;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -13,6 +12,7 @@ import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterConfig;
 
+import androidx.multidex.MultiDex;
 import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.di.AppModule;
 import hm.orz.chaos114.android.tumekyouen.di.DaggerAppComponent;
