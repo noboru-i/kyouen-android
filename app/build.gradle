@@ -70,7 +70,6 @@ ext {
 dependencies {
     implementation 'androidx.multidex:multidex:2.0.0'
 
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'com.google.android.material:material:1.1.0-alpha01'
     implementation 'androidx.browser:browser:1.0.0'
