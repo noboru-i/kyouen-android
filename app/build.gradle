@@ -55,6 +55,11 @@ android {
         abortOnError false
         lintConfig file('lint.xml')
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -108,9 +113,8 @@ dependencies {
     annotationProcessor 'com.ryanharter.auto.value:auto-value-gson:0.8.0'
 
     testImplementation 'junit:junit:4.12'
-    testImplementation "org.robolectric:robolectric:3.6.1"
-    testImplementation "org.robolectric:shadows-support-v4:3.3.2"
-    testImplementation "org.robolectric:shadows-multidex:3.6.1"
+    testImplementation "org.robolectric:robolectric:4.0.1"
+    testImplementation "org.robolectric:shadows-multidex:4.0.1"
 }
 
 apply from: '../tasks/ci.gradle'
