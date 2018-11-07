@@ -24,14 +24,13 @@ import javax.inject.Inject;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import dagger.android.support.DaggerAppCompatActivity;
 import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.app.StageGetDialog;
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityTitleBinding;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
-import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
@@ -50,7 +49,7 @@ import timber.log.Timber;
 /**
  * タイトル画面を表示するアクティビティ。
  */
-public class TitleActivity extends AppCompatActivity implements TitleActivityHandlers {
+public class TitleActivity extends DaggerAppCompatActivity implements TitleActivityHandlers {
     @Inject
     LoginUtil loginUtil;
     @Inject
@@ -76,8 +75,6 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_title);
         binding.setHandlers(this);
-
-        getApplicationComponent().inject(this);
 
         // 音量ボタンの動作変更
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -107,10 +104,6 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
 
         // 描画内容を更新
         refreshAll();
-    }
-
-    private AppComponent getApplicationComponent() {
-        return ((App) getApplication()).getApplicationComponent();
     }
 
     @Override
@@ -362,6 +355,6 @@ public class TitleActivity extends AppCompatActivity implements TitleActivityHan
     private void refresh() {
         final StageCountModel stageCountModel = kyouenDb.selectStageCount();
         App app = (App) getApplication();
-        binding.setModel(new TitleActivityViewModel(app, stageCountModel, this));
+        binding.setModel(new TitleActivityViewModel(this, stageCountModel, soundManager));
     }
 }

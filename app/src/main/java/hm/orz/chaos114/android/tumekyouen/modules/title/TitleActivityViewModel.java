@@ -17,17 +17,14 @@ import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
  */
 public final class TitleActivityViewModel {
 
-    @Inject
-    SoundManager soundManager;
+    private final Context context;
+    private final StageCountModel stageCountModel;
+    private final SoundManager soundManager;
 
-    private StageCountModel stageCountModel;
-
-    private Context context;
-
-    public TitleActivityViewModel(App app, StageCountModel stageCountModel, Context context) {
-        app.getApplicationComponent().inject(this);
-        this.stageCountModel = stageCountModel;
+    TitleActivityViewModel(Context context, StageCountModel stageCountModel, SoundManager soundManager) {
         this.context = context;
+        this.stageCountModel = stageCountModel;
+        this.soundManager = soundManager;
     }
 
     public String getDisplayStageCount() {

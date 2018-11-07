@@ -33,15 +33,10 @@ import timber.log.Timber;
 
 @Module
 public class AppModule {
-    private final App application;
-
-    public AppModule(App application) {
-        this.application = application;
-    }
 
     @Provides
     @Singleton
-    Context provideApplicationContext() {
+    Context provideApplicationContext(App application) {
         return application.getApplicationContext();
     }
 

@@ -2,23 +2,24 @@ package hm.orz.chaos114.android.tumekyouen.di;
 
 import javax.inject.Singleton;
 
+import dagger.BindsInstance;
 import dagger.Component;
-import hm.orz.chaos114.android.tumekyouen.modules.initial.InitialActivity;
-import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
-import hm.orz.chaos114.android.tumekyouen.modules.kyouen.TumeKyouenView;
-import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
-import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivityViewModel;
+import dagger.android.AndroidInjector;
+import dagger.android.support.AndroidSupportInjectionModule;
+import hm.orz.chaos114.android.tumekyouen.App;
 
 @Singleton
-@Component(modules = {AppModule.class})
-public interface AppComponent {
-    void inject(InitialActivity activity);
+@Component(modules = {
+        AndroidSupportInjectionModule.class,
+        AppModule.class,
+        ActivityModule.class
+})
+public interface AppComponent extends AndroidInjector<App> {
+    @Component.Builder
+    interface Builder {
+        @BindsInstance
+        Builder application(App application);
 
-    void inject(TitleActivity activity);
-
-    void inject(KyouenActivity activity);
-
-    void inject(TumeKyouenView view);
-
-    void inject(TitleActivityViewModel titleActivityViewModel);
+        AppComponent build();
+    }
 }

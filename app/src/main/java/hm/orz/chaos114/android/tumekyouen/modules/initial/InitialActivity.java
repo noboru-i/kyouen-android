@@ -8,11 +8,9 @@ import android.widget.Toast;
 import javax.inject.Inject;
 
 import androidx.annotation.WorkerThread;
-import androidx.appcompat.app.AppCompatActivity;
-import hm.orz.chaos114.android.tumekyouen.App;
+import dagger.android.support.DaggerAppCompatActivity;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
-import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
 import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
@@ -20,7 +18,7 @@ import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
 /**
  * 初期化処理Activity。
  */
-public class InitialActivity extends AppCompatActivity {
+public class InitialActivity extends DaggerAppCompatActivity {
 
     @Inject
     KyouenDb kyouenDb;
@@ -29,8 +27,6 @@ public class InitialActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial);
-
-        getApplicationComponent().inject(this);
 
         if (kyouenDb.selectMaxStageNo() == 0) {
             // データが存在しない場合
@@ -116,9 +112,5 @@ public class InitialActivity extends AppCompatActivity {
         } catch (NumberFormatException e) {
             return null;
         }
-    }
-
-    private AppComponent getApplicationComponent() {
-        return ((App) getApplication()).getApplicationComponent();
     }
 }

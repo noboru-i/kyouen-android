@@ -15,4 +15,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationUtil.notify(this, getString(R.string.app_name),
                 getString(R.string.notification_new_stage));
     }
+
+    @Override
+    public void onNewToken(String s) {
+        Timber.d("refreshedToken: %s", s);
+    }
 }

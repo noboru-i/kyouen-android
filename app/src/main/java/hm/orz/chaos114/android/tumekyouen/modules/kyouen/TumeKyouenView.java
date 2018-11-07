@@ -26,10 +26,8 @@ import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 
 public class TumeKyouenView extends TableLayout {
 
-    @Inject
-    SoundManager soundManager;
-    @Inject
-    FirebaseAnalytics firebaseAnalytics;
+    private SoundManager soundManager;
+    private FirebaseAnalytics firebaseAnalytics;
 
     // スクリーンの幅
     private int maxScrnWidth;
@@ -47,6 +45,11 @@ public class TumeKyouenView extends TableLayout {
 
         setWindowSize();
         initViews();
+    }
+
+    public void inject(SoundManager soundManager, FirebaseAnalytics firebaseAnalytics) {
+        this.soundManager = soundManager;
+        this.firebaseAnalytics = firebaseAnalytics;
     }
 
     @SuppressWarnings("SuspiciousNameCombination")
@@ -88,13 +91,7 @@ public class TumeKyouenView extends TableLayout {
     }
 
     private void initViews() {
-        getApplicationComponent().inject(this);
-
         buttons = new ArrayList<>();
-    }
-
-    private AppComponent getApplicationComponent() {
-        return ((App) getContext().getApplicationContext()).getApplicationComponent();
     }
 
     private void initButtons() {
