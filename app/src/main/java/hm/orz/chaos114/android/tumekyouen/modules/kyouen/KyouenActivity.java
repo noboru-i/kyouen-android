@@ -10,20 +10,20 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import java.util.Date;
 
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import hm.orz.chaos114.android.tumekyouen.App;
+import dagger.android.support.DaggerAppCompatActivity;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.app.StageSelectDialog;
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityKyouenBinding;
 import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
-import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
@@ -39,7 +39,7 @@ import timber.log.Timber;
 /**
  * 詰め共円のプレイ画面。
  */
-public class KyouenActivity extends AppCompatActivity implements KyouenActivityHandlers {
+public class KyouenActivity extends DaggerAppCompatActivity implements KyouenActivityHandlers {
 
     private static final String EXTRA_TUME_KYOUEN_MODEL
             = "hm.orz.chaos114.android.tumekyouen.EXTRA_TUME_KYOUEN_MODEL";
@@ -52,6 +52,8 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
     KyouenDb kyouenDb;
     @Inject
     TumeKyouenService tumeKyouenService;
+    @Inject
+    FirebaseAnalytics firebaseAnalytics;
 
     // ステージ情報オブジェクト
     @State
@@ -75,7 +77,6 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
         binding.setHandlers(this);
 
         Icepick.restoreInstanceState(this, savedInstanceState);
-        getApplicationComponent().inject(this);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -88,6 +89,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
 
         // 詰め共円領域の追加
         tumeKyouenView = new TumeKyouenView(this);
+        tumeKyouenView.inject(soundManager, firebaseAnalytics);
         binding.fragmentContainer.addView(tumeKyouenView);
         tumeKyouenView.setData(stageModel);
 
@@ -102,10 +104,6 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Icepick.saveInstanceState(this, outState);
-    }
-
-    private AppComponent getApplicationComponent() {
-        return ((App) getApplication()).getApplicationComponent();
     }
 
     private void init() {
@@ -202,6 +200,7 @@ public class KyouenActivity extends AppCompatActivity implements KyouenActivityH
     private void showOtherStage(@NonNull final Direction direction) {
         TumeKyouenView oldView = tumeKyouenView;
         tumeKyouenView = new TumeKyouenView(this);
+        tumeKyouenView.inject(soundManager, firebaseAnalytics);
         tumeKyouenView.setData(stageModel);
 
         int width = binding.fragmentContainer.getWidth();

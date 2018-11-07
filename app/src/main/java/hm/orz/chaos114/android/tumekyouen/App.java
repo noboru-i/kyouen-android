@@ -1,6 +1,5 @@
 package hm.orz.chaos114.android.tumekyouen;
 
-import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
@@ -15,7 +14,8 @@ import com.twitter.sdk.android.core.TwitterConfig;
 import org.jetbrains.annotations.NotNull;
 
 import androidx.multidex.MultiDex;
-import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
+import dagger.android.AndroidInjector;
+import dagger.android.DaggerApplication;
 import hm.orz.chaos114.android.tumekyouen.di.AppModule;
 import hm.orz.chaos114.android.tumekyouen.di.DaggerAppComponent;
 import timber.log.Timber;
@@ -23,9 +23,7 @@ import timber.log.Timber;
 /**
  * Application class。
  */
-public class App extends Application {
-
-    private AppComponent applicationComponent;
+public class App extends DaggerApplication {
 
     @Override
     public void onCreate() {
@@ -53,8 +51,12 @@ public class App extends Application {
             Timber.plant(new FirebaseTree());
         }
 
-        applicationComponent = DaggerAppComponent.builder()
-                .appModule(new AppModule(this))
+    }
+
+    @Override
+    protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
+        return DaggerAppComponent.builder()
+                .application(this)
                 .build();
     }
 
@@ -62,10 +64,6 @@ public class App extends Application {
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         MultiDex.install(this);
-    }
-
-    public AppComponent getApplicationComponent() {
-        return applicationComponent;
     }
 
     private static final class FirebaseTree extends Timber.Tree {
