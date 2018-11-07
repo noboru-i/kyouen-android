@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 
 import java.util.Date;
 
@@ -130,11 +132,10 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
         // サーバに送信
         tumeKyouenService.add(stageModel.stageNo())
                 .subscribeOn(Schedulers.io())
-                .subscribe((a) -> {
-                    Timber.d("success");
-                }, (throwable) -> {
-                    Timber.d(throwable, "error");
-                });
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(
+                        obj -> Timber.d("success"),
+                        throwable -> Timber.d(throwable, "error"));
 
         binding.setStageModel(new KyouenActivityViewModel(stageModel, this));
     }
