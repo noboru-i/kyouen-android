@@ -9,11 +9,9 @@ import androidx.annotation.Nullable;
 
 @Singleton
 public class LoginUtil {
-    /** Preferenceユーティリティ */
-    PreferenceUtil preferenceUtil;
+    private final PreferenceUtil preferenceUtil;
 
-    /** 暗号化ユーティリティ */
-    EncryptionUtil encryptionUtil;
+    private final EncryptionUtil encryptionUtil;
 
     @Inject
     public LoginUtil(PreferenceUtil preferenceUtil, EncryptionUtil encryptionUtil) {

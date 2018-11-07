@@ -11,13 +11,13 @@ import hm.orz.chaos114.android.tumekyouen.R;
 
 public class StageSelectDialog extends ValidationDialog {
 
-    /** ステージ番号入力領域 */
+    // ステージ番号入力領域
     private EditText numberEdit;
 
-    /** 最初へチェックボックス */
+    // 最初へチェックボックス
     private CheckBox firstCheckBox;
 
-    /** 最後へチェックボックス */
+    // 最後へチェックボックス
     private CheckBox lastCheckBox;
 
     /**
@@ -114,7 +114,7 @@ public class StageSelectDialog extends ValidationDialog {
         return (count == 0);
     }
 
-    /** 成功時のリスナー */
+    // 成功時のリスナー
     public interface OnSuccessListener {
         void onSuccess(int count);
     }

@@ -7,6 +7,8 @@ import android.view.View;
  */
 public interface KyouenActivityHandlers {
     void onClickCheckKyouen(View view);
+
     void onClickMoveStage(View v);
+
     void showSelectStageDialog(View view);
 }

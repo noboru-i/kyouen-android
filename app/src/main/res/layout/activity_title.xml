@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:ads="http://schemas.android.com/apk/res-auto"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
         <variable
             name="handlers"
-            type="hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivityHandlers"/>
+            type="hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivityHandlers" />
 
         <variable
             name="model"
-            type="hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivityViewModel"/>
+            type="hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivityViewModel" />
     </data>
 
     <LinearLayout
@@ -38,7 +38,7 @@
                 android:shadowRadius="5.0"
                 android:text="@string/app_name"
                 android:textColor="#FFFFFF"
-                android:textSize="42sp"/>
+                android:textSize="42sp" />
 
             <Button
                 android:id="@+id/start_puzzle_button"
@@ -52,7 +52,7 @@
                 android:padding="5dp"
                 android:text="@string/puzzle"
                 android:textColor="#eeeeee"
-                tools:ignore="HardcodedText"/>
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/stage_count"
@@ -64,7 +64,7 @@
                 android:shadowRadius="5.0"
                 android:text="@{model.displayStageCount}"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"/>
+                android:textSize="16sp" />
 
             <Button
                 android:id="@+id/get_stage_button"
@@ -76,7 +76,7 @@
                 android:onClick="@{handlers.onClickGetStage}"
                 android:padding="5dp"
                 android:text="@string/get_more"
-                android:textColor="#eeeeee"/>
+                android:textColor="#eeeeee" />
 
             <Button
                 android:id="@+id/create_stage_button"
@@ -88,7 +88,7 @@
                 android:onClick="@{handlers.onClickCreateStage}"
                 android:padding="5dp"
                 android:text="@string/create_stage"
-                android:textColor="#eeeeee"/>
+                android:textColor="#eeeeee" />
 
             <FrameLayout
                 android:layout_width="260dp"
@@ -104,7 +104,7 @@
                     android:onClick="@{handlers.onClickConnectButton}"
                     android:padding="5dp"
                     android:text="@string/twitter_connect"
-                    android:textColor="#eeeeee"/>
+                    android:textColor="#eeeeee" />
 
                 <Button
                     android:id="@+id/sync_button"
@@ -117,7 +117,7 @@
                     android:padding="5dp"
                     android:text="@string/sync_stage_user"
                     android:textColor="#eeeeee"
-                    android:visibility="invisible"/>
+                    android:visibility="invisible" />
             </FrameLayout>
 
             <ImageView
@@ -126,7 +126,7 @@
                 android:layout_height="36dp"
                 android:layout_marginLeft="90dp"
                 android:onClick="@{handlers.switchPlayable}"
-                android:src="@{model.soundResource}"/>
+                android:src="@{model.soundResource}" />
         </LinearLayout>
 
         <TextView
@@ -136,7 +136,7 @@
             android:layout_marginRight="8dp"
             android:layout_gravity="right"
             android:onClick="@{handlers.onClickPrivacyPolicy}"
-            android:text="@string/privacy_link"/>
+            android:text="@string/privacy_link" />
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/adView"
@@ -144,6 +144,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
             ads:adSize="BANNER"
-            ads:adUnitId="@string/banner_ad_unit_id"/>
+            ads:adUnitId="@string/banner_ad_unit_id" />
     </LinearLayout>
 </layout>

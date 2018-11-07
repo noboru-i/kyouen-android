@@ -20,19 +20,18 @@ import timber.log.Timber;
  */
 public class InsertDataTask {
 
-    /** タスク実行中フラグ */
+    // TODO application scopeでsingletonにするなど、staticを消す
+    // タスク実行中フラグ
     private static boolean running = false;
 
-    /** コンテキスト */
     private Context mContext;
 
-    /** DBアクセスオブジェクト */
     private KyouenDb mKyouenDb;
 
-    /** 取得する回数 */
+    // 取得する回数
     private int mCount;
 
-    /** 処理終了時の処理 */
+    // 処理終了時の処理
     private Runnable mRun;
 
     private TumeKyouenService mTumeKyouenService;
