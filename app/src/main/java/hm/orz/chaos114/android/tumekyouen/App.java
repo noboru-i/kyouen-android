@@ -12,6 +12,8 @@ import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
 import com.twitter.sdk.android.core.TwitterConfig;
 
+import org.jetbrains.annotations.NotNull;
+
 import androidx.multidex.MultiDex;
 import hm.orz.chaos114.android.tumekyouen.di.AppComponent;
 import hm.orz.chaos114.android.tumekyouen.di.AppModule;
@@ -69,7 +71,7 @@ public class App extends Application {
     private static final class FirebaseTree extends Timber.Tree {
 
         @Override
-        protected void log(int priority, String tag, String message, Throwable t) {
+        protected void log(int priority, String tag, @NotNull String message, Throwable t) {
             Crashlytics.log(priority, tag, message);
             if (t != null && priority >= Log.ERROR) {
                 Crashlytics.logException(t);
