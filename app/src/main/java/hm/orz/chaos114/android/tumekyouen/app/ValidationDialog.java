@@ -6,7 +6,7 @@ import android.content.DialogInterface;
 
 public abstract class ValidationDialog extends AlertDialog {
 
-    /** 再表示フラグ */
+    // 再表示フラグ
     private boolean reshow;
 
     /**

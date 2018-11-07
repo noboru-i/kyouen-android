@@ -12,22 +12,22 @@ import javax.inject.Inject;
  */
 public class PreferenceUtil {
 
-    /** 暗号化キー：String */
-    public static final String KEY_SECRET_KEY = "secret_key";
+    // 暗号化キー：String
+    static final String KEY_SECRET_KEY = "secret_key";
 
-    /** twitterトークン：String */
-    public static final String KEY_TOKEN = "token";
+    // twitterトークン：String
+    static final String KEY_TOKEN = "token";
 
-    /** twitterトークンシークレット：String */
-    public static final String KEY_TOKEN_SECRET = "token_secret";
+    // twitterトークンシークレット：String
+    static final String KEY_TOKEN_SECRET = "token_secret";
 
-    /** 音の出力要否：boolean */
-    public static final String KEY_SOUND = "sound";
+    // 音の出力要否：boolean
+    static final String KEY_SOUND = "sound";
 
-    /** 最後に表示していたステージ番号：int */
+    // 最後に表示していたステージ番号：int
     public static final String KEY_LAST_STAGE_NO = "last_stage_no";
 
-    SharedPreferences sp;
+    private SharedPreferences sp;
 
     @Inject
     public PreferenceUtil(SharedPreferences sp) {

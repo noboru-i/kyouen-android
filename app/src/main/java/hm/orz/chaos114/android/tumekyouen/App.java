@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import androidx.multidex.MultiDex;
 import dagger.android.AndroidInjector;
 import dagger.android.DaggerApplication;
-import hm.orz.chaos114.android.tumekyouen.di.AppModule;
 import hm.orz.chaos114.android.tumekyouen.di.DaggerAppComponent;
 import timber.log.Timber;
 

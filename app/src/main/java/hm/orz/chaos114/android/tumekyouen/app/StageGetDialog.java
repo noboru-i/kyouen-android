@@ -10,10 +10,10 @@ import hm.orz.chaos114.android.tumekyouen.R;
 
 public class StageGetDialog extends ValidationDialog {
 
-    /** ステージ数入力領域 */
+    // ステージ数入力領域
     private EditText numberEdit;
 
-    /** 全件チェックボックス */
+    // 全件チェックボックス
     private CheckBox allCheckBox;
 
     /**
@@ -90,7 +90,7 @@ public class StageGetDialog extends ValidationDialog {
         return (count == 0);
     }
 
-    /** 成功時のリスナー */
+    // 成功時のリスナー
     public interface OnSuccessListener {
         void onSuccess(int count);
     }

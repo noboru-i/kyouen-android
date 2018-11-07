@@ -21,17 +21,17 @@ import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
  * @author noboru
  */
 public class KyouenDb {
-    /** テーブル名 */
     private static final String TABLE_NAME = "tume_kyouen";
-    /** 最大ステージ番号を取得するSQL */
+
+    // 最大ステージ番号を取得するSQL
     private static final String SQL_SELECT_MAX_STAGE_NO = "SELECT MAX("
             + TumeKyouenDataColumns.STAGE_NO + ") " + " FROM " + TABLE_NAME;
-    /** ステージ数を取得するSQL */
+    // ステージ数を取得するSQL
     private static final String SQL_SELECT_STAGE_COUNT = "SELECT "
             + " COUNT(*) AS COUNT, " + " SUM("
             + TumeKyouenDataColumns.CLEAR_FLAG + ") AS CLEAR_COUNT " + " FROM "
             + TABLE_NAME;
-    /** ヘルパークラス */
+
     private SQLiteOpenHelper mHelper;
 
     /**
@@ -96,7 +96,7 @@ public class KyouenDb {
      * クリアフラグを更新する。
      *
      * @param stageNo 更新対象ステージ番号
-     * @param date クリア日時
+     * @param date    クリア日時
      * @return 更新件数
      */
     public int updateClearFlag(int stageNo, Date date) {
@@ -241,7 +241,7 @@ public class KyouenDb {
             // レコード取得
             cursor = database.rawQuery(SQL_SELECT_STAGE_COUNT, null);
 
-            StageCountModel model =  null;
+            StageCountModel model = null;
             if (cursor.moveToNext()) {
                 int count = cursor.getInt(0);
                 int clearCount = cursor.getInt(1);
@@ -306,24 +306,26 @@ public class KyouenDb {
         }
     }
 
-    /** カラム名 */
+    /**
+     * カラム名
+     */
     public interface TumeKyouenDataColumns extends BaseColumns {
-        /** ステージ番号 */
+        // ステージ番号
         String STAGE_NO = "stage_no";
 
-        /** サイズ */
+        // サイズ
         String SIZE = "size";
 
-        /** ステージ上の石の配置 */
+        // ステージ上の石の配置
         String STAGE = "stage";
 
-        /** 作者 */
+        // 作者
         String CREATOR = "creator";
 
-        /** クリアフラグ */
+        // クリアフラグ
         String CLEAR_FLAG = "clear_flag";
 
-        /** クリア日付 */
+        // クリア日付
         String CLEAR_DATE = "clear_date";
     }
 
@@ -334,10 +336,8 @@ public class KyouenDb {
      */
     final class KyouenDbOpenHelper extends SQLiteOpenHelper {
 
-        /** DBのバージョン */
         private static final int DB_VERSION = 2;
 
-        /** DB名 */
         private static final String DB_NAME = "irokae.db";
 
         private KyouenDbOpenHelper(Context context) {
@@ -348,23 +348,23 @@ public class KyouenDb {
         public void onCreate(SQLiteDatabase db) {
             StringBuilder sql = new StringBuilder();
             sql.append("CREATE TABLE IF NOT EXISTS ")
-            .append(TABLE_NAME)
-            .append("(")
-            .append(BaseColumns._ID)
-            .append(" INTEGER PRIMARY KEY AUTOINCREMENT, ")
-            .append(TumeKyouenDataColumns.STAGE_NO)
-            .append(" INTEGER NOT NULL UNIQUE, ")
-            .append(TumeKyouenDataColumns.SIZE)
-            .append(" INTEGER NOT NULL, ")
-            .append(TumeKyouenDataColumns.STAGE)
-            .append(" TEXT, ")
-            .append(TumeKyouenDataColumns.CREATOR)
-            .append(" TEXT, ")
-            .append(TumeKyouenDataColumns.CLEAR_FLAG)
-            .append(" INTEGER DEFAULT 0, ")
-            .append(TumeKyouenDataColumns.CLEAR_DATE)
-            .append(" INTEGER DEFAULT 0 ")
-            .append(");");
+                    .append(TABLE_NAME)
+                    .append("(")
+                    .append(BaseColumns._ID)
+                    .append(" INTEGER PRIMARY KEY AUTOINCREMENT, ")
+                    .append(TumeKyouenDataColumns.STAGE_NO)
+                    .append(" INTEGER NOT NULL UNIQUE, ")
+                    .append(TumeKyouenDataColumns.SIZE)
+                    .append(" INTEGER NOT NULL, ")
+                    .append(TumeKyouenDataColumns.STAGE)
+                    .append(" TEXT, ")
+                    .append(TumeKyouenDataColumns.CREATOR)
+                    .append(" TEXT, ")
+                    .append(TumeKyouenDataColumns.CLEAR_FLAG)
+                    .append(" INTEGER DEFAULT 0, ")
+                    .append(TumeKyouenDataColumns.CLEAR_DATE)
+                    .append(" INTEGER DEFAULT 0 ")
+                    .append(");");
             db.execSQL(sql.toString());
         }
 
@@ -373,11 +373,11 @@ public class KyouenDb {
             if (oldVersion == 1 && newVersion == 2) {
                 StringBuilder sql = new StringBuilder();
                 sql.append("ALTER TABLE ")
-                .append(TABLE_NAME)
-                .append(" ADD COLUMN ")
-                .append(TumeKyouenDataColumns.CLEAR_DATE)
-                .append(" INTEGER DEFAULT 0 ")
-                .append(";");
+                        .append(TABLE_NAME)
+                        .append(" ADD COLUMN ")
+                        .append(TumeKyouenDataColumns.CLEAR_DATE)
+                        .append(" INTEGER DEFAULT 0 ")
+                        .append(";");
                 db.execSQL(sql.toString());
             }
         }

@@ -11,13 +11,11 @@ import hm.orz.chaos114.android.tumekyouen.R;
 
 public class SoundManager {
 
-    PreferenceUtil preferenceUtil;
+    private final PreferenceUtil preferenceUtil;
 
-    /** サウンドプール */
-    private SoundPool soundPool;
+    private final SoundPool soundPool;
 
-    /** サウンドのID */
-    private SparseIntArray soundIds;
+    private final SparseIntArray soundIds;
 
     /**
      * プライベートコンストラクタ。

@@ -67,7 +67,7 @@
             android:theme="@android:style/Theme.Translucent" />
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="@string/admob_app_id"/>
+            android:value="@string/admob_app_id" />
 
         <!-- This meta-data tag is required to use Google Play Services. -->
         <meta-data

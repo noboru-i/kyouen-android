@@ -14,10 +14,10 @@ import javax.inject.Singleton;
 
 @Singleton
 public class EncryptionUtil {
-    /** 鍵のbit数 */
+    // 鍵のbit数
     private static final int ENCRYPT_KEY_LENGTH = 128;
 
-    /** 暗号化キー */
+    // 暗号化キー
     private final Key key;
 
     PreferenceUtil preferenceUtil;
