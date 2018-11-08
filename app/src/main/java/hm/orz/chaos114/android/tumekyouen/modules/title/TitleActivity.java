@@ -17,6 +17,8 @@ import com.twitter.sdk.android.core.TwitterAuthToken;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterAuthClient;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 
 import java.util.List;
 
@@ -26,7 +28,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
 import androidx.databinding.DataBindingUtil;
 import dagger.android.support.DaggerAppCompatActivity;
-import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.app.StageGetDialog;
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityTitleBinding;
@@ -90,6 +91,7 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
             tumeKyouenService.login(loginInfo.token, loginInfo.secret)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
+                    .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                     .subscribe(s -> {
                                 Timber.d("sucess : %s", s);
                                 binding.connectButton.setEnabled(true);
@@ -251,14 +253,13 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
         tumeKyouenService.login(authToken.token, authToken.secret)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(s -> {
                             // ログイン情報を保存
                             loginUtil.saveLoginInfo(authToken);
                             onSuccessTwitterAuth();
                         },
-                        throwable -> {
-                            onFailedTwitterAuth();
-                        });
+                        throwable -> onFailedTwitterAuth());
     }
 
     /**
@@ -272,15 +273,14 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
         ServerUtil.addAll(tumeKyouenService, stages)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(addAllResponse -> {
                             if (addAllResponse.data() != null) {
                                 kyouenDb.updateSyncClearData(addAllResponse.data());
                             }
                             refresh();
                         },
-                        throwable -> {
-                            Timber.e(throwable, "クリア情報の送信に失敗");
-                        });
+                        throwable -> Timber.e(throwable, "クリア情報の送信に失敗"));
     }
 
     /**
@@ -354,7 +354,6 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
      */
     private void refresh() {
         final StageCountModel stageCountModel = kyouenDb.selectStageCount();
-        App app = (App) getApplication();
         binding.setModel(new TitleActivityViewModel(this, stageCountModel, soundManager));
     }
 }
