@@ -12,13 +12,15 @@ import java.net.CookieManager;
 
 import javax.inject.Singleton;
 
+import androidx.room.Room;
 import dagger.Module;
 import dagger.Provides;
 import hm.orz.chaos114.android.tumekyouen.App;
 import hm.orz.chaos114.android.tumekyouen.R;
-import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
+import hm.orz.chaos114.android.tumekyouen.db.AppDatabase;
 import hm.orz.chaos114.android.tumekyouen.network.GsonAutoValueAdapterFactory;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
+import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository;
 import hm.orz.chaos114.android.tumekyouen.util.EncryptionUtil;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
@@ -71,8 +73,16 @@ public class AppModule {
     }
 
     @Provides
-    KyouenDb provideKyouenDb(Context context) {
-        return new KyouenDb(context);
+    AppDatabase provideAppDatabase(Context context) {
+        return Room.databaseBuilder(
+                context,
+                AppDatabase.class, "irokae.db"
+        ).build();
+    }
+
+    @Provides
+    TumeKyouenRepository provideTumeKyouenRepository(AppDatabase appDatabase) {
+        return new TumeKyouenRepository(appDatabase);
     }
 
     @Provides

@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import hm.orz.chaos114.android.tumekyouen.R;
-import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
+import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
@@ -24,17 +24,17 @@ public class InsertDataTask {
     // タスク実行中フラグ
     private static boolean running = false;
 
-    private Context mContext;
-
-    private KyouenDb mKyouenDb;
+    private final Context mContext;
 
     // 取得する回数
-    private int mCount;
+    private final int mCount;
 
     // 処理終了時の処理
-    private Runnable mRun;
+    private final Runnable mRun;
 
-    private TumeKyouenService mTumeKyouenService;
+    private final TumeKyouenService mTumeKyouenService;
+
+    private final TumeKyouenRepository tumeKyouenRepository;
 
     /**
      * コンストラクタ。
@@ -42,8 +42,8 @@ public class InsertDataTask {
      * @param context コンテキスト
      * @param run     処理終了時の処理
      */
-    public InsertDataTask(Context context, Runnable run, TumeKyouenService tumeKyouenService) {
-        this(context, 1, run, tumeKyouenService);
+    public InsertDataTask(Context context, Runnable run, TumeKyouenService tumeKyouenService, TumeKyouenRepository tumeKyouenRepository) {
+        this(context, 1, run, tumeKyouenService, tumeKyouenRepository);
     }
 
     /**
@@ -53,13 +53,12 @@ public class InsertDataTask {
      * @param count   取得する回数
      * @param run     処理終了時の処理
      */
-    public InsertDataTask(Context context, int count, Runnable run, TumeKyouenService tumeKyouenService) {
+    public InsertDataTask(Context context, int count, Runnable run, TumeKyouenService tumeKyouenService, TumeKyouenRepository tumeKyouenRepository) {
         this.mContext = context;
         this.mCount = count;
         this.mRun = run;
         this.mTumeKyouenService = tumeKyouenService;
-
-        mKyouenDb = new KyouenDb(context);
+        this.tumeKyouenRepository = tumeKyouenRepository;
     }
 
     /**
@@ -95,21 +94,24 @@ public class InsertDataTask {
     private void fetch(int stageNo, int count) {
         mTumeKyouenService.getStage(stageNo)
                 .subscribeOn(Schedulers.io())
+                .map(response -> {
+                    String s;
+                    try {
+                        s = response.body().string();
+                    } catch (IOException e) {
+                        s = "";
+                    }
+                    if ("no_data".equals(s)) {
+                        onPostExecute(stageNo);
+                        return 0;
+                    }
+                    return insertData(s.split("\n"));
+                })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(response -> {
-                            String s = null;
-                            try {
-                                s = response.body().string();
-                            } catch (IOException e) {
-                                s = "";
-                            }
-                            if ("no_data".equals(s)) {
-                                onPostExecute(stageNo);
-                                return;
-                            }
-                            int addedCount = insertData(s.split("\n"));
+                .subscribe(addedCount -> {
                             if (count + 1 >= mCount) {
-                                onPostExecute(stageNo + addedCount);
+                                // TODO 複数回取得する場合の件数が誤っている
+                                onPostExecute(addedCount);
                                 return;
                             }
                             fetch(stageNo + addedCount, count + 1);
@@ -130,11 +132,9 @@ public class InsertDataTask {
         Timber.d("insertData is %s", Arrays.asList(insertData));
         int count = 0;
         for (String csvString : insertData) {
-            long id = mKyouenDb.insert(csvString);
-            Timber.d("id is %d", id);
-            if (id != -1) {
-                count++;
-            }
+            tumeKyouenRepository.insertByCSV(csvString);
+            // TODO 登録に成功した場合のみ数字を返すべき？
+            count++;
         }
 
         Timber.d("count is %d", count);

@@ -1,19 +1,22 @@
 package hm.orz.chaos114.android.tumekyouen.modules.initial;
 
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Toast;
+
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 
 import javax.inject.Inject;
 
 import androidx.annotation.WorkerThread;
 import dagger.android.support.DaggerAppCompatActivity;
 import hm.orz.chaos114.android.tumekyouen.R;
-import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
-import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
 import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
+import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository;
+import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * 初期化処理Activity。
@@ -21,32 +24,25 @@ import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
 public class InitialActivity extends DaggerAppCompatActivity {
 
     @Inject
-    KyouenDb kyouenDb;
+    TumeKyouenRepository tumeKyouenRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial);
 
-        if (kyouenDb.selectMaxStageNo() == 0) {
-            // データが存在しない場合
-
-            new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... voids) {
-                    insertInitialDatatInBackground();
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    goNextActivity();
-                }
-            }.execute();
-            return;
-        }
-
-        goNextActivity();
+        tumeKyouenRepository.selectMaxStageNo()
+                .subscribeOn(Schedulers.io())
+                .subscribe(stageNo -> {
+                            // has stages in db
+                            Timber.d("!!!stageNo");
+                            goNextActivity();
+                        },
+                        throwable -> {
+                            Timber.d(throwable, "!!!");
+                            insertInitialDatatInBackground();
+                            goNextActivity();
+                        });
     }
 
     /**
@@ -66,7 +62,7 @@ public class InitialActivity extends DaggerAppCompatActivity {
                 "9,6,000000001000010000000010000100001000,noboru",
                 "10,6,000100000010010000000100000010010000,noboru"};
         for (final String data : initData) {
-            kyouenDb.insert(data);
+            tumeKyouenRepository.insertByCSV(data);
         }
     }
 
@@ -85,15 +81,19 @@ public class InitialActivity extends DaggerAppCompatActivity {
             return;
         }
 
-        final TumeKyouenModel item = kyouenDb.selectCurrentStage(stageNo);
-        if (item == null) {
-            // cannot get stage info from local DB.
-            Toast.makeText(this, R.string.toast_fetch_first, Toast.LENGTH_LONG).show();
-            goToTitle();
-            return;
-        }
-        KyouenActivity.start(this, item);
-        finish();
+        tumeKyouenRepository.findStage(stageNo)
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(
+                        item -> {
+                            KyouenActivity.start(this, item);
+                            finish();
+                        },
+                        throwable -> {
+                            // cannot get stage info from local DB.
+                            Toast.makeText(this, R.string.toast_fetch_first, Toast.LENGTH_LONG).show();
+                            goToTitle();
+                        }
+                );
     }
 
     private void goToTitle() {

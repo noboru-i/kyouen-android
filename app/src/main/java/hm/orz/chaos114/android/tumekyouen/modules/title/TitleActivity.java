@@ -20,8 +20,6 @@ import com.twitter.sdk.android.core.identity.TwitterAuthClient;
 import com.uber.autodispose.AutoDispose;
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import androidx.annotation.MainThread;
@@ -31,17 +29,14 @@ import dagger.android.support.DaggerAppCompatActivity;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.app.StageGetDialog;
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityTitleBinding;
-import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
-import hm.orz.chaos114.android.tumekyouen.model.StageCountModel;
-import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
+import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository;
 import hm.orz.chaos114.android.tumekyouen.util.AdRequestFactory;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PackageChecker;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
-import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -58,7 +53,7 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
     @Inject
     SoundManager soundManager;
     @Inject
-    KyouenDb kyouenDb;
+    TumeKyouenRepository tumeKyouenRepository;
     @Inject
     TumeKyouenService tumeKyouenService;
 
@@ -124,8 +119,12 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
     @Override
     public void onClickStartButton(View view) {
         final int stageNo = getLastStageNo();
-        final TumeKyouenModel item = kyouenDb.selectCurrentStage(stageNo);
-        KyouenActivity.start(this, item);
+        tumeKyouenRepository.findStage(stageNo)
+                .subscribeOn(Schedulers.io())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(
+                        item -> KyouenActivity.start(this, item)
+                );
     }
 
     /**
@@ -140,10 +139,13 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
                 (count -> {
                     int taskCount = count == -1 ? Integer.MAX_VALUE : count;
                     final InsertDataTask task = new InsertDataTask(TitleActivity.this,
-                            taskCount, this::refreshAll, tumeKyouenService);
-                    final long maxStageNo = kyouenDb.selectMaxStageNo();
-                    task.execute(String.valueOf(maxStageNo));
-
+                            taskCount, this::refreshAll, tumeKyouenService, tumeKyouenRepository);
+                    tumeKyouenRepository.selectMaxStageNo()
+                            .subscribeOn(Schedulers.io())
+                            .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                            .subscribe(
+                                    maxStageNo -> task.execute(String.valueOf(maxStageNo))
+                            );
                 }),
                 (d -> refreshAll()));
         dialog.show();
@@ -267,20 +269,21 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
      */
     @WorkerThread
     private void syncClearDataInBackground() {
-        // クリアした情報を取得
-        final List<TumeKyouenModel> stages = kyouenDb.selectAllClearStage();
-
-        ServerUtil.addAll(tumeKyouenService, stages)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe(addAllResponse -> {
-                            if (addAllResponse.data() != null) {
-                                kyouenDb.updateSyncClearData(addAllResponse.data());
-                            }
-                            refresh();
-                        },
-                        throwable -> Timber.e(throwable, "クリア情報の送信に失敗"));
+        // TODO あとで考える
+//        // クリアした情報を取得
+//        final List<TumeKyouenModel> stages = kyouenDb.selectAllClearStage();
+//
+//        ServerUtil.addAll(tumeKyouenService, stages)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+//                .subscribe(addAllResponse -> {
+//                            if (addAllResponse.data() != null) {
+//                                kyouenDb.updateSyncClearData(addAllResponse.data());
+//                            }
+//                            refresh();
+//                        },
+//                        throwable -> Timber.e(throwable, "クリア情報の送信に失敗"));
     }
 
     /**
@@ -353,7 +356,13 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
      * ステージ数領域を再設定します。
      */
     private void refresh() {
-        final StageCountModel stageCountModel = kyouenDb.selectStageCount();
-        binding.setModel(new TitleActivityViewModel(this, stageCountModel, soundManager));
+        tumeKyouenRepository.selectStageCount()
+                .subscribeOn(Schedulers.io())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(
+                        stageCountModel -> {
+                            binding.setModel(new TitleActivityViewModel(this, stageCountModel, soundManager));
+                        }
+                );
     }
 }

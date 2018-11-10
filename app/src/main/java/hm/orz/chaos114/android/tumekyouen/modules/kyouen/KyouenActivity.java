@@ -25,16 +25,18 @@ import dagger.android.support.DaggerAppCompatActivity;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.app.StageSelectDialog;
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityKyouenBinding;
-import hm.orz.chaos114.android.tumekyouen.db.KyouenDb;
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
+import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository;
 import hm.orz.chaos114.android.tumekyouen.util.AdRequestFactory;
 import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 import icepick.Icepick;
 import icepick.State;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -51,7 +53,7 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
     @Inject
     SoundManager soundManager;
     @Inject
-    KyouenDb kyouenDb;
+    TumeKyouenRepository tumeKyouenRepository;
     @Inject
     TumeKyouenService tumeKyouenService;
     @Inject
@@ -127,7 +129,7 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
         binding.kyouenButton.setClickable(false);
         tumeKyouenView.setClickable(false);
 
-        kyouenDb.updateClearFlag(stageModel.stageNo(), new Date());
+        tumeKyouenRepository.updateClearFlag(stageModel.stageNo(), new Date());
 
         // サーバに送信
         tumeKyouenService.add(stageModel.stageNo())
@@ -140,57 +142,64 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
         binding.setStageModel(new KyouenActivityViewModel(stageModel, this));
     }
 
-    /**
-     * ステージの移動処理を行います。
-     *
-     * @param direction 移動するステージの方向（PREV/NEXT）
-     * @return 移動が成功した場合true
-     */
-    private boolean moveStage(@NonNull final Direction direction) {
-        TumeKyouenModel newModel = null;
+    private void moveStage(@NonNull Direction direction) {
+        Single<TumeKyouenModel> stageRequest = null;
         switch (direction) {
             case PREV:
                 // prev選択時
-                newModel = kyouenDb.selectPrevStage(stageModel.stageNo());
+                stageRequest = tumeKyouenRepository.findStage(stageModel.stageNo() - 1);
                 break;
             case NEXT:
                 // next選択時
-                newModel = kyouenDb.selectNextStage(stageModel.stageNo());
+                stageRequest = tumeKyouenRepository.findStage(stageModel.stageNo() + 1);
                 break;
             case NONE:
                 // 想定外の引数
                 throw new IllegalArgumentException("引数がNONE");
         }
 
-        if (newModel == null) {
-            // 次のステージが存在しない場合、APIより取得する
-            final ProgressDialog dialog = new ProgressDialog(this);
-            dialog.setTitle("通信中");
-            dialog.setMessage("Loading...");
-            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            dialog.show();
+        stageRequest
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(
+                        newStage -> {
+                            stageModel = newStage;
+                            showOtherStage(direction);
+                        },
+                        throwable -> {
+                            // 次のステージが存在しない場合、APIより取得する
+                            final ProgressDialog dialog = new ProgressDialog(this);
+                            dialog.setTitle("通信中");
+                            dialog.setMessage("Loading...");
+                            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                            dialog.show();
 
-            final long maxStageNo = kyouenDb.selectMaxStageNo();
-            new InsertDataTask(this, (() -> {
-                dialog.dismiss();
+                            tumeKyouenRepository.selectMaxStageNo()
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                                    .subscribe(
+                                            maxStageNo -> new InsertDataTask(this, (() -> {
+                                                dialog.dismiss();
 
-                final TumeKyouenModel model = kyouenDb.selectNextStage(stageModel.stageNo());
-                if (model == null) {
-                    // WEBより取得後も取得できない場合
-                    return;
-                }
-
-                stageModel = model;
-                showOtherStage(direction);
-            }), tumeKyouenService)
-                    .execute(String.valueOf(maxStageNo));
-
-            return false;
-        }
-
-        stageModel = newModel;
-        showOtherStage(direction);
-        return true;
+                                                tumeKyouenRepository.findStage(stageModel.stageNo() + 1)
+                                                        .subscribeOn(Schedulers.io())
+                                                        .observeOn(AndroidSchedulers.mainThread())
+                                                        .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                                                        .subscribe(
+                                                                model -> {
+                                                                    stageModel = model;
+                                                                    showOtherStage(direction);
+                                                                },
+                                                                throwable1 -> {
+                                                                    // no-op
+                                                                }
+                                                        );
+                                            }), tumeKyouenService, tumeKyouenRepository).execute(String.valueOf(maxStageNo))
+                                    );
+                        }
+                );
     }
 
     /**
@@ -301,15 +310,31 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
     public void showSelectStageDialog(View view) {
         final StageSelectDialog dialog = new StageSelectDialog(
                 KyouenActivity.this, ((count) -> {
-            final long maxStageNo = kyouenDb.selectMaxStageNo();
-            int nextStageNo = count;
-            if (nextStageNo > maxStageNo || nextStageNo == -1) {
-                nextStageNo = (int) maxStageNo;
-            }
+            tumeKyouenRepository.selectMaxStageNo()
+                    .subscribeOn(Schedulers.io())
+                    .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                    .subscribe(
+                            maxStageNo -> {
+                                int nextStageNo = count;
+                                if (nextStageNo > maxStageNo || nextStageNo == -1) {
+                                    nextStageNo = (int) maxStageNo;
+                                }
 
-            // ダイアログで選択されたステージを表示
-            stageModel = kyouenDb.selectCurrentStage(nextStageNo);
-            showOtherStage(Direction.NONE);
+                                // ダイアログで選択されたステージを表示
+                                tumeKyouenRepository.findStage(nextStageNo)
+                                        .subscribeOn(Schedulers.io())
+                                        .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                                        .subscribe(
+                                                model -> {
+                                                    stageModel = model;
+                                                    showOtherStage(Direction.NONE);
+                                                }
+                                        );
+                            },
+                            throwable -> {
+                                // no-op
+                            }
+                    );
         }), null);
         dialog.setStageNo(stageModel.stageNo());
         dialog.show();
