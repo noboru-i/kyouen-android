@@ -35,7 +35,7 @@ import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 import icepick.Icepick;
 import icepick.State;
-import io.reactivex.Single;
+import io.reactivex.Maybe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
@@ -143,7 +143,7 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
     }
 
     private void moveStage(@NonNull Direction direction) {
-        Single<TumeKyouenModel> stageRequest = null;
+        Maybe<TumeKyouenModel> stageRequest = null;
         switch (direction) {
             case PREV:
                 // prev選択時
@@ -168,6 +168,9 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
                             showOtherStage(direction);
                         },
                         throwable -> {
+                            throw new RuntimeException("I think, we are not called this.", throwable);
+                        },
+                        () -> {
                             // 次のステージが存在しない場合、APIより取得する
                             final ProgressDialog dialog = new ProgressDialog(this);
                             dialog.setTitle("通信中");

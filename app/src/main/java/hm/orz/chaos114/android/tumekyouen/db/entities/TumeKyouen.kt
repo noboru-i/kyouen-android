@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "tume_kyouen",
         indices = arrayOf(
-        Index(value = ["stage_no"], unique = true)
-))
+                Index(value = ["stage_no"], unique = true)
+        ))
 data class TumeKyouen(
         @PrimaryKey(autoGenerate = true) var uid: Int,
         @ColumnInfo(name = "stage_no") var stageNo: Int,

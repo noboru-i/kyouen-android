@@ -6,7 +6,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -23,7 +22,6 @@ import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import javax.inject.Inject;
 
 import androidx.annotation.MainThread;
-import androidx.annotation.WorkerThread;
 import androidx.databinding.DataBindingUtil;
 import dagger.android.support.DaggerAppCompatActivity;
 import hm.orz.chaos114.android.tumekyouen.R;
@@ -37,6 +35,7 @@ import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PackageChecker;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
+import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -218,19 +217,7 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
         binding.syncButton.setEnabled(false);
 
         // クリア情報を同期
-        new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                syncClearDataInBackground();
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                enableSyncButton();
-            }
-        }.execute();
+        syncClearDataInBackground();
     }
 
     /**
@@ -267,23 +254,36 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
     /**
      * クリアステージデータの同期を行う。
      */
-    @WorkerThread
     private void syncClearDataInBackground() {
-        // TODO あとで考える
-//        // クリアした情報を取得
-//        final List<TumeKyouenModel> stages = kyouenDb.selectAllClearStage();
-//
-//        ServerUtil.addAll(tumeKyouenService, stages)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-//                .subscribe(addAllResponse -> {
-//                            if (addAllResponse.data() != null) {
-//                                kyouenDb.updateSyncClearData(addAllResponse.data());
-//                            }
-//                            refresh();
-//                        },
-//                        throwable -> Timber.e(throwable, "クリア情報の送信に失敗"));
+        // クリアした情報を取得
+        tumeKyouenRepository.selectAllClearStage()
+                .subscribeOn(Schedulers.io())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(
+                        stages -> ServerUtil.addAll(tumeKyouenService, stages)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(addAllResponse -> {
+                                            if (addAllResponse.data() == null) {
+                                                enableSyncButton();
+                                                refresh();
+                                                return;
+                                            }
+                                            tumeKyouenRepository.updateSyncClearData(addAllResponse.data())
+                                                    .subscribeOn(Schedulers.io())
+                                                    .observeOn(AndroidSchedulers.mainThread())
+                                                    .subscribe(
+                                                            () -> {
+                                                                enableSyncButton();
+                                                                refresh();
+                                                            }
+                                                    );
+                                        },
+                                        throwable -> {
+                                            Timber.e(throwable, "クリア情報の送信に失敗");
+                                            enableSyncButton();
+                                        })
+                );
     }
 
     /**
@@ -360,9 +360,7 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
                 .subscribeOn(Schedulers.io())
                 .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(
-                        stageCountModel -> {
-                            binding.setModel(new TitleActivityViewModel(this, stageCountModel, soundManager));
-                        }
+                        stageCountModel -> binding.setModel(new TitleActivityViewModel(this, stageCountModel, soundManager))
                 );
     }
 }
