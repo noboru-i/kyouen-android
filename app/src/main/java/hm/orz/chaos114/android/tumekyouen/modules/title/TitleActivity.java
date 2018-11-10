@@ -37,6 +37,8 @@ import hm.orz.chaos114.android.tumekyouen.util.PackageChecker;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
@@ -258,32 +260,25 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
         // クリアした情報を取得
         tumeKyouenRepository.selectAllClearStage()
                 .subscribeOn(Schedulers.io())
+                .flatMap(stages ->
+                        ServerUtil.addAll(tumeKyouenService, stages)
+                )
+                .flatMapCompletable(addAllResponse -> {
+                    if (addAllResponse.data() == null) {
+                        return Completable.complete();
+                    }
+                    return tumeKyouenRepository.updateSyncClearData(addAllResponse.data());
+                })
+                .observeOn(AndroidSchedulers.mainThread())
                 .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe(
-                        stages -> ServerUtil.addAll(tumeKyouenService, stages)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(addAllResponse -> {
-                                            if (addAllResponse.data() == null) {
-                                                enableSyncButton();
-                                                refresh();
-                                                return;
-                                            }
-                                            tumeKyouenRepository.updateSyncClearData(addAllResponse.data())
-                                                    .subscribeOn(Schedulers.io())
-                                                    .observeOn(AndroidSchedulers.mainThread())
-                                                    .subscribe(
-                                                            () -> {
-                                                                enableSyncButton();
-                                                                refresh();
-                                                            }
-                                                    );
-                                        },
-                                        throwable -> {
-                                            Timber.e(throwable, "クリア情報の送信に失敗");
-                                            enableSyncButton();
-                                        })
-                );
+                .subscribe(() -> {
+                            enableSyncButton();
+                            refresh();
+                        },
+                        throwable -> {
+                            Timber.e(throwable, "クリア情報の送信に失敗");
+                            enableSyncButton();
+                        });
     }
 
     /**
