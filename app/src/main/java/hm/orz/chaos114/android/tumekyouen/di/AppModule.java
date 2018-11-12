@@ -134,6 +134,8 @@ public class AppModule {
                     " `clear_date` INTEGER NOT NULL" +
                     ")");
             database.execSQL("CREATE UNIQUE INDEX `index_tume_kyouen_stage_no` ON `tume_kyouen` (`stage_no`)");
+            database.execSQL("INSERT INTO tume_kyouen" +
+                    " SELECT _id, stage_no, size, stage, creator, clear_flag, clear_date FROM old_tume_kyouen");
             database.execSQL("DROP TABLE old_tume_kyouen");
         }
     };

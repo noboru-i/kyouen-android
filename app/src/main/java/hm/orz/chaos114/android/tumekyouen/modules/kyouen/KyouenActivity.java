@@ -129,17 +129,21 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
         binding.kyouenButton.setClickable(false);
         tumeKyouenView.setClickable(false);
 
-        tumeKyouenRepository.updateClearFlag(stageModel.stageNo(), new Date());
-
-        // サーバに送信
-        tumeKyouenService.add(stageModel.stageNo())
+        Maybe
+                .concat(
+                        tumeKyouenRepository.updateClearFlag(stageModel.stageNo(), new Date()).toMaybe(),
+                        tumeKyouenService.add(stageModel.stageNo()),
+                        tumeKyouenRepository.findStage(stageModel.stageNo())
+                )
                 .subscribeOn(Schedulers.io())
                 .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(
-                        obj -> Timber.d("success"),
+                        obj -> {
+                            Timber.d("success: %s", obj);
+                            stageModel = (TumeKyouenModel) obj;
+                            binding.setStageModel(new KyouenActivityViewModel(stageModel, this));
+                        },
                         throwable -> Timber.d(throwable, "error"));
-
-        binding.setStageModel(new KyouenActivityViewModel(stageModel, this));
     }
 
     private void moveStage(@NonNull Direction direction) {
