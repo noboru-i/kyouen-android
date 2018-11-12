@@ -22,6 +22,12 @@ android {
         versionCode 24
         versionName "0.11.2"
         multiDexEnabled true
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
     signingConfigs {
         debug {
@@ -94,6 +100,7 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
+    androidTestCompile "android.arch.persistence.room:testing"
 
     implementation 'com.twitter.sdk.android:twitter-core:3.3.0'
     implementation 'com.jakewharton.timber:timber:4.7.1'
