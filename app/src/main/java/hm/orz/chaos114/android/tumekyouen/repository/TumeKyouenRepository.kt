@@ -8,7 +8,7 @@ import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
-import java.util.*
+import java.util.Date
 
 class TumeKyouenRepository(private val appDatabase: AppDatabase) {
     fun insertByCSV(csvString: String) {
