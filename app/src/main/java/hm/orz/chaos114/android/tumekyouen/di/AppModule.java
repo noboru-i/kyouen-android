@@ -13,6 +13,8 @@ import java.net.CookieManager;
 import javax.inject.Singleton;
 
 import androidx.room.Room;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import dagger.Module;
 import dagger.Provides;
 import hm.orz.chaos114.android.tumekyouen.App;
@@ -74,10 +76,14 @@ public class AppModule {
 
     @Provides
     AppDatabase provideAppDatabase(Context context) {
-        return Room.databaseBuilder(
-                context,
-                AppDatabase.class, "irokae.db"
-        ).build();
+        return Room
+                .databaseBuilder(
+                        context,
+                        AppDatabase.class,
+                        "irokae.db"
+                )
+                .addMigrations(MIGRATION_2_3)
+                .build();
     }
 
     @Provides
@@ -113,4 +119,22 @@ public class AppModule {
                 .build();
         return retrofit.create(TumeKyouenService.class);
     }
+
+    private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE tume_kyouen RENAME TO old_tume_kyouen");
+            database.execSQL("CREATE TABLE IF NOT EXISTS tume_kyouen (" +
+                    " `uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                    " `stage_no` INTEGER NOT NULL," +
+                    " `size` INTEGER NOT NULL," +
+                    " `stage` TEXT NOT NULL," +
+                    " `creator` TEXT NOT NULL," +
+                    " `clear_flag` INTEGER NOT NULL," +
+                    " `clear_date` INTEGER NOT NULL" +
+                    ")");
+            database.execSQL("CREATE UNIQUE INDEX `index_tume_kyouen_stage_no` ON `tume_kyouen` (`stage_no`)");
+            database.execSQL("DROP TABLE old_tume_kyouen");
+        }
+    };
 }
