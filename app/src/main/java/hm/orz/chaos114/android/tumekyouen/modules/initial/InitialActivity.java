@@ -16,7 +16,6 @@ import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
 import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository;
 import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
 
 /**
  * 初期化処理Activity。
@@ -33,13 +32,12 @@ public class InitialActivity extends DaggerAppCompatActivity {
 
         tumeKyouenRepository.selectMaxStageNo()
                 .subscribeOn(Schedulers.io())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(stageNo -> {
                             // has stages in db
-                            Timber.d("!!!stageNo");
                             goNextActivity();
                         },
                         throwable -> {
-                            Timber.d(throwable, "!!!");
                             insertInitialDatatInBackground();
                             goNextActivity();
                         });
