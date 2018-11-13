@@ -175,37 +175,40 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
                             throw new RuntimeException("I think, we are not called this.", throwable);
                         },
                         () -> {
-                            // 次のステージが存在しない場合、APIより取得する
-                            final ProgressDialog dialog = new ProgressDialog(this);
-                            dialog.setTitle("通信中");
-                            dialog.setMessage("Loading...");
-                            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                            dialog.show();
+                            loadNextStages(direction);
+                        }
+                );
+    }
 
-                            tumeKyouenRepository.selectMaxStageNo()
+    private void loadNextStages(@NonNull Direction direction) {
+        // 次のステージが存在しない場合、APIより取得する
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage("Loading...");
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.show();
+
+        tumeKyouenRepository.selectMaxStageNo()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(
+                        maxStageNo -> new InsertDataTask(this, (() -> {
+                            dialog.dismiss();
+
+                            tumeKyouenRepository.findStage(stageModel.stageNo() + 1)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                                     .subscribe(
-                                            maxStageNo -> new InsertDataTask(this, (() -> {
-                                                dialog.dismiss();
-
-                                                tumeKyouenRepository.findStage(stageModel.stageNo() + 1)
-                                                        .subscribeOn(Schedulers.io())
-                                                        .observeOn(AndroidSchedulers.mainThread())
-                                                        .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                                                        .subscribe(
-                                                                model -> {
-                                                                    stageModel = model;
-                                                                    showOtherStage(direction);
-                                                                },
-                                                                throwable1 -> {
-                                                                    // no-op
-                                                                }
-                                                        );
-                                            }), tumeKyouenService, tumeKyouenRepository).execute(String.valueOf(maxStageNo))
+                                            model -> {
+                                                stageModel = model;
+                                                showOtherStage(direction);
+                                            },
+                                            throwable1 -> {
+                                                // no-op
+                                            }
                                     );
-                        }
+                        }), tumeKyouenService, tumeKyouenRepository).execute(String.valueOf(maxStageNo))
                 );
     }
 
@@ -320,24 +323,27 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
                 ((count) ->
                         tumeKyouenRepository.selectMaxStageNo()
                                 .subscribeOn(Schedulers.io())
+                                .flatMapMaybe(maxStageNo -> {
+                                    int nextStageNo = count;
+                                    if (nextStageNo > maxStageNo || nextStageNo == -1) {
+                                        nextStageNo = maxStageNo;
+                                    }
+                                    return tumeKyouenRepository.findStage(nextStageNo);
+                                })
+                                .observeOn(AndroidSchedulers.mainThread())
                                 .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                                 .subscribe(
-                                        maxStageNo -> {
-                                            int nextStageNo = count;
-                                            if (nextStageNo > maxStageNo || nextStageNo == -1) {
-                                                nextStageNo = maxStageNo;
+                                        model -> {
+                                            Direction direction;
+                                            if (stageModel.stageNo() > model.stageNo()) {
+                                                direction = Direction.PREV;
+                                            } else if (stageModel.stageNo() < model.stageNo()) {
+                                                direction = Direction.NEXT;
+                                            } else {
+                                                return;
                                             }
-
-                                            // ダイアログで選択されたステージを表示
-                                            tumeKyouenRepository.findStage(nextStageNo)
-                                                    .subscribeOn(Schedulers.io())
-                                                    .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                                                    .subscribe(
-                                                            model -> {
-                                                                stageModel = model;
-                                                                showOtherStage(Direction.NONE);
-                                                            }
-                                                    );
+                                            stageModel = model;
+                                            showOtherStage(direction);
                                         },
                                         throwable -> {
                                             // no-op
