@@ -316,33 +316,33 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
     @Override
     public void showSelectStageDialog(View view) {
         final StageSelectDialog dialog = new StageSelectDialog(
-                KyouenActivity.this, ((count) -> {
-            tumeKyouenRepository.selectMaxStageNo()
-                    .subscribeOn(Schedulers.io())
-                    .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                    .subscribe(
-                            maxStageNo -> {
-                                int nextStageNo = count;
-                                if (nextStageNo > maxStageNo || nextStageNo == -1) {
-                                    nextStageNo = (int) maxStageNo;
-                                }
+                KyouenActivity.this,
+                ((count) ->
+                        tumeKyouenRepository.selectMaxStageNo()
+                                .subscribeOn(Schedulers.io())
+                                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                                .subscribe(
+                                        maxStageNo -> {
+                                            int nextStageNo = count;
+                                            if (nextStageNo > maxStageNo || nextStageNo == -1) {
+                                                nextStageNo = maxStageNo;
+                                            }
 
-                                // ダイアログで選択されたステージを表示
-                                tumeKyouenRepository.findStage(nextStageNo)
-                                        .subscribeOn(Schedulers.io())
-                                        .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                                        .subscribe(
-                                                model -> {
-                                                    stageModel = model;
-                                                    showOtherStage(Direction.NONE);
-                                                }
-                                        );
-                            },
-                            throwable -> {
-                                // no-op
-                            }
-                    );
-        }), null);
+                                            // ダイアログで選択されたステージを表示
+                                            tumeKyouenRepository.findStage(nextStageNo)
+                                                    .subscribeOn(Schedulers.io())
+                                                    .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                                                    .subscribe(
+                                                            model -> {
+                                                                stageModel = model;
+                                                                showOtherStage(Direction.NONE);
+                                                            }
+                                                    );
+                                        },
+                                        throwable -> {
+                                            // no-op
+                                        }
+                                )), null);
         dialog.setStageNo(stageModel.stageNo());
         dialog.show();
     }
