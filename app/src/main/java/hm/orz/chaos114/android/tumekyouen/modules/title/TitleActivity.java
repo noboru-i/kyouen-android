@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
@@ -38,7 +39,6 @@ import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 import io.reactivex.Completable;
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
@@ -143,9 +143,19 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
                     int taskCount = count == -1 ? Integer.MAX_VALUE : count;
                     tumeKyouenRepository.selectMaxStageNo()
                             .subscribeOn(Schedulers.io())
+                            .flatMap(maxStageNo -> insertDataTask.run(maxStageNo, taskCount))
+                            .observeOn(AndroidSchedulers.mainThread())
                             .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                             .subscribe(
-                                    maxStageNo -> insertDataTask.run(maxStageNo, taskCount)
+                                    successCount -> {
+                                        Toast.makeText(TitleActivity.this,
+                                                getString(R.string.toast_get_stage, successCount),
+                                                Toast.LENGTH_SHORT).show();
+                                        refresh();
+                                    },
+                                    throwable -> Toast.makeText(TitleActivity.this,
+                                            R.string.toast_no_stage,
+                                            Toast.LENGTH_SHORT).show()
                             );
                 }),
                 (d -> refreshAll()));

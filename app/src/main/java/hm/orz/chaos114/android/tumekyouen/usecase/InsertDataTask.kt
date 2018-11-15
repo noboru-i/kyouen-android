@@ -11,6 +11,7 @@ class InsertDataTask @Inject constructor(
 ) {
     var running = false
         private set
+
     fun run(startStageNo: Int, count: Int): Single<Int> {
         if (running) {
             return Single.error(ExclusiveException())
@@ -21,7 +22,7 @@ class InsertDataTask @Inject constructor(
             for (i in 1..count) {
                 val response = tumeKyouenService.getStage(stageNo).blockingGet()
                 val responseString = response.body()?.string()
-                if (responseString == null || "no_data".equals(responseString)) {
+                if (responseString == null || "no_data" == responseString) {
                     emitter.onSuccess(stageNo)
                     return@create
                 }
@@ -44,4 +45,4 @@ class InsertDataTask @Inject constructor(
     }
 }
 
-class ExclusiveException(message: String? = null, cause: Throwable? = null) : RuntimeException()
+class ExclusiveException : RuntimeException()

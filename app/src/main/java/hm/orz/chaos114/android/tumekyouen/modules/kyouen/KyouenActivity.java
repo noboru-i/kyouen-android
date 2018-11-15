@@ -176,9 +176,7 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
                         throwable -> {
                             throw new RuntimeException("I think, we are not called this.", throwable);
                         },
-                        () -> {
-                            loadNextStages(direction);
-                        }
+                        () -> loadNextStages(direction)
                 );
     }
 
