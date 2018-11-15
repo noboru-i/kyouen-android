@@ -23,6 +23,7 @@ import hm.orz.chaos114.android.tumekyouen.db.AppDatabase;
 import hm.orz.chaos114.android.tumekyouen.network.GsonAutoValueAdapterFactory;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository;
+import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.EncryptionUtil;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
@@ -118,6 +119,13 @@ public class AppModule {
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
         return retrofit.create(TumeKyouenService.class);
+    }
+
+    @Provides
+    @Singleton
+    InsertDataTask provideInsertDataTask(TumeKyouenService tumeKyouenService,
+                                         TumeKyouenRepository tumeKyouenRepository) {
+        return new InsertDataTask(tumeKyouenService, tumeKyouenRepository);
     }
 
     private static final Migration MIGRATION_2_3 = new Migration(2, 3) {

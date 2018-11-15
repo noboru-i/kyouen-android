@@ -60,7 +60,7 @@ public class InitialActivity extends DaggerAppCompatActivity {
                 "9,6,000000001000010000000010000100001000,noboru",
                 "10,6,000100000010010000000100000010010000,noboru"};
         for (final String data : initData) {
-            tumeKyouenRepository.insertByCSV(data);
+            tumeKyouenRepository.insertByCSV(data).blockingAwait();
         }
     }
 

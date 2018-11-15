@@ -30,8 +30,8 @@ import hm.orz.chaos114.android.tumekyouen.databinding.ActivityTitleBinding;
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository;
+import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.AdRequestFactory;
-import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
 import hm.orz.chaos114.android.tumekyouen.util.PackageChecker;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
@@ -57,6 +57,8 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
     TumeKyouenRepository tumeKyouenRepository;
     @Inject
     TumeKyouenService tumeKyouenService;
+    @Inject
+    InsertDataTask insertDataTask;
 
     private ActivityTitleBinding binding;
 
@@ -139,13 +141,11 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
         final StageGetDialog dialog = new StageGetDialog(this,
                 (count -> {
                     int taskCount = count == -1 ? Integer.MAX_VALUE : count;
-                    final InsertDataTask task = new InsertDataTask(TitleActivity.this,
-                            taskCount, this::refreshAll, tumeKyouenService, tumeKyouenRepository);
                     tumeKyouenRepository.selectMaxStageNo()
                             .subscribeOn(Schedulers.io())
                             .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                             .subscribe(
-                                    maxStageNo -> task.execute(String.valueOf(maxStageNo))
+                                    maxStageNo -> insertDataTask.run(maxStageNo, taskCount)
                             );
                 }),
                 (d -> refreshAll()));
@@ -338,7 +338,7 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
      * ステージ取得ボタンを再設定します。
      */
     private void refreshGetStageButton() {
-        if (InsertDataTask.isRunning()) {
+        if (insertDataTask.getRunning()) {
             binding.getStageButton.setClickable(false);
             binding.getStageButton.setText(getString(R.string.get_more_loading));
         } else {

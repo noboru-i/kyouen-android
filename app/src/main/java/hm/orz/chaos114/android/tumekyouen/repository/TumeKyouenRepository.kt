@@ -11,7 +11,7 @@ import io.reactivex.Single
 import java.util.Date
 
 class TumeKyouenRepository(private val appDatabase: AppDatabase) {
-    fun insertByCSV(csvString: String) {
+    fun insertByCSV(csvString: String): Completable {
         val splitString = csvString.split(",".toRegex()).toTypedArray()
         if (splitString.size != 4) {
             throw RuntimeException("illegal csv: $csvString")
@@ -26,8 +26,7 @@ class TumeKyouenRepository(private val appDatabase: AppDatabase) {
                 0,
                 0
         )
-        appDatabase.tumeKyouenDao().insertAll(entity)
-                .subscribe()
+        return appDatabase.tumeKyouenDao().insertAll(entity)
     }
 
     fun selectMaxStageNo(): Single<Int> {

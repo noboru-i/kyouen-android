@@ -29,8 +29,8 @@ import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository;
+import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.AdRequestFactory;
-import hm.orz.chaos114.android.tumekyouen.util.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
 import icepick.Icepick;
@@ -58,6 +58,8 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
     TumeKyouenService tumeKyouenService;
     @Inject
     FirebaseAnalytics firebaseAnalytics;
+    @Inject
+    InsertDataTask insertDataTask;
 
     // ステージ情報オブジェクト
     @State
@@ -189,26 +191,27 @@ public class KyouenActivity extends DaggerAppCompatActivity implements KyouenAct
 
         tumeKyouenRepository.selectMaxStageNo()
                 .subscribeOn(Schedulers.io())
+                .flatMap(maxStageNo ->
+                        insertDataTask.run(maxStageNo, 1)
+                )
+                .flatMapMaybe(count ->
+                        tumeKyouenRepository.findStage(stageModel.stageNo() + 1)
+                )
                 .observeOn(AndroidSchedulers.mainThread())
                 .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(
-                        maxStageNo -> new InsertDataTask(this, (() -> {
+                        model -> {
                             dialog.dismiss();
-
-                            tumeKyouenRepository.findStage(stageModel.stageNo() + 1)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                                    .subscribe(
-                                            model -> {
-                                                stageModel = model;
-                                                showOtherStage(direction);
-                                            },
-                                            throwable1 -> {
-                                                // no-op
-                                            }
-                                    );
-                        }), tumeKyouenService, tumeKyouenRepository).execute(String.valueOf(maxStageNo))
+                            stageModel = model;
+                            showOtherStage(direction);
+                        },
+                        throwable1 -> {
+                            // no-op
+                        },
+                        () -> {
+                            Timber.d("loadNextStages onComplete");
+                            dialog.dismiss();
+                        }
                 );
     }
 

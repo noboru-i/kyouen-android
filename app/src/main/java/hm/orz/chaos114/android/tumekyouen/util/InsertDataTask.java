@@ -132,8 +132,7 @@ public class InsertDataTask {
         Timber.d("insertData is %s", Arrays.asList(insertData));
         int count = 0;
         for (String csvString : insertData) {
-            tumeKyouenRepository.insertByCSV(csvString);
-            // TODO 登録に成功した場合のみ数字を返すべき？
+            tumeKyouenRepository.insertByCSV(csvString).blockingAwait();
             count++;
         }
 
