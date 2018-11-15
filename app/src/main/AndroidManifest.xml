@@ -39,7 +39,7 @@
                 <data
                     android:host="my-android-server.appspot.com"
                     android:pathPrefix="/html/list.html"
-                    android:scheme="http" />
+                    android:scheme="https" />
             </intent-filter>
         </activity>
 
