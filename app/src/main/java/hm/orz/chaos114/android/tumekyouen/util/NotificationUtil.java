@@ -1,43 +1,45 @@
 package hm.orz.chaos114.android.tumekyouen.util;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity;
 
-/**
- * ステータスバーに通知するためのユーティリティクラス。
- *
- * @author noboru
- */
 public final class NotificationUtil {
+    private static final String CHANNEL_ID_DEFAULT = "default_channel";
 
     private NotificationUtil() {
     }
 
-    /**
-     * 通知を表示する。
-     *
-     * @param context コンテキスト
-     * @param title   タイトル（ex.アプリ名）
-     * @param message メッセージ
-     */
+    public static void setup(Context context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return;
+        }
+
+        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.createNotificationChannel(new NotificationChannel(
+                CHANNEL_ID_DEFAULT,
+                context.getString(R.string.channel_name_default),
+                NotificationManager.IMPORTANCE_DEFAULT
+        ));
+    }
+
     public static void notify(final Context context, final CharSequence title, final CharSequence message) {
 
-        // 通知をタップされたときのintentを作成
         final Intent newIntent = new Intent(context, TitleActivity.class);
         newIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        final PendingIntent contentIntent = PendingIntent.getActivity(context,
-                0, newIntent, 0);
+        final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, newIntent, 0);
 
-        // Notificationオブジェクトの作成
-        final Notification notification = new NotificationCompat.Builder(context)
+        final Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID_DEFAULT)
                 .setAutoCancel(true)
                 .setContentTitle(title)
                 .setContentText(message)
@@ -46,11 +48,9 @@ public final class NotificationUtil {
                 .setContentIntent(contentIntent)
                 .build();
 
-        // Managerオブジェクトの取得
-        final NotificationManager notificationManager = (NotificationManager) context
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-
-        // 通知
-        notificationManager.notify(0, notification);
+        NotificationManagerCompat.from(context).notify(
+                0,
+                notification
+        );
     }
 }

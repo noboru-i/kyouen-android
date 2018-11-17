@@ -42,4 +42,5 @@
     <string name="toast_fetch_first">ステージが見つかりませんでした。\n先に\"ステージ取得\"からステージを取得してください。</string>
 
     <string name="notification_new_stage">新規ステージが追加されました。</string>
+    <string name="channel_name_default">新規ステージ通知</string>
 </resources>

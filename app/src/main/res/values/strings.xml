@@ -42,4 +42,5 @@
     <string name="toast_fetch_first">Please tap \"GET MORE\" first.</string>
 
     <string name="notification_new_stage">New stage added.</string>
+    <string name="channel_name_default">New stage notification</string>
 </resources>

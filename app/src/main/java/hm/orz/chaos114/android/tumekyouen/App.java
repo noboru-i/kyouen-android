@@ -17,6 +17,7 @@ import androidx.multidex.MultiDex;
 import dagger.android.AndroidInjector;
 import dagger.android.DaggerApplication;
 import hm.orz.chaos114.android.tumekyouen.di.DaggerAppComponent;
+import hm.orz.chaos114.android.tumekyouen.util.NotificationUtil;
 import timber.log.Timber;
 
 /**
@@ -50,6 +51,7 @@ public class App extends DaggerApplication {
             Timber.plant(new FirebaseTree());
         }
 
+        NotificationUtil.setup(this);
     }
 
     @Override
