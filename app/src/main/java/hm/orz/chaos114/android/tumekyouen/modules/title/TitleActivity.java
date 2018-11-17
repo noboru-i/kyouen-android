@@ -237,7 +237,7 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
      */
     @Override
     public void switchPlayable(View view) {
-        soundManager.switchPlayable();
+        soundManager.togglePlayable();
         refresh();
     }
 
