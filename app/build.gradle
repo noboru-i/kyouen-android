@@ -84,23 +84,23 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.multidex:multidex:2.0.0'
 
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.1.0-alpha01'
     implementation 'androidx.browser:browser:1.0.0'
 
     implementation 'com.google.firebase:firebase-core:16.0.4'
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
-    implementation 'com.google.firebase:firebase-ads:17.0.0'
+    implementation 'com.google.firebase:firebase-ads:17.1.0'
     implementation 'com.google.firebase:firebase-perf:16.2.0'
 
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.6'
 
     // room
     def room_version = "2.1.0-alpha02"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
-    androidTestCompile "android.arch.persistence.room:testing"
+    androidTestImplementation "android.arch.persistence.room:testing"
 
     implementation 'com.twitter.sdk.android:twitter-core:3.3.0'
     implementation 'com.jakewharton.timber:timber:4.7.1'
@@ -111,8 +111,8 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:${retrofitLibVersion}"
     implementation "com.squareup.retrofit2:adapter-rxjava2:${retrofitLibVersion}"
     implementation "com.squareup.retrofit2:converter-gson:${retrofitLibVersion}"
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.17'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.2'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
     implementation 'com.uber.autodispose:autodispose:1.0.0'
     implementation 'com.uber.autodispose:autodispose-android:1.0.0'
     implementation 'com.uber.autodispose:autodispose-android-archcomponents:1.0.0'

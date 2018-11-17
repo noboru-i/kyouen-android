@@ -48,7 +48,7 @@
                 android:background="@drawable/title_button"
                 android:contentDescription="TITLE_01"
                 android:gravity="center"
-                android:onClick="@{handlers.onClickStartButton}"
+                android:onClick="@{handlers::onClickStartButton}"
                 android:padding="5dp"
                 android:text="@string/puzzle"
                 android:textColor="#eeeeee"
@@ -73,7 +73,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/title_button"
                 android:gravity="center"
-                android:onClick="@{handlers.onClickGetStage}"
+                android:onClick="@{handlers::onClickGetStage}"
                 android:padding="5dp"
                 android:text="@string/get_more"
                 android:textColor="#eeeeee" />
@@ -85,7 +85,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/title_button"
                 android:gravity="center"
-                android:onClick="@{handlers.onClickCreateStage}"
+                android:onClick="@{handlers::onClickCreateStage}"
                 android:padding="5dp"
                 android:text="@string/create_stage"
                 android:textColor="#eeeeee" />
@@ -101,7 +101,7 @@
                     android:layout_marginTop="10dp"
                     android:background="@drawable/title_button"
                     android:gravity="center"
-                    android:onClick="@{handlers.onClickConnectButton}"
+                    android:onClick="@{handlers::onClickConnectButton}"
                     android:padding="5dp"
                     android:text="@string/twitter_connect"
                     android:textColor="#eeeeee" />
@@ -113,7 +113,7 @@
                     android:layout_marginTop="10dp"
                     android:background="@drawable/title_button"
                     android:gravity="center"
-                    android:onClick="@{handlers.onClickSyncButton}"
+                    android:onClick="@{handlers::onClickSyncButton}"
                     android:padding="5dp"
                     android:text="@string/sync_stage_user"
                     android:textColor="#eeeeee"
@@ -125,7 +125,7 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_marginLeft="90dp"
-                android:onClick="@{handlers.switchPlayable}"
+                android:onClick="@{handlers::switchPlayable}"
                 android:src="@{model.soundResource}" />
         </LinearLayout>
 
@@ -135,7 +135,7 @@
             android:layout_marginBottom="16dp"
             android:layout_marginRight="8dp"
             android:layout_gravity="right"
-            android:onClick="@{handlers.onClickPrivacyPolicy}"
+            android:onClick="@{handlers::onClickPrivacyPolicy}"
             android:text="@string/privacy_link" />
 
         <com.google.android.gms.ads.AdView
