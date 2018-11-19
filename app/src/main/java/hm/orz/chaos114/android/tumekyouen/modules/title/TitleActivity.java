@@ -28,13 +28,13 @@ import dagger.android.support.DaggerAppCompatActivity;
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.app.StageGetDialog;
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityTitleBinding;
+import hm.orz.chaos114.android.tumekyouen.modules.create.CreateActivity;
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity;
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService;
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository;
 import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask;
 import hm.orz.chaos114.android.tumekyouen.util.AdRequestFactory;
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil;
-import hm.orz.chaos114.android.tumekyouen.util.PackageChecker;
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil;
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil;
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager;
@@ -167,25 +167,7 @@ public class TitleActivity extends DaggerAppCompatActivity implements TitleActiv
      */
     @Override
     public void onClickCreateStage(View v) {
-        final String packageName = "hm.orz.chaos114.android.kyouenchecker";
-        if (PackageChecker.check(this, packageName)) {
-            // 共円チェッカーの起動
-            final Intent intent = new Intent();
-            intent.setClassName(packageName, packageName + ".KyouenActivity");
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-        } else {
-            // マーケットへの導線を表示
-            new AlertDialog.Builder(this)
-                    .setMessage(R.string.alert_install_kyouenchecker)
-                    .setPositiveButton("YES", ((dialog, which) -> {
-                        // マーケットを開く
-                        final Uri uri = Uri.parse("https://play.google.com/store/apps/details?id=" + packageName);
-                        final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                        startActivity(intent);
-                    }))
-                    .setNegativeButton("NO", null).show();
-        }
+        CreateActivity.start(this);
     }
 
     /**
