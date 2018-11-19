@@ -17,9 +17,6 @@ public class SoundManager {
 
     private final SparseIntArray soundIds;
 
-    /**
-     * プライベートコンストラクタ。
-     */
     @Inject
     public SoundManager(PreferenceUtil preferenceUtil, Context context) {
         this.preferenceUtil = preferenceUtil;
@@ -33,32 +30,20 @@ public class SoundManager {
     }
 
     /**
-     * 音再生フラグを返します。
+     * Return flag of playing sound.
      *
-     * @return 音再生フラグ
+     * @return flag of playing sound
      */
     public boolean isPlayable() {
         return preferenceUtil.getBoolean(PreferenceUtil.KEY_SOUND);
     }
 
     /**
-     * 音再生フラグを設定します。
-     *
-     * @param playable 音再生フラグ
+     * Toggle flag of playing sound.
      */
-    public void setPlayable(boolean playable) {
-        preferenceUtil.putBoolean(PreferenceUtil.KEY_SOUND, playable);
-    }
-
-    /**
-     * 音再生フラグを変更します。
-     *
-     * @return 変更後の音再生フラグ
-     */
-    public boolean switchPlayable() {
+    public void togglePlayable() {
         boolean playable = isPlayable();
         setPlayable(!playable);
-        return !playable;
     }
 
     /**
@@ -67,27 +52,15 @@ public class SoundManager {
      * @param id 再生対象のID
      */
     public void play(int id) {
-        play(id, false);
-    }
-
-    /**
-     * 音を再生します。
-     *
-     * @param id    再生対象のID
-     * @param force trueの場合、強制的に再生する
-     */
-    public void play(int id, boolean force) {
-        boolean playable = true;
-        if (!force) {
-            if (!isPlayable()) {
-                playable = false;
-            }
-        }
-        if (!playable) {
+        if (!isPlayable()) {
             return;
         }
 
         int soundId = soundIds.get(id);
         soundPool.play(soundId, 1.0f, 1.0f, 0, 0, 1.0f);
+    }
+
+    private void setPlayable(boolean playable) {
+        preferenceUtil.putBoolean(PreferenceUtil.KEY_SOUND, playable);
     }
 }
