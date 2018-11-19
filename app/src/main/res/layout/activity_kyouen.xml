@@ -98,7 +98,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
-            <hm.orz.chaos114.android.tumekyouen.modules.kyouen.OverlayView
+            <hm.orz.chaos114.android.tumekyouen.modules.common.OverlayView
                 android:id="@+id/kyouen_overlay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
