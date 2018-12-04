@@ -78,6 +78,8 @@ public class KyouenView extends TableLayout {
     }
 
     private void initButtons() {
+        buttons.clear();
+        removeAllViews();
         for (int i = 0; i < gameModel.size(); i++) {
             final TableRow tableRow = new TableRow(getContext());
             addView(tableRow);

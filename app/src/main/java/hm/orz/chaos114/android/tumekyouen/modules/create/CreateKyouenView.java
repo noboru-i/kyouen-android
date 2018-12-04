@@ -19,7 +19,12 @@ import timber.log.Timber;
 
 public class CreateKyouenView extends KyouenView {
 
+    public interface CreateKyouenViewListener {
+        void onKyouen(KyouenData kyouenData);
+    }
+
     private SoundManager soundManager;
+    private CreateKyouenViewListener listener;
 
     public CreateKyouenView(Context context) {
         this(context, null);
@@ -29,14 +34,17 @@ public class CreateKyouenView extends KyouenView {
         super(context, attrs);
     }
 
-    public void inject(SoundManager soundManager) {
+    public void inject(SoundManager soundManager, CreateKyouenViewListener listener) {
         this.soundManager = soundManager;
+        this.listener = listener;
     }
 
+    @Override
     public void setData(TumeKyouenModel stageModel) {
         super.setData(stageModel);
     }
 
+    @Override
     protected void onClickButton(StoneButtonView b) {
         final int index = buttons.indexOf(b);
 
@@ -52,6 +60,7 @@ public class CreateKyouenView extends KyouenView {
             Timber.d("kyouenData = %s", kyouenData);
             if (kyouenData != null) {
                 applyWhiteStones(kyouenData);
+                listener.onKyouen(kyouenData);
             }
         }
     }
