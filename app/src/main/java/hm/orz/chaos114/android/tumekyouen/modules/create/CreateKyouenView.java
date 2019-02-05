@@ -65,10 +65,20 @@ public class CreateKyouenView extends KyouenView {
         }
     }
 
+    public void popStone() {
+        gameModel.popStone();
+        applyBlackStones();
+    }
+
     private void applyWhiteStones(KyouenData kyouenData) {
         for (Point point : kyouenData.points()) {
             gameModel.switchColor((int)point.x(), (int)point.y());
         }
+        applyButtons();
+    }
+
+    private void applyBlackStones() {
+        gameModel.reset();
         applyButtons();
     }
 }

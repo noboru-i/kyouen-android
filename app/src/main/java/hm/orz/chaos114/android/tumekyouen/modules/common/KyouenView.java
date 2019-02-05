@@ -107,6 +107,8 @@ public class KyouenView extends TableLayout {
                     } else {
                         button.setState(StoneButtonView.ButtonState.BLACK);
                     }
+                } else {
+                    button.setState(StoneButtonView.ButtonState.NONE);
                 }
             }
         }

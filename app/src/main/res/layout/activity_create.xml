@@ -26,10 +26,33 @@
                 android:visibility="gone" />
         </FrameLayout>
 
-        <Button
-            android:id="@+id/reset_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="reset" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/back_one_step_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/create_back_one_step"
+                tools:ignore="ButtonStyle" />
+
+            <Button
+                android:id="@+id/reset_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/create_reset"
+                tools:ignore="ButtonStyle" />
+
+            <Button
+                android:id="@+id/send_stage_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/create_send_stage"
+                tools:ignore="ButtonStyle" />
+        </LinearLayout>
     </LinearLayout>
 </layout>

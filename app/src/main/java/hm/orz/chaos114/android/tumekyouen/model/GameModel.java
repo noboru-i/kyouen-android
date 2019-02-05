@@ -48,6 +48,13 @@ public abstract class GameModel {
         stonePoints().add(p);
     }
 
+    public void popStone() {
+        if (stonePoints().isEmpty()) {
+            return;
+        }
+        stonePoints().remove(stonePoints().size() - 1);
+    }
+
     public boolean isSelected(int x, int y) {
         Point p = Point.create(x, y);
         return whiteStonePoints().contains(p);

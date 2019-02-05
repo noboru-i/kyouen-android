@@ -47,6 +47,9 @@ public class OverlayView extends View {
         Point displaySize = new Point();
         display.getSize(displaySize);
         maxScrnWidth = displaySize.x;
+
+        // stop propagation
+        setOnClickListener(v -> {});
     }
 
     @Override
