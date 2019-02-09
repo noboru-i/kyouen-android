@@ -1,19 +1,26 @@
 package hm.orz.chaos114.android.tumekyouen.modules.create
 
 import android.app.Activity
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
+import android.text.TextUtils
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
+import com.uber.autodispose.AutoDispose
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 import dagger.android.support.DaggerAppCompatActivity
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityCreateBinding
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel
+import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
@@ -22,6 +29,9 @@ class CreateActivity : DaggerAppCompatActivity() {
 
     @Inject
     lateinit var soundManager: SoundManager
+
+    @Inject
+    lateinit var tumeKyouenService: TumeKyouenService
 
     private val binding: ActivityCreateBinding by lazy {
         DataBindingUtil.setContentView<ActivityCreateBinding>(this, R.layout.activity_create)
@@ -43,7 +53,7 @@ class CreateActivity : DaggerAppCompatActivity() {
         binding.kyouenView.setData(INITIAL_STAGE_6)
         binding.backOneStepButton.setOnClickListener { backOneStep() }
         binding.resetButton.setOnClickListener { reset() }
-        binding.sendStageButton.setOnClickListener { sendStage() }
+        binding.sendStageButton.setOnClickListener { handleSendStage() }
     }
 
     private fun backOneStep() {
@@ -56,8 +66,8 @@ class CreateActivity : DaggerAppCompatActivity() {
         binding.overlayView.visibility = View.GONE
     }
 
-    private fun sendStage() {
-        // TODO
+    private fun handleSendStage() {
+        confirmSendName()
     }
 
     private fun onKyouen(kyouenData: KyouenData) {
@@ -66,24 +76,84 @@ class CreateActivity : DaggerAppCompatActivity() {
 
         if (binding.kyouenView.getGameModel().blackStoneCount == 4) {
             AlertDialog.Builder(this)
-                    .setTitle("Kyouen!!")
-                    .setPositiveButton("ok", null)
+                    .setTitle(R.string.create_send_title)
+                    .setPositiveButton(android.R.string.ok, null)
                     .show()
             return
         }
 
+        confirmSendName()
+    }
+
+    private fun confirmSendName() {
         val editText = EditText(this)
         editText.inputType = InputType.TYPE_CLASS_TEXT
         AlertDialog.Builder(this)
-                .setTitle("Kyouen!!")
-                .setMessage("下記の名前で石の配置を送信します。")
+                .setTitle(R.string.create_send_title)
+                .setMessage(R.string.create_send_message)
                 .setView(editText)
-                .setPositiveButton("ok") { dialog, which ->
-                    val name = editText.text
+                .setPositiveButton(android.R.string.ok) { dialog, which ->
+                    val name = editText.text.toString()
                     Timber.d("name: %s", name)
-                    // TODO send stage
+                    sendState(name)
                 }
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .show()
+    }
+
+    private fun sendState(creator: String) {
+        val size = binding.kyouenView.gameModel.size()
+        val stage = binding.kyouenView.gameModel.getStageStateForSend()
+        val data = TextUtils.join(",", arrayOf(size, stage, creator))
+        Timber.d("data = %s", data)
+
+        val progressDialog = ProgressDialog(this).apply {
+            setMessage(getString(R.string.create_send_loading))
+            setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            show();
+        }
+
+        tumeKyouenService.postStage(data)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .`as`(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe(
+                        { response ->
+                            val responseString = response.body()?.string()
+                            Timber.d("sucess : %s", responseString);
+                            progressDialog.dismiss()
+
+                            val message = convertResponseToMessage(responseString)
+                            AlertDialog.Builder(this)
+                                    .setMessage(message)
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .show()
+                        },
+                        { throwable ->
+                            Timber.d(throwable, "fail");
+                            AlertDialog.Builder(this)
+                                    .setMessage(R.string.create_result_failure)
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .show()
+                        }
+                )
+    }
+
+    private fun convertResponseToMessage(response: String?): String {
+        if (response == null) {
+            return getString(R.string.create_result_failure)
+        }
+
+        val matchEntire = "success stageNo=([0-9]*)".toRegex().matchEntire(response)
+        if (matchEntire == null) {
+            if (response.equals("registered")) {
+                return getString(R.string.create_result_registered)
+            }
+            return getString(R.string.create_result_failure)
+        }
+
+        return matchEntire.destructured.let { (stageNo) ->
+            getString(R.string.create_send_success_message, stageNo)
+        }
     }
 }

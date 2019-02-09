@@ -1,12 +1,7 @@
 package hm.orz.chaos114.android.tumekyouen.modules.create;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.util.AttributeSet;
-
-import com.google.firebase.analytics.FirebaseAnalytics;
-
-import java.util.List;
 
 import hm.orz.chaos114.android.tumekyouen.R;
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData;
@@ -72,7 +67,7 @@ public class CreateKyouenView extends KyouenView {
 
     private void applyWhiteStones(KyouenData kyouenData) {
         for (Point point : kyouenData.points()) {
-            gameModel.switchColor((int)point.x(), (int)point.y());
+            gameModel.switchColor((int) point.x(), (int) point.y());
         }
         applyButtons();
     }

@@ -76,6 +76,20 @@ public abstract class GameModel {
         return whiteStonePoints().size();
     }
 
+    public String getStageStateForSend() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < size() * size(); i++) {
+            int col = i % size();
+            int row = i / size();
+            if (hasStone(col, row)) {
+                builder.append("1");
+            } else {
+                builder.append("0");
+            }
+        }
+        return builder.toString();
+    }
+
     public KyouenData isKyouen() {
         if (whiteStonePoints().size() < 4) {
             return null;
