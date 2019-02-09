@@ -8,6 +8,7 @@ import android.text.InputType
 import android.text.TextUtils
 import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import com.uber.autodispose.AutoDispose
@@ -18,6 +19,7 @@ import hm.orz.chaos114.android.tumekyouen.databinding.ActivityCreateBinding
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
+import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -26,6 +28,8 @@ import java.util.Date
 import javax.inject.Inject
 
 class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenViewListener {
+    @Inject
+    lateinit var preferenceUtil: PreferenceUtil
     @Inject
     lateinit var soundManager: SoundManager
 
@@ -105,12 +109,14 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
     private fun confirmSendName() {
         val editText = EditText(this)
         editText.inputType = InputType.TYPE_CLASS_TEXT
+        editText.setText(preferenceUtil.getString(PreferenceUtil.KEY_CREATOR_NAME), TextView.BufferType.NORMAL)
         AlertDialog.Builder(this)
                 .setTitle(R.string.create_send_title)
                 .setMessage(R.string.create_send_message)
                 .setView(editText)
                 .setPositiveButton(android.R.string.ok) { dialog, which ->
                     val name = editText.text.toString()
+                    preferenceUtil.putString(PreferenceUtil.KEY_CREATOR_NAME, name)
                     Timber.d("name: %s", name)
                     sendState(name)
                 }
