@@ -16,6 +16,7 @@ public class CreateKyouenView extends KyouenView {
 
     public interface CreateKyouenViewListener {
         void onKyouen(KyouenData kyouenData);
+        void onAddStone();
     }
 
     private SoundManager soundManager;
@@ -58,6 +59,7 @@ public class CreateKyouenView extends KyouenView {
                 listener.onKyouen(kyouenData);
             }
         }
+        listener.onAddStone();
     }
 
     public void popStone() {

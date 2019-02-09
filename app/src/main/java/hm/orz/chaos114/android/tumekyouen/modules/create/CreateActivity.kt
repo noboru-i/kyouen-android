@@ -25,8 +25,7 @@ import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
-class CreateActivity : DaggerAppCompatActivity() {
-
+class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenViewListener {
     @Inject
     lateinit var soundManager: SoundManager
 
@@ -49,28 +48,17 @@ class CreateActivity : DaggerAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding.kyouenView.inject(soundManager, ::onKyouen)
+        binding.kyouenView.inject(soundManager, this)
         binding.kyouenView.setData(INITIAL_STAGE_6)
         binding.backOneStepButton.setOnClickListener { backOneStep() }
         binding.resetButton.setOnClickListener { reset() }
         binding.sendStageButton.setOnClickListener { handleSendStage() }
+
+        applyButtonState()
     }
 
-    private fun backOneStep() {
-        binding.kyouenView.popStone()
-        binding.overlayView.visibility = View.GONE
-    }
-
-    private fun reset() {
-        binding.kyouenView.setData(INITIAL_STAGE_6)
-        binding.overlayView.visibility = View.GONE
-    }
-
-    private fun handleSendStage() {
-        confirmSendName()
-    }
-
-    private fun onKyouen(kyouenData: KyouenData) {
+    // region CreateKyouenView.CreateKyouenViewListener
+    override fun onKyouen(kyouenData: KyouenData) {
         binding.overlayView.visibility = View.VISIBLE
         binding.overlayView.setData(6, kyouenData)
 
@@ -83,6 +71,35 @@ class CreateActivity : DaggerAppCompatActivity() {
         }
 
         confirmSendName()
+    }
+
+    override fun onAddStone() {
+        applyButtonState()
+    }
+    // endregion
+
+    private fun backOneStep() {
+        binding.kyouenView.popStone()
+        binding.overlayView.visibility = View.GONE
+        applyButtonState()
+    }
+
+    private fun reset() {
+        binding.kyouenView.setData(INITIAL_STAGE_6)
+        binding.overlayView.visibility = View.GONE
+        applyButtonState()
+    }
+
+    private fun handleSendStage() {
+        confirmSendName()
+    }
+
+    private fun applyButtonState() {
+        val hasStone = binding.kyouenView.gameModel.blackStoneCount > 0
+        binding.backOneStepButton.isEnabled = hasStone
+        binding.resetButton.isEnabled = hasStone
+
+        binding.sendStageButton.isEnabled = binding.kyouenView.gameModel.hasKyouen() != null
     }
 
     private fun confirmSendName() {
