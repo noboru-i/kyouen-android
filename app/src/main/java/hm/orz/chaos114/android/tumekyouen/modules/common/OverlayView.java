@@ -49,7 +49,9 @@ public class OverlayView extends View {
         maxScrnWidth = displaySize.x;
 
         // stop propagation
-        setOnClickListener(v -> {});
+        setOnClickListener(v -> {
+            // no-op
+        });
     }
 
     @Override
