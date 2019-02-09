@@ -1,4 +1,4 @@
-package hm.orz.chaos114.android.tumekyouen.modules.kyouen;
+package hm.orz.chaos114.android.tumekyouen.modules.common;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -15,8 +15,6 @@ import hm.orz.chaos114.android.tumekyouen.model.Line;
 
 /**
  * 共円描画用のビュー
- *
- * @author noboru
  */
 public class OverlayView extends View {
     // スクリーンの幅
@@ -49,6 +47,11 @@ public class OverlayView extends View {
         Point displaySize = new Point();
         display.getSize(displaySize);
         maxScrnWidth = displaySize.x;
+
+        // stop propagation
+        setOnClickListener(v -> {
+            // no-op
+        });
     }
 
     @Override
@@ -124,7 +127,7 @@ public class OverlayView extends View {
      * @param aSize 盤面のサイズ
      * @param aData 共円の情報
      */
-    void setData(int aSize, KyouenData aData) {
+    public void setData(int aSize, KyouenData aData) {
         this.size = aSize;
         this.data = aData;
     }

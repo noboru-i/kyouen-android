@@ -43,4 +43,13 @@
 
     <string name="notification_new_stage">新規ステージが追加されました。</string>
     <string name="channel_name_default">新規ステージ通知</string>
+
+    <string name="create_back_one_step">1手戻す</string>
+    <string name="create_reset">リセット</string>
+    <string name="create_send_stage">ステージ送信</string>
+
+    <string name="create_send_title">共円！！</string>
+    <string name="create_send_message">下記の名前で石の配置を送信します。</string>
+    <string name="create_send_loading">送信中...</string>
+    <string name="create_send_success_message">ステージ番号 %s として送信しました。</string>
 </resources>

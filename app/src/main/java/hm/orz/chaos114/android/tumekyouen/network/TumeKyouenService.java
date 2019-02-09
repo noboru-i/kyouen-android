@@ -28,4 +28,8 @@ public interface TumeKyouenService {
 
     @GET("/kyouen/get")
     Single<Response<ResponseBody>> getStage(@Query("stageNo") int stageNo);
+
+    @FormUrlEncoded
+    @POST("/kyouen/regist")
+    Single<Response<ResponseBody>> postStage(@Field("data") String data);
 }

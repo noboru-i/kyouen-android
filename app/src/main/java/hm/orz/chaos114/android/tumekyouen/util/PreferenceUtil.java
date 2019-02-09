@@ -27,6 +27,9 @@ public class PreferenceUtil {
     // 最後に表示していたステージ番号：int
     public static final String KEY_LAST_STAGE_NO = "last_stage_no";
 
+    // ステージ作成者 : String
+    public static final String KEY_CREATOR_NAME = "creator_name";
+
     private SharedPreferences sp;
 
     @Inject

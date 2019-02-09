@@ -43,6 +43,18 @@ public abstract class GameModel {
         }
     }
 
+    public void putStone(int x, int y) {
+        Point p = Point.create(x, y);
+        stonePoints().add(p);
+    }
+
+    public void popStone() {
+        if (stonePoints().isEmpty()) {
+            return;
+        }
+        stonePoints().remove(stonePoints().size() - 1);
+    }
+
     public boolean isSelected(int x, int y) {
         Point p = Point.create(x, y);
         return whiteStonePoints().contains(p);
@@ -56,8 +68,26 @@ public abstract class GameModel {
         whiteStonePoints().clear();
     }
 
+    public int getBlackStoneCount() {
+        return stonePoints().size();
+    }
+
     public int getWhiteStoneCount() {
         return whiteStonePoints().size();
+    }
+
+    public String getStageStateForSend() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < size() * size(); i++) {
+            int col = i % size();
+            int row = i / size();
+            if (hasStone(col, row)) {
+                builder.append("1");
+            } else {
+                builder.append("0");
+            }
+        }
+        return builder.toString();
     }
 
     public KyouenData isKyouen() {
@@ -74,6 +104,26 @@ public abstract class GameModel {
             return data;
         }
 
+        return null;
+    }
+
+    public KyouenData hasKyouen() {
+        for (int i = 0; i < stonePoints().size() - 3; i++) {
+            Point p1 = stonePoints().get(i);
+            for (int j = i + 1; j < stonePoints().size() - 2; j++) {
+                Point p2 = stonePoints().get(j);
+                for (int k = j + 1; k < stonePoints().size() - 1; k++) {
+                    Point p3 = stonePoints().get(k);
+                    for (int l = k + 1; l < stonePoints().size(); l++) {
+                        Point p4 = stonePoints().get(l);
+                        KyouenData kyouen = isKyouen(p1, p2, p3, p4);
+                        if (kyouen != null) {
+                            return kyouen;
+                        }
+                    }
+                }
+            }
+        }
         return null;
     }
 

@@ -37,13 +37,13 @@ public class StoneButtonView extends AppCompatImageButton {
         final int bitmapSize = canvas.getWidth();
 
         paint.setColor(Color.rgb(128, 128, 128));
-        paint.setStrokeWidth(2);
+        paint.setStrokeWidth(4);
 
         canvas.drawLine(bitmapSize / 2, 0, bitmapSize / 2, bitmapSize, paint);
         canvas.drawLine(0, bitmapSize / 2, bitmapSize, bitmapSize / 2, paint);
 
         paint.setColor(Color.rgb(32, 32, 32));
-        paint.setStrokeWidth(1);
+        paint.setStrokeWidth(2);
 
         canvas.drawLine(bitmapSize / 2, 0, bitmapSize / 2, bitmapSize, paint);
         canvas.drawLine(0, bitmapSize / 2, bitmapSize, bitmapSize / 2, paint);

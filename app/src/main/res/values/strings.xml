@@ -43,4 +43,16 @@
 
     <string name="notification_new_stage">New stage added.</string>
     <string name="channel_name_default">New stage notification</string>
+
+    <string name="create_back_one_step">back one step</string>
+    <string name="create_reset">reset</string>
+    <string name="create_send_stage">send stage</string>
+
+    <string name="create_send_title">Kyouen!!</string>
+    <string name="create_send_message">Input your name for submit.</string>
+    <string name="create_send_loading">Sending...</string>
+    <string name="create_send_success_message">Submitted stage as No. %s.</string>
+
+    <string name="create_result_registered">Registered.</string>
+    <string name="create_result_failure">Failed.</string>
 </resources>
