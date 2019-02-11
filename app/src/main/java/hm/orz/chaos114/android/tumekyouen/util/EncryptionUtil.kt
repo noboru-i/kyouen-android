@@ -13,47 +13,26 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class EncryptionUtil
-/**
- * コンストラクタ。
- * 暗号化キーを生成、もしくは復元します。
- */
-@Inject
-constructor(preferenceUtil: PreferenceUtil) {
-
-    // 暗号化キー
+class EncryptionUtil @Inject constructor(
+        val preferenceUtil: PreferenceUtil
+) {
+    // encryption key
     private val key: Key
 
-    internal var preferenceUtil: PreferenceUtil? = null
-
     init {
-        // Preferenceから暗号化キーを取得
+        // get encryption key from SharedPreferences
         val keyStr = preferenceUtil.getString(PreferenceUtil.KEY_SECRET_KEY)
 
         if (keyStr == null) {
-            // Preferenceから取得できなかった場合
-
-            // 暗号化キーを生成
             key = generateKey()
-            // 生成したキーを保存
-            val base64Key = Base64.encodeToString(key.encoded,
-                    Base64.URL_SAFE or Base64.NO_WRAP)
+            val base64Key = Base64.encodeToString(key.encoded, Base64.URL_SAFE or Base64.NO_WRAP)
             preferenceUtil.putString(PreferenceUtil.KEY_SECRET_KEY, base64Key)
         } else {
-            // Preferenceから取得できた場合
-
-            // キーを復元
             val keyBytes = Base64.decode(keyStr, Base64.URL_SAFE or Base64.NO_WRAP)
             key = SecretKeySpec(keyBytes, "AES")
         }
     }
 
-    /**
-     * 暗号化した文字列を返却する。
-     *
-     * @param input 入力文字列
-     * @return 暗号化した文字列
-     */
     fun encrypt(input: String?): String? {
         if (input == null) {
             return null
@@ -67,15 +46,8 @@ constructor(preferenceUtil: PreferenceUtil) {
         } catch (e: GeneralSecurityException) {
             throw RuntimeException(e)
         }
-
     }
 
-    /**
-     * 復号化した文字列を返却する。
-     *
-     * @param input 入力文字列
-     * @return 復号化した文字列
-     */
     fun decrypt(input: String?): String? {
         if (input == null) {
             return null
@@ -93,14 +65,8 @@ constructor(preferenceUtil: PreferenceUtil) {
     }
 
     companion object {
-        // 鍵のbit数
-        private val ENCRYPT_KEY_LENGTH = 128
+        private const val ENCRYPT_KEY_LENGTH = 128
 
-        /**
-         * 暗号化キーを生成する。
-         *
-         * @return 暗号化キー
-         */
         private fun generateKey(): Key {
             try {
                 val generator = KeyGenerator.getInstance("AES")
@@ -110,7 +76,6 @@ constructor(preferenceUtil: PreferenceUtil) {
             } catch (e: Exception) {
                 throw RuntimeException(e)
             }
-
         }
     }
 }

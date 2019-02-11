@@ -18,9 +18,6 @@ import hm.orz.chaos114.android.tumekyouen.di.DaggerAppComponent
 import hm.orz.chaos114.android.tumekyouen.util.NotificationUtil
 import timber.log.Timber
 
-/**
- * Application class。
- */
 class App : DaggerApplication() {
 
     override fun onCreate() {

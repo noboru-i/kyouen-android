@@ -11,14 +11,10 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 
-/**
- * APサーバと通信するユーティリティクラス
- */
 object ServerUtil {
 
     fun addAll(tumeKyouenService: TumeKyouenService,
                stages: List<TumeKyouenModel>): Single<AddAllResponse> {
-        // ステージデータを送信
         val sendData = JSONArray()
         val simpleDateFormat = SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss",

@@ -1,17 +1,11 @@
 package hm.orz.chaos114.android.tumekyouen.util
 
 import android.content.SharedPreferences
-import android.content.SharedPreferences.Editor
-
 import javax.inject.Inject
 
-/**
- * Preferenceのユーティリティクラス
- *
- * @author ishikuranoboru
- */
-class PreferenceUtil @Inject
-constructor(private val sp: SharedPreferences) {
+class PreferenceUtil @Inject constructor(
+        private val sp: SharedPreferences
+) {
 
     fun putString(key: String, value: String) {
         val editor = sp.edit()
@@ -51,22 +45,22 @@ constructor(private val sp: SharedPreferences) {
 
     companion object {
 
-        // 暗号化キー：String
-        internal val KEY_SECRET_KEY = "secret_key"
+        // encryption key : String
+        internal const val KEY_SECRET_KEY = "secret_key"
 
-        // twitterトークン：String
-        internal val KEY_TOKEN = "token"
+        // twitter token : String
+        internal const val KEY_TOKEN = "token"
 
-        // twitterトークンシークレット：String
-        internal val KEY_TOKEN_SECRET = "token_secret"
+        // twitter token secret : String
+        internal const val KEY_TOKEN_SECRET = "token_secret"
 
-        // 音の出力要否：boolean
-        internal val KEY_SOUND = "sound"
+        // output sound ：boolean
+        internal const val KEY_SOUND = "sound"
 
-        // 最後に表示していたステージ番号：int
-        val KEY_LAST_STAGE_NO = "last_stage_no"
+        // last shown stage number : int
+        const val KEY_LAST_STAGE_NO = "last_stage_no"
 
-        // ステージ作成者 : String
-        val KEY_CREATOR_NAME = "creator_name"
+        // stage creator name for send : String
+        const val KEY_CREATOR_NAME = "creator_name"
     }
 }

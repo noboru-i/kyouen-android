@@ -14,4 +14,4 @@ object AdRequestFactory {
                 .addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
                 .build()
     }
-}// prevent instantiate
+}
