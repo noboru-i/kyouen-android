@@ -34,8 +34,8 @@ class CreateKyouenView @JvmOverloads constructor(context: Context, attrs: Attrib
     override fun onClickButton(b: StoneButtonView) {
         val index = buttons.indexOf(b)
 
-        val col = index % gameModel.size()
-        val row = index / gameModel.size()
+        val col = index % gameModel.size
+        val row = index / gameModel.size
         gameModel.putStone(col, row)
         soundManager!!.play(R.raw.se_maoudamashii_se_finger01)
 
@@ -58,8 +58,8 @@ class CreateKyouenView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     private fun applyWhiteStones(kyouenData: KyouenData) {
-        for (point in kyouenData.points()) {
-            gameModel.switchColor(point.x().toInt(), point.y().toInt())
+        for (point in kyouenData.points) {
+            gameModel.switchColor(point.x.toInt(), point.y.toInt())
         }
         applyButtons()
     }

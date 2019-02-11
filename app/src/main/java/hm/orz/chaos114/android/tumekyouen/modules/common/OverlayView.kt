@@ -6,12 +6,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Point
 import android.util.AttributeSet
-import android.view.Display
 import android.view.View
 import android.view.WindowManager
-
 import hm.orz.chaos114.android.tumekyouen.model.KyouenData
-import hm.orz.chaos114.android.tumekyouen.model.Line
 
 /**
  * 共円描画用のビュー
@@ -71,20 +68,20 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
 
         val offset = (maxScrnWidth / size).toDouble()
-        if (data!!.lineKyouen()) {
+        if (data!!.lineKyouen) {
             // 直線の場合
-            val line = data!!.line()
+            val line = data!!.line
             val startX: Float
             val startY: Float
             val stopX: Float
             val stopY: Float
-            if (line!!.a() == 0.0) {
+            if (line!!.a == 0.0) {
                 // x軸と平行な場合
                 startX = 0f
                 startY = (line.getY(0.0) * offset + offset / 2).toFloat()
                 stopX = maxScrnWidth.toFloat()
                 stopY = (line.getY(0.0) * offset + offset / 2).toFloat()
-            } else if (line.b() == 0.0) {
+            } else if (line.b == 0.0) {
                 // y軸と平行な場合
                 startX = (line.getX(0.0) * offset + offset / 2).toFloat()
                 startY = 0f
@@ -92,7 +89,7 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 stopY = maxScrnWidth.toFloat()
             } else {
                 // 上記以外の場合
-                if (-1 * line.c() / line.b() > 0) {
+                if (-1 * line.c / line.b > 0) {
                     startX = 0f
                     startY = (line.getY(-0.5) * offset + offset * 2 / 4).toFloat()
                     stopX = maxScrnWidth.toFloat()
@@ -107,9 +104,9 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
             canvas.drawLine(startX, startY, stopX, stopY, paint)
         } else {
             // 円の場合
-            val cx = (data!!.center()!!.x() * offset + offset / 2).toFloat()
-            val cy = (data!!.center()!!.y() * offset + offset / 2).toFloat()
-            val radius = (data!!.radius() * offset).toFloat()
+            val cx = (data!!.center!!.x * offset + offset / 2).toFloat()
+            val cy = (data!!.center!!.y * offset + offset / 2).toFloat()
+            val radius = (data!!.radius * offset).toFloat()
             canvas.drawCircle(cx, cy, radius, paint)
         }
     }

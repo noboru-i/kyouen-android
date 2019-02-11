@@ -12,12 +12,16 @@ import hm.orz.chaos114.android.tumekyouen.util.SoundManager
 /**
  * TitleActivity用のViewModel。
  */
-class TitleActivityViewModel internal constructor(private val context: Context, private val stageCountModel: StageCountModel, private val soundManager: SoundManager) {
+class TitleActivityViewModel internal constructor(
+        private val context: Context,
+        private val stageCountModel: StageCountModel,
+        private val soundManager: SoundManager
+) {
 
     val displayStageCount: String
         get() = context.getString(R.string.stage_count,
-                stageCountModel.clearStageCount(),
-                stageCountModel.stageCount())
+                stageCountModel.clearStageCount,
+                stageCountModel.stageCount)
 
     val soundResource: Drawable?
         get() {

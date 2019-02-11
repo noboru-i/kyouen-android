@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 
 import java.net.CookieManager
@@ -20,7 +19,6 @@ import dagger.Provides
 import hm.orz.chaos114.android.tumekyouen.App
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.db.AppDatabase
-import hm.orz.chaos114.android.tumekyouen.network.GsonAutoValueAdapterFactory
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
 import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask
@@ -110,7 +108,6 @@ class AppModule {
 
         val gson = GsonBuilder()
                 .setDateFormat("yyyy-MM-dd HH:mm:ss")
-                .registerTypeAdapterFactory(GsonAutoValueAdapterFactory.create())
                 .create()
         val retrofit = Retrofit.Builder()
                 .baseUrl(context.getString(R.string.server_url))

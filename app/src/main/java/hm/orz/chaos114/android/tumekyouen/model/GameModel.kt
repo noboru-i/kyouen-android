@@ -1,24 +1,26 @@
 package hm.orz.chaos114.android.tumekyouen.model
 
-import com.google.auto.value.AutoValue
-
 import java.util.ArrayList
 
-@AutoValue
-abstract class GameModel {
+data class GameModel(
+        val size: Int,
+        val startState: String,
+        val stonePoints: MutableList<Point>,
+        val whiteStonePoints: MutableList<Point>
+) {
 
     val blackStoneCount: Int
-        get() = stonePoints().size
+        get() = stonePoints.size
 
     val whiteStoneCount: Int
-        get() = whiteStonePoints().size
+        get() = whiteStonePoints.size
 
     val stageStateForSend: String
         get() {
             val builder = StringBuilder()
-            for (i in 0 until size() * size()) {
-                val col = i % size()
-                val row = i / size()
+            for (i in 0 until size * size) {
+                val col = i % size
+                val row = i / size
                 if (hasStone(col, row)) {
                     builder.append("1")
                 } else {
@@ -30,69 +32,61 @@ abstract class GameModel {
 
     val isKyouen: KyouenData?
         get() {
-            if (whiteStonePoints().size < 4) {
+            if (whiteStonePoints.size < 4) {
                 return null
             }
-            val p1 = whiteStonePoints()[0]
-            val p2 = whiteStonePoints()[1]
-            val p3 = whiteStonePoints()[2]
-            val p4 = whiteStonePoints()[3]
+            val p1 = whiteStonePoints[0]
+            val p2 = whiteStonePoints[1]
+            val p3 = whiteStonePoints[2]
+            val p4 = whiteStonePoints[3]
 
             return isKyouen(p1, p2, p3, p4)
 
         }
 
-    abstract fun size(): Int
-
-    abstract fun startState(): String
-
-    abstract fun stonePoints(): MutableList<Point>
-
-    abstract fun whiteStonePoints(): MutableList<Point>
-
     fun switchColor(x: Int, y: Int) {
         val p = Point.create(x.toDouble(), y.toDouble())
         if (isSelected(x, y)) {
-            whiteStonePoints().remove(p)
+            whiteStonePoints.remove(p)
         } else {
-            whiteStonePoints().add(p)
+            whiteStonePoints.add(p)
         }
     }
 
     fun putStone(x: Int, y: Int) {
         val p = Point.create(x.toDouble(), y.toDouble())
-        stonePoints().add(p)
+        stonePoints.add(p)
     }
 
     fun popStone() {
-        if (stonePoints().isEmpty()) {
+        if (stonePoints.isEmpty()) {
             return
         }
-        stonePoints().removeAt(stonePoints().size - 1)
+        stonePoints.removeAt(stonePoints.size - 1)
     }
 
     fun isSelected(x: Int, y: Int): Boolean {
         val p = Point.create(x.toDouble(), y.toDouble())
-        return whiteStonePoints().contains(p)
+        return whiteStonePoints.contains(p)
     }
 
     fun hasStone(x: Int, y: Int): Boolean {
-        return stonePoints().contains(Point.create(x.toDouble(), y.toDouble()))
+        return stonePoints.contains(Point.create(x.toDouble(), y.toDouble()))
     }
 
     fun reset() {
-        whiteStonePoints().clear()
+        whiteStonePoints.clear()
     }
 
     fun hasKyouen(): KyouenData? {
-        for (i in 0 until stonePoints().size - 3) {
-            val p1 = stonePoints()[i]
-            for (j in i + 1 until stonePoints().size - 2) {
-                val p2 = stonePoints()[j]
-                for (k in j + 1 until stonePoints().size - 1) {
-                    val p3 = stonePoints()[k]
-                    for (l in k + 1 until stonePoints().size) {
-                        val p4 = stonePoints()[l]
+        for (i in 0 until stonePoints.size - 3) {
+            val p1 = stonePoints[i]
+            for (j in i + 1 until stonePoints.size - 2) {
+                val p2 = stonePoints[j]
+                for (k in j + 1 until stonePoints.size - 1) {
+                    val p3 = stonePoints[k]
+                    for (l in k + 1 until stonePoints.size) {
+                        val p4 = stonePoints[l]
                         val kyouen = isKyouen(p1, p2, p3, p4)
                         if (kyouen != null) {
                             return kyouen
@@ -149,21 +143,21 @@ abstract class GameModel {
      * @return 交点座標（交点が存在しない場合、null）
      */
     private fun getIntersection(l1: Line, l2: Line): Point? {
-        val f1 = l1.p2().x() - l1.p1().x()
-        val g1 = l1.p2().y() - l1.p1().y()
-        val f2 = l2.p2().x() - l2.p1().x()
-        val g2 = l2.p2().y() - l2.p1().y()
+        val f1 = l1.p2.x - l1.p1.x
+        val g1 = l1.p2.y - l1.p1.y
+        val f2 = l2.p2.x - l2.p1.x
+        val g2 = l2.p2.y - l2.p1.y
 
         val det = f2 * g1 - f1 * g2
         if (det == 0.0) {
             return null
         }
 
-        val dx = l2.p1().x() - l1.p1().x()
-        val dy = l2.p1().y() - l1.p1().y()
+        val dx = l2.p1.x - l1.p1.x
+        val dy = l2.p1.y - l1.p1.y
         val t1 = (f2 * dy - g2 * dx) / det
 
-        return Point.create(l1.p1().x() + f1 * t1, l1.p1().y() + g1 * t1)
+        return Point.create(l1.p1.x + f1 * t1, l1.p1.y + g1 * t1)
     }
 
     /**
@@ -176,7 +170,7 @@ abstract class GameModel {
     private fun getMidperpendicular(p1: Point, p2: Point): Line {
         val midpoint = getMidpoint(p1, p2)
         val dif = p1.difference(p2)
-        val gradient = Point.create(dif.y(), -1 * dif.x())
+        val gradient = Point.create(dif.y, -1 * dif.x)
 
         return Line.create(midpoint, midpoint.sum(gradient))
     }
@@ -190,7 +184,7 @@ abstract class GameModel {
      */
     private fun getMidpoint(p1: Point, p2: Point): Point {
 
-        return Point.create((p1.x() + p2.x()) / 2, (p1.y() + p2.y()) / 2)
+        return Point.create((p1.x + p2.x) / 2, (p1.y + p2.y) / 2)
     }
 
     companion object {
@@ -207,7 +201,7 @@ abstract class GameModel {
                 stonePoints.add(Point.create(col.toDouble(), row.toDouble()))
             }
 
-            return AutoValue_GameModel(aSize, aStartState, stonePoints, ArrayList())
+            return GameModel(aSize, aStartState, stonePoints, ArrayList())
         }
     }
 }

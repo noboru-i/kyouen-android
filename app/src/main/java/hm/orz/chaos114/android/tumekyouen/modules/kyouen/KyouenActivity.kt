@@ -99,7 +99,7 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
 
     private fun init() {
         // プリファレンスに設定
-        preferenceUtil.putInt(PreferenceUtil.KEY_LAST_STAGE_NO, stageModel!!.stageNo())
+        preferenceUtil.putInt(PreferenceUtil.KEY_LAST_STAGE_NO, stageModel!!.stageNo)
 
         // 共円ボタンの設定
         binding.kyouenButton.isClickable = true
@@ -118,9 +118,9 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
 
         Maybe
                 .concat(
-                        tumeKyouenRepository.updateClearFlag(stageModel!!.stageNo(), Date()).toMaybe(),
-                        tumeKyouenService.add(stageModel!!.stageNo()),
-                        tumeKyouenRepository.findStage(stageModel!!.stageNo())
+                        tumeKyouenRepository.updateClearFlag(stageModel!!.stageNo, Date()).toMaybe(),
+                        tumeKyouenService.add(stageModel!!.stageNo),
+                        tumeKyouenRepository.findStage(stageModel!!.stageNo)
                 )
                 .subscribeOn(Schedulers.io())
                 .`as`<FlowableSubscribeProxy<Any>>(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
@@ -138,10 +138,10 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
         when (direction) {
             KyouenActivity.Direction.PREV ->
                 // prev選択時
-                stageRequest = tumeKyouenRepository.findStage(stageModel!!.stageNo() - 1)
+                stageRequest = tumeKyouenRepository.findStage(stageModel!!.stageNo - 1)
             KyouenActivity.Direction.NEXT ->
                 // next選択時
-                stageRequest = tumeKyouenRepository.findStage(stageModel!!.stageNo() + 1)
+                stageRequest = tumeKyouenRepository.findStage(stageModel!!.stageNo + 1)
             KyouenActivity.Direction.NONE ->
                 // 想定外の引数
                 throw IllegalArgumentException("引数がNONE")
@@ -171,7 +171,7 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
         tumeKyouenRepository.selectMaxStageNo()
                 .subscribeOn(Schedulers.io())
                 .flatMap { maxStageNo -> insertDataTask.run(maxStageNo, 1) }
-                .flatMapMaybe { count -> tumeKyouenRepository.findStage(stageModel!!.stageNo() + 1) }
+                .flatMapMaybe { count -> tumeKyouenRepository.findStage(stageModel!!.stageNo + 1) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .`as`<MaybeSubscribeProxy<TumeKyouenModel>>(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
                 .subscribe(
@@ -271,7 +271,7 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
                 .setTitle(R.string.kyouen)
                 .setNeutralButton("Next") { dialog, which -> moveStage(Direction.NEXT) }
                 .create().show()
-        binding.kyouenOverlay.setData(stageModel!!.size(), data)
+        binding.kyouenOverlay.setData(stageModel!!.size, data)
         binding.kyouenOverlay.visibility = View.VISIBLE
         setKyouen()
     }
@@ -309,9 +309,9 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
                                 .subscribe(
                                         { model ->
                                             val direction: Direction
-                                            if (stageModel!!.stageNo() > model.stageNo()) {
+                                            if (stageModel!!.stageNo > model.stageNo) {
                                                 direction = Direction.PREV
-                                            } else if (stageModel!!.stageNo() < model.stageNo()) {
+                                            } else if (stageModel!!.stageNo < model.stageNo) {
                                                 direction = Direction.NEXT
                                             } else {
                                                 return@subscribe
@@ -325,7 +325,7 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
                                 )
                     }
                 }, null)
-        dialog.setStageNo(stageModel!!.stageNo())
+        dialog.setStageNo(stageModel!!.stageNo)
         dialog.show()
     }
 

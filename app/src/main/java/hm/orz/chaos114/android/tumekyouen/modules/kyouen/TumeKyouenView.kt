@@ -11,7 +11,10 @@ import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel
 import hm.orz.chaos114.android.tumekyouen.modules.common.KyouenView
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager
 
-class TumeKyouenView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : KyouenView(context, attrs) {
+class TumeKyouenView @JvmOverloads constructor(
+        context: Context,
+        attrs: AttributeSet? = null
+) : KyouenView(context, attrs) {
 
     private var soundManager: SoundManager? = null
     private var firebaseAnalytics: FirebaseAnalytics? = null
@@ -25,15 +28,15 @@ class TumeKyouenView @JvmOverloads constructor(context: Context, attrs: Attribut
         super.setData(stageModel)
         val bundle = Bundle()
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "stage")
-        bundle.putString(FirebaseAnalytics.Param.VALUE, Integer.toString(stageModel.stageNo()))
+        bundle.putString(FirebaseAnalytics.Param.VALUE, Integer.toString(stageModel.stageNo))
         firebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.VIEW_ITEM, bundle)
     }
 
     override fun onClickButton(b: StoneButtonView) {
         val index = buttons.indexOf(b)
 
-        val col = index % gameModel.size()
-        val row = index / gameModel.size()
+        val col = index % gameModel.size
+        val row = index / gameModel.size
         if (!gameModel.hasStone(col, row)) {
             return
         }

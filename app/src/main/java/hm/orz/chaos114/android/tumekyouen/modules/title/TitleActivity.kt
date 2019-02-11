@@ -11,7 +11,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
-
+import androidx.annotation.MainThread
+import androidx.databinding.DataBindingUtil
 import com.twitter.sdk.android.core.Callback
 import com.twitter.sdk.android.core.Result
 import com.twitter.sdk.android.core.TwitterAuthToken
@@ -19,15 +20,10 @@ import com.twitter.sdk.android.core.TwitterException
 import com.twitter.sdk.android.core.TwitterSession
 import com.twitter.sdk.android.core.identity.TwitterAuthClient
 import com.uber.autodispose.AutoDispose
-import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
-
-import javax.inject.Inject
-
-import androidx.annotation.MainThread
-import androidx.databinding.DataBindingUtil
 import com.uber.autodispose.CompletableSubscribeProxy
 import com.uber.autodispose.MaybeSubscribeProxy
 import com.uber.autodispose.SingleSubscribeProxy
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 import dagger.android.support.DaggerAppCompatActivity
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.app.StageGetDialog
@@ -50,6 +46,7 @@ import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * タイトル画面を表示するアクティビティ。
@@ -266,10 +263,10 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
                 .subscribeOn(Schedulers.io())
                 .flatMap<AddAllResponse> { stages -> ServerUtil.addAll(tumeKyouenService, stages) }
                 .flatMapCompletable { addAllResponse ->
-                    if (addAllResponse.data() == null) {
+                    if (addAllResponse.data == null) {
                         return@flatMapCompletable Completable.complete()
                     }
-                    tumeKyouenRepository.updateSyncClearData(addAllResponse.data())
+                    tumeKyouenRepository.updateSyncClearData(addAllResponse.data)
                 }
                 .observeOn(AndroidSchedulers.mainThread())
                 .`as`<CompletableSubscribeProxy>(AutoDispose.autoDisposable<Any>(AndroidLifecycleScopeProvider.from(this)))

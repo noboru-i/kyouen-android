@@ -47,7 +47,7 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
             activity.startActivity(intent)
         }
 
-        val INITIAL_STAGE_6 = TumeKyouenModel.create(0, 6, "000000000000000000000000000000", "", 0, Date())
+        val INITIAL_STAGE_6 = TumeKyouenModel(0, 6, "000000000000000000000000000000", "", 0, Date())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -125,7 +125,7 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
     }
 
     private fun sendState(creator: String) {
-        val size = binding.kyouenView.gameModel.size()
+        val size = binding.kyouenView.gameModel.size
         val stage = binding.kyouenView.gameModel.stageStateForSend
         val data = TextUtils.join(",", arrayOf(size, stage, creator))
         Timber.d("data = %s", data)

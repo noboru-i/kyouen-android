@@ -1,7 +1,5 @@
 package hm.orz.chaos114.android.tumekyouen.model
 
-import com.google.auto.value.AutoValue
-
 import java.util.ArrayList
 
 /**
@@ -9,18 +7,13 @@ import java.util.ArrayList
  *
  * @author noboru
  */
-@AutoValue
-abstract class KyouenData {
-    abstract fun points(): List<Point>
-
-    abstract fun lineKyouen(): Boolean
-
-    abstract fun center(): Point?
-
-    abstract fun radius(): Double
-
-    abstract fun line(): Line?
-
+data class KyouenData(
+        val points: List<Point>,
+        val lineKyouen: Boolean,
+        val center: Point?,
+        val radius: Double,
+        val line: Line?
+) {
     companion object {
 
         fun create(p1: Point, p2: Point, p3: Point, p4: Point, aLine: Line): KyouenData {
@@ -39,7 +32,7 @@ abstract class KyouenData {
             points.add(p2)
             points.add(p3)
             points.add(p4)
-            return AutoValue_KyouenData(points, aIsLine, aCenter, aRadius, aLine)
+            return KyouenData(points, aIsLine, aCenter, aRadius, aLine)
         }
     }
 }

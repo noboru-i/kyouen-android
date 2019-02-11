@@ -7,17 +7,11 @@ import android.widget.CheckBox
 import android.widget.EditText
 import hm.orz.chaos114.android.tumekyouen.R
 
-class StageGetDialog
-/**
- * コンストラクタ。
- *
- * @param context         コンテキスト
- * @param successListener 成功時のリスナー
- * @param cancelListener  キャンセル時のリスナー
- */
-(context: Context,
- successListener: OnSuccessListener?,
- cancelListener: DialogInterface.OnCancelListener) : ValidationDialog(context) {
+class StageGetDialog(
+        context: Context,
+        successListener: OnSuccessListener?,
+        cancelListener: DialogInterface.OnCancelListener
+) : ValidationDialog(context) {
 
     // ステージ数入力領域
     private val numberEdit: EditText
@@ -33,13 +27,11 @@ class StageGetDialog
      *
      * @return 入力されている数値
      */
-    private// チェックされていた場合は-1を返却
-    // 0以下が入力されていた場合はエラー
-    // 数値に変換出来なかった場合はエラー
-    val count: Int
+    private val count: Int
         get() {
             val checked = allCheckBox.isChecked
             if (checked) {
+                // チェックされていた場合は-1を返却
                 return -1
             }
 

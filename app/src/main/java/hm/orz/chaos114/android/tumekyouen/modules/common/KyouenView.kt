@@ -58,7 +58,7 @@ open class KyouenView @JvmOverloads constructor(context: Context, attrs: Attribu
     }
 
     open fun setData(stageModel: TumeKyouenModel) {
-        gameModel = GameModel.create(stageModel.size(), stageModel.stage())
+        gameModel = GameModel.create(stageModel.size, stageModel.stage)
         initButtons()
         applyButtons()
     }
@@ -74,12 +74,12 @@ open class KyouenView @JvmOverloads constructor(context: Context, attrs: Attribu
     private fun initButtons() {
         buttons.clear()
         removeAllViews()
-        for (i in 0 until gameModel.size()) {
+        for (i in 0 until gameModel.size) {
             val tableRow = TableRow(context)
             addView(tableRow)
-            for (j in 0 until gameModel.size()) {
+            for (j in 0 until gameModel.size) {
                 val button = StoneButtonView(context)
-                val stoneSize = maxScrnWidth / gameModel.size()
+                val stoneSize = maxScrnWidth / gameModel.size
                 buttons.add(button)
                 tableRow.addView(button, stoneSize, stoneSize)
 
@@ -89,7 +89,7 @@ open class KyouenView @JvmOverloads constructor(context: Context, attrs: Attribu
     }
 
     protected fun applyButtons() {
-        val size = gameModel.size()
+        val size = gameModel.size
         for (row in 0 until size) {
             for (col in 0 until size) {
                 val button = buttons[row * size + col]
