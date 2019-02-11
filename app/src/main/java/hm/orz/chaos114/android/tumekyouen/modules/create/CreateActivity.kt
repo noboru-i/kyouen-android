@@ -66,7 +66,7 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
         binding.overlayView.visibility = View.VISIBLE
         binding.overlayView.setData(6, kyouenData)
 
-        if (binding.kyouenView.getGameModel().blackStoneCount == 4) {
+        if (binding.kyouenView.gameModel.blackStoneCount == 4) {
             AlertDialog.Builder(this)
                     .setTitle(R.string.create_send_title)
                     .setPositiveButton(android.R.string.ok, null)
@@ -126,7 +126,7 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
 
     private fun sendState(creator: String) {
         val size = binding.kyouenView.gameModel.size()
-        val stage = binding.kyouenView.gameModel.getStageStateForSend()
+        val stage = binding.kyouenView.gameModel.stageStateForSend
         val data = TextUtils.join(",", arrayOf(size, stage, creator))
         Timber.d("data = %s", data)
 
