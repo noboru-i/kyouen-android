@@ -6,7 +6,9 @@ import android.media.SoundPool
 import android.util.SparseIntArray
 import hm.orz.chaos114.android.tumekyouen.R
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class SoundManager @Inject constructor(
         val preferenceUtil: PreferenceUtil,
         context: Context

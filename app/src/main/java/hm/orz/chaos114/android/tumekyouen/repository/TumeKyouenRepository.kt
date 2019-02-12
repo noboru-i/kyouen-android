@@ -9,8 +9,13 @@ import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
 import java.util.Date
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class TumeKyouenRepository(private val appDatabase: AppDatabase) {
+@Singleton
+class TumeKyouenRepository @Inject constructor(
+        private val appDatabase: AppDatabase
+) {
     fun insertByCSV(csvString: String): Completable {
         val splitString = csvString.split(",".toRegex()).toTypedArray()
         if (splitString.size != 4) {

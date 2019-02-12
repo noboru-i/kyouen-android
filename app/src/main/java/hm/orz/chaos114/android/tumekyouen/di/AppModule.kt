@@ -14,12 +14,6 @@ import hm.orz.chaos114.android.tumekyouen.App
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.db.AppDatabase
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
-import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
-import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask
-import hm.orz.chaos114.android.tumekyouen.util.EncryptionUtil
-import hm.orz.chaos114.android.tumekyouen.util.LoginUtil
-import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil
-import hm.orz.chaos114.android.tumekyouen.util.SoundManager
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -46,30 +40,6 @@ class AppModule {
     }
 
     @Provides
-    @Singleton
-    internal fun providePreferenceUtil(sp: SharedPreferences): PreferenceUtil {
-        return PreferenceUtil(sp)
-    }
-
-    @Provides
-    @Singleton
-    internal fun provideLoginUtil(preferenceUtil: PreferenceUtil, encryptionUtil: EncryptionUtil): LoginUtil {
-        return LoginUtil(preferenceUtil, encryptionUtil)
-    }
-
-    @Provides
-    @Singleton
-    internal fun provideEncryptionUtil(preferenceUtil: PreferenceUtil): EncryptionUtil {
-        return EncryptionUtil(preferenceUtil)
-    }
-
-    @Provides
-    @Singleton
-    internal fun provideSoundManager(preferenceUtil: PreferenceUtil, context: Context): SoundManager {
-        return SoundManager(preferenceUtil, context)
-    }
-
-    @Provides
     internal fun provideAppDatabase(context: Context): AppDatabase {
         return Room
                 .databaseBuilder(
@@ -79,11 +49,6 @@ class AppModule {
                 )
                 .addMigrations(MIGRATION_2_3)
                 .build()
-    }
-
-    @Provides
-    internal fun provideTumeKyouenRepository(appDatabase: AppDatabase): TumeKyouenRepository {
-        return TumeKyouenRepository(appDatabase)
     }
 
     @Provides
@@ -112,13 +77,6 @@ class AppModule {
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build()
         return retrofit.create(TumeKyouenService::class.java)
-    }
-
-    @Provides
-    @Singleton
-    internal fun provideInsertDataTask(tumeKyouenService: TumeKyouenService,
-                                       tumeKyouenRepository: TumeKyouenRepository): InsertDataTask {
-        return InsertDataTask(tumeKyouenService, tumeKyouenRepository)
     }
 
     companion object {

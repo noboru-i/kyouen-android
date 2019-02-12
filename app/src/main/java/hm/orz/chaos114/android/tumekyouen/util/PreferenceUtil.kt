@@ -2,7 +2,9 @@ package hm.orz.chaos114.android.tumekyouen.util
 
 import android.content.SharedPreferences
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class PreferenceUtil @Inject constructor(
         private val sp: SharedPreferences
 ) {
