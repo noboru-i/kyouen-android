@@ -1,7 +1,7 @@
 package hm.orz.chaos114.android.tumekyouen.model
 
 /**
- * Ax+By+C=0を表現するクラス。
+ * a*x + b*y + c = 0
  */
 data class Line(
         val p1: Point,

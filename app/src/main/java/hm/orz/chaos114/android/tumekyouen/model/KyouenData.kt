@@ -2,11 +2,6 @@ package hm.orz.chaos114.android.tumekyouen.model
 
 import java.util.ArrayList
 
-/**
- * 共円情報を表現するクラス。
- *
- * @author noboru
- */
 data class KyouenData(
         val points: List<Point>,
         val lineKyouen: Boolean,

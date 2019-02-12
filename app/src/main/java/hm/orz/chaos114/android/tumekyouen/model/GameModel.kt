@@ -35,10 +35,7 @@ data class GameModel(
             if (whiteStonePoints.size < 4) {
                 return null
             }
-            val p1 = whiteStonePoints[0]
-            val p2 = whiteStonePoints[1]
-            val p3 = whiteStonePoints[2]
-            val p4 = whiteStonePoints[3]
+            val (p1, p2, p3, p4) = whiteStonePoints
 
             return isKyouen(p1, p2, p3, p4)
 
@@ -109,8 +106,9 @@ data class GameModel(
         if (intersection123 == null) {
             // p1,p2,p3が直線上に存在する場合
             val l34 = getMidperpendicular(p3, p4)
+            // p2,p3,p4が直線上に存在する場合
             val intersection234 = getIntersection(l23, l34)
-                    ?: // p2,p3,p4が直線状に存在する場合
+                    ?:
                     return KyouenData.create(p1, p2, p3, p4, Line.create(p1, p2))
         } else {
             val dist1 = getDistance(p1, intersection123)
