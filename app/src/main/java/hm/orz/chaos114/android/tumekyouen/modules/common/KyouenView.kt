@@ -12,23 +12,17 @@ import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.StoneButtonView
 import java.util.ArrayList
 
-open class KyouenView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : TableLayout(context, attrs) {
+open class KyouenView @JvmOverloads constructor(
+        context: Context,
+        attrs: AttributeSet? = null
+) : TableLayout(context, attrs) {
 
-    // スクリーンの幅
-    private var maxScrnWidth: Int = 0
-    // ボタンリスト
+    private var maxScreenWidth: Int = 0
     protected lateinit var buttons: MutableList<StoneButtonView>
-    // ゲーム情報保持用オブジェクト
-    /**
-     * ゲーム情報保持用オブジェクトを返す。
-     *
-     * @return ゲーム情報保持用オブジェクト
-     */
     lateinit var gameModel: GameModel
         protected set
 
     init {
-
         setWindowSize()
         initViews()
     }
@@ -49,12 +43,11 @@ open class KyouenView @JvmOverloads constructor(context: Context, attrs: Attribu
     }
 
     private fun setWindowSize() {
-        val manager = context
-                .getSystemService(Context.WINDOW_SERVICE) as WindowManager ?: return
+        val manager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val display = manager.defaultDisplay
         val displaySize = Point()
         display.getSize(displaySize)
-        maxScrnWidth = displaySize.x
+        maxScreenWidth = displaySize.x
     }
 
     open fun setData(stageModel: TumeKyouenModel) {
@@ -79,7 +72,7 @@ open class KyouenView @JvmOverloads constructor(context: Context, attrs: Attribu
             addView(tableRow)
             for (j in 0 until gameModel.size) {
                 val button = StoneButtonView(context)
-                val stoneSize = maxScrnWidth / gameModel.size
+                val stoneSize = maxScreenWidth / gameModel.size
                 buttons.add(button)
                 tableRow.addView(button, stoneSize, stoneSize)
 
@@ -106,17 +99,14 @@ open class KyouenView @JvmOverloads constructor(context: Context, attrs: Attribu
         }
     }
 
-    /**
-     * 盤の状態を初期状態に戻す。
-     */
     fun reset() {
         gameModel.reset()
         applyButtons()
     }
 
     override fun setClickable(clickable: Boolean) {
-        for (v in buttons) {
-            v.isClickable = clickable
+        buttons.forEach { button ->
+            button.isClickable = clickable
         }
     }
 }
