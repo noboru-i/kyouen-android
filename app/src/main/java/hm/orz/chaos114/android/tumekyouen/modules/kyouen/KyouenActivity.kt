@@ -11,10 +11,8 @@ import android.view.View
 import android.view.animation.AccelerateInterpolator
 import androidx.databinding.DataBindingUtil
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.uber.autodispose.AutoDispose
-import com.uber.autodispose.FlowableSubscribeProxy
-import com.uber.autodispose.MaybeSubscribeProxy
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
+import com.uber.autodispose.autoDisposable
 import dagger.android.support.DaggerAppCompatActivity
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.app.StageSelectDialog
@@ -53,15 +51,15 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
     @Inject
     internal lateinit var insertDataTask: InsertDataTask
 
-    // ステージ情報オブジェクト
     @State
     @JvmField
     internal var stageModel: TumeKyouenModel? = null
 
     private lateinit var binding: ActivityKyouenBinding
 
-    // 共円描画用view
     private lateinit var tumeKyouenView: TumeKyouenView
+
+    private val scopeProvider by lazy { AndroidLifecycleScopeProvider.from(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,7 +121,7 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
                         tumeKyouenRepository.findStage(stageModel!!.stageNo)
                 )
                 .subscribeOn(Schedulers.io())
-                .`as`<FlowableSubscribeProxy<Any>>(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .autoDisposable(scopeProvider)
                 .subscribe(
                         { obj ->
                             Timber.d("success: %s", obj)
@@ -150,7 +148,7 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
         stageRequest
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .`as`<MaybeSubscribeProxy<TumeKyouenModel>>(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .autoDisposable(scopeProvider)
                 .subscribe(
                         { newStage ->
                             stageModel = newStage
@@ -173,7 +171,7 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
                 .flatMap { maxStageNo -> insertDataTask.run(maxStageNo, 1) }
                 .flatMapMaybe { count -> tumeKyouenRepository.findStage(stageModel!!.stageNo + 1) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .`as`<MaybeSubscribeProxy<TumeKyouenModel>>(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .autoDisposable(scopeProvider)
                 .subscribe(
                         { model ->
                             dialog.dismiss()
@@ -305,7 +303,7 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
                                     tumeKyouenRepository.findStage(nextStageNo)
                                 }
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .`as`<MaybeSubscribeProxy<TumeKyouenModel>>(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this@KyouenActivity)))
+                                .autoDisposable(scopeProvider)
                                 .subscribe(
                                         { model ->
                                             val direction: Direction

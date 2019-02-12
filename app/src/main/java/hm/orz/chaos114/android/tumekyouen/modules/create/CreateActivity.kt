@@ -11,8 +11,8 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
-import com.uber.autodispose.AutoDispose
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
+import com.uber.autodispose.autoDisposable
 import dagger.android.support.DaggerAppCompatActivity
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityCreateBinding
@@ -39,6 +39,8 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
     private val binding: ActivityCreateBinding by lazy {
         DataBindingUtil.setContentView<ActivityCreateBinding>(this, R.layout.activity_create)
     }
+
+    private val scopeProvider by lazy { AndroidLifecycleScopeProvider.from(this) }
 
     companion object {
         @JvmStatic
@@ -139,7 +141,7 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
         tumeKyouenService.postStage(data)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .`as`(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .autoDisposable(scopeProvider)
                 .subscribe(
                         { response ->
                             val responseString = response.body()?.string()

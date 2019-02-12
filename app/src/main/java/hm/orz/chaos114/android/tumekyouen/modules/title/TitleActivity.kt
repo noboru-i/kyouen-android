@@ -19,19 +19,13 @@ import com.twitter.sdk.android.core.TwitterAuthToken
 import com.twitter.sdk.android.core.TwitterException
 import com.twitter.sdk.android.core.TwitterSession
 import com.twitter.sdk.android.core.identity.TwitterAuthClient
-import com.uber.autodispose.AutoDispose
-import com.uber.autodispose.CompletableSubscribeProxy
-import com.uber.autodispose.MaybeSubscribeProxy
-import com.uber.autodispose.SingleSubscribeProxy
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
+import com.uber.autodispose.autoDisposable
 import dagger.android.support.DaggerAppCompatActivity
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.app.StageGetDialog
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityTitleBinding
 import hm.orz.chaos114.android.tumekyouen.model.AddAllResponse
-import hm.orz.chaos114.android.tumekyouen.model.LoginResult
-import hm.orz.chaos114.android.tumekyouen.model.StageCountModel
-import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel
 import hm.orz.chaos114.android.tumekyouen.modules.create.CreateActivity
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
@@ -48,9 +42,6 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-/**
- * タイトル画面を表示するアクティビティ。
- */
 class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
     @Inject
     internal lateinit var loginUtil: LoginUtil
@@ -69,13 +60,7 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
 
     private val twitterAuthClient = TwitterAuthClient()
 
-    /**
-     * 最後に表示していたステージ番号を返します。
-     *
-     * @return ステージ番号
-     */
-    private// デフォルト値を設定
-    val lastStageNo: Int
+    private val lastStageNo: Int
         get() {
             var lastStageNo = preferenceUtil.getInt(PreferenceUtil.KEY_LAST_STAGE_NO)
             if (lastStageNo == 0) {
@@ -84,6 +69,15 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
 
             return lastStageNo
         }
+
+    private val scopeProvider by lazy { AndroidLifecycleScopeProvider.from(this) }
+
+    companion object {
+        fun start(activity: Activity) {
+            val intent = Intent(activity, TitleActivity::class.java)
+            activity.startActivity(intent)
+        }
+    }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,13 +98,14 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
             tumeKyouenService.login(loginInfo.token, loginInfo.secret)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .`as`<SingleSubscribeProxy<LoginResult>>(AutoDispose.autoDisposable<LoginResult>(AndroidLifecycleScopeProvider.from(this)))
-                    .subscribe({ s ->
-                        Timber.d("sucess : %s", s)
-                        binding.connectButton.isEnabled = true
-                        // 成功した場合
-                        onSuccessTwitterAuth()
-                    },
+                    .autoDisposable(scopeProvider)
+                    .subscribe(
+                            { s ->
+                                Timber.d("sucess : %s", s)
+                                binding.connectButton.isEnabled = true
+                                // 成功した場合
+                                onSuccessTwitterAuth()
+                            },
                             { throwable ->
                                 Timber.d(throwable, "fail")
                                 binding.connectButton.isEnabled = true
@@ -137,7 +132,7 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
         val stageNo = lastStageNo
         tumeKyouenRepository.findStage(stageNo)
                 .subscribeOn(Schedulers.io())
-                .`as`<MaybeSubscribeProxy<TumeKyouenModel>>(AutoDispose.autoDisposable<TumeKyouenModel>(AndroidLifecycleScopeProvider.from(this)))
+                .autoDisposable(scopeProvider)
                 .subscribe(
                         { item -> KyouenActivity.start(this, item) }
                 )
@@ -158,7 +153,7 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
                                 .subscribeOn(Schedulers.io())
                                 .flatMap { maxStageNo -> insertDataTask.run(maxStageNo, taskCount) }
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .`as`<SingleSubscribeProxy<Int>>(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this@TitleActivity)))
+                                .autoDisposable(scopeProvider)
                                 .subscribe(
                                         { successCount ->
                                             Toast.makeText(this@TitleActivity,
@@ -245,7 +240,7 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
         tumeKyouenService.login(authToken.token, authToken.secret)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .`as`<SingleSubscribeProxy<LoginResult>>(AutoDispose.autoDisposable<LoginResult>(AndroidLifecycleScopeProvider.from(this)))
+                .autoDisposable(scopeProvider)
                 .subscribe({ s ->
                     // ログイン情報を保存
                     loginUtil.saveLoginInfo(authToken)
@@ -269,7 +264,7 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
                     tumeKyouenRepository.updateSyncClearData(addAllResponse.data)
                 }
                 .observeOn(AndroidSchedulers.mainThread())
-                .`as`<CompletableSubscribeProxy>(AutoDispose.autoDisposable<Any>(AndroidLifecycleScopeProvider.from(this)))
+                .autoDisposable(scopeProvider)
                 .subscribe(
                         {
                             enableSyncButton()
@@ -333,23 +328,12 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
         }
     }
 
-    /**
-     * ステージ数領域を再設定します。
-     */
     private fun refresh() {
         tumeKyouenRepository.selectStageCount()
                 .subscribeOn(Schedulers.io())
-                .`as`<SingleSubscribeProxy<StageCountModel>>(AutoDispose.autoDisposable<StageCountModel>(AndroidLifecycleScopeProvider.from(this)))
+                .autoDisposable(scopeProvider)
                 .subscribe(
                         { stageCountModel -> binding.model = TitleActivityViewModel(this, stageCountModel, soundManager) }
                 )
-    }
-
-    companion object {
-
-        fun start(activity: Activity) {
-            val intent = Intent(activity, TitleActivity::class.java)
-            activity.startActivity(intent)
-        }
     }
 }
