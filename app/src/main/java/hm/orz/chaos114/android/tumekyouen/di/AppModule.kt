@@ -3,17 +3,11 @@ package hm.orz.chaos114.android.tumekyouen.di
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
-
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.gson.GsonBuilder
-
-import java.net.CookieManager
-
-import javax.inject.Singleton
-
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import hm.orz.chaos114.android.tumekyouen.App
@@ -33,6 +27,8 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
+import java.net.CookieManager
+import javax.inject.Singleton
 
 @Module
 class AppModule {

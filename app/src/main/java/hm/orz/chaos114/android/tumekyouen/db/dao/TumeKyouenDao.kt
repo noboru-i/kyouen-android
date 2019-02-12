@@ -1,6 +1,10 @@
 package hm.orz.chaos114.android.tumekyouen.db.dao
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
 import hm.orz.chaos114.android.tumekyouen.db.entities.TumeKyouen
 import io.reactivex.Completable
 import io.reactivex.Maybe
