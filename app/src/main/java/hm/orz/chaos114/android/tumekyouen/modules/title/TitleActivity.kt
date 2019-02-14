@@ -36,7 +36,6 @@ import hm.orz.chaos114.android.tumekyouen.util.LoginUtil
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil
 import hm.orz.chaos114.android.tumekyouen.util.ServerUtil
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager
-import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
@@ -84,16 +83,13 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_title)
         binding.handlers = this
 
-        // 音量ボタンの動作変更
         volumeControlStream = AudioManager.STREAM_MUSIC
 
-        // 広告の表示
         binding.adView.loadAd(AdRequestFactory.createAdRequest())
 
         val loginInfo = loginUtil.loadLoginInfo()
         Timber.d("loginInfo = %s", loginInfo)
         if (loginInfo != null) {
-            // 認証情報が存在する場合
             binding.connectButton.isEnabled = false
             tumeKyouenService.login(loginInfo.token, loginInfo.secret)
                     .subscribeOn(Schedulers.io())
@@ -103,7 +99,6 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
                             { s ->
                                 Timber.d("sucess : %s", s)
                                 binding.connectButton.isEnabled = true
-                                // 成功した場合
                                 onSuccessTwitterAuth()
                             },
                             { throwable ->
@@ -112,7 +107,6 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
                             })
         }
 
-        // 描画内容を更新
         refreshAll()
     }
 
@@ -125,22 +119,16 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
         refreshAll()
     }
 
-    /**
-     * スタートボタンの設定
-     */
     override fun onClickStartButton(view: View) {
         val stageNo = lastStageNo
         tumeKyouenRepository.findStage(stageNo)
                 .subscribeOn(Schedulers.io())
                 .autoDisposable(scopeProvider)
-                .subscribe(
-                        { item -> KyouenActivity.start(this, item) }
-                )
+                .subscribe { item ->
+                    KyouenActivity.start(this, item)
+                }
     }
 
-    /**
-     * ステージ取得ボタンの設定
-     */
     override fun onClickGetStage(v: View) {
         v.isClickable = false
         (v as Button).text = getString(R.string.get_more_loading)
@@ -161,7 +149,7 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
                                                     Toast.LENGTH_SHORT).show()
                                             refresh()
                                         },
-                                        { throwable ->
+                                        {
                                             Toast.makeText(this@TitleActivity,
                                                     R.string.toast_no_stage,
                                                     Toast.LENGTH_SHORT).show()
@@ -169,24 +157,16 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
                                 )
                     }
                 },
-                DialogInterface.OnCancelListener { d -> refreshAll() })
+                DialogInterface.OnCancelListener { refreshAll() })
         dialog.show()
     }
 
-    /**
-     * ステージ作成ボタン押下時の処理
-     */
     override fun onClickCreateStage(v: View) {
         CreateActivity.start(this)
     }
 
-    /**
-     * twitter接続ボタン押下後の処理
-     */
     override fun onClickConnectButton(view: View) {
-        val dialog: ProgressDialog
-        // ローディングダイアログの表示
-        dialog = ProgressDialog(this@TitleActivity)
+        val dialog = ProgressDialog(this@TitleActivity)
         dialog.setMessage("Now Loading...")
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER)
         dialog.show()
@@ -209,20 +189,11 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
         })
     }
 
-    /**
-     * クリア情報を同期ボタン押下時の処理
-     */
     override fun onClickSyncButton(view: View) {
-        // ボタンを無効化
         binding.syncButton.isEnabled = false
-
-        // クリア情報を同期
         syncClearDataInBackground()
     }
 
-    /**
-     * 音量領域の設定
-     */
     override fun switchPlayable(view: View) {
         soundManager.togglePlayable()
         refresh()
@@ -236,31 +207,26 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
 
     @MainThread
     private fun sendAuthToken(authToken: TwitterAuthToken) {
-        // サーバに認証情報を送信
         tumeKyouenService.login(authToken.token, authToken.secret)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .autoDisposable(scopeProvider)
-                .subscribe({ s ->
-                    // ログイン情報を保存
-                    loginUtil.saveLoginInfo(authToken)
-                    onSuccessTwitterAuth()
-                },
-                        { throwable -> onFailedTwitterAuth() })
+                .subscribe(
+                        {
+                            loginUtil.saveLoginInfo(authToken)
+                            onSuccessTwitterAuth()
+                        },
+                        {
+                            onFailedTwitterAuth()
+                        }
+                )
     }
 
-    /**
-     * クリアステージデータの同期を行う。
-     */
     private fun syncClearDataInBackground() {
-        // クリアした情報を取得
         tumeKyouenRepository.selectAllClearStage()
                 .subscribeOn(Schedulers.io())
                 .flatMap<AddAllResponse> { stages -> ServerUtil.addAll(tumeKyouenService, stages) }
                 .flatMapCompletable { addAllResponse ->
-                    if (addAllResponse.data == null) {
-                        return@flatMapCompletable Completable.complete()
-                    }
                     tumeKyouenRepository.updateSyncClearData(addAllResponse.data)
                 }
                 .observeOn(AndroidSchedulers.mainThread())
@@ -277,10 +243,6 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
                 )
     }
 
-    /**
-     * twitter連携に成功した場合の処理。
-     * ボタンを切り替える。
-     */
     @MainThread
     private fun onSuccessTwitterAuth() {
         binding.connectButton.isEnabled = false
@@ -288,9 +250,6 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
         binding.syncButton.visibility = View.VISIBLE
     }
 
-    /**
-     * twitter連携に失敗した場合の処理
-     */
     @MainThread
     private fun onFailedTwitterAuth() {
         binding.connectButton.isEnabled = true
@@ -302,22 +261,15 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
 
     @MainThread
     private fun enableSyncButton() {
-        // ボタンを有効化
         binding.syncButton.isEnabled = true
         refreshAll()
     }
 
-    /**
-     * 描画内容を再設定します。
-     */
     private fun refreshAll() {
         refreshGetStageButton()
         refresh()
     }
 
-    /**
-     * ステージ取得ボタンを再設定します。
-     */
     private fun refreshGetStageButton() {
         if (insertDataTask.running) {
             binding.getStageButton.isClickable = false
@@ -332,8 +284,6 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
         tumeKyouenRepository.selectStageCount()
                 .subscribeOn(Schedulers.io())
                 .autoDisposable(scopeProvider)
-                .subscribe(
-                        { stageCountModel -> binding.model = TitleActivityViewModel(this, stageCountModel, soundManager) }
-                )
+                .subscribe { stageCountModel -> binding.model = TitleActivityViewModel(this, stageCountModel, soundManager) }
     }
 }

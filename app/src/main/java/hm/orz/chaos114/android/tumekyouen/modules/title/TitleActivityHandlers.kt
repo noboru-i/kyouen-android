@@ -2,9 +2,6 @@ package hm.orz.chaos114.android.tumekyouen.modules.title
 
 import android.view.View
 
-/**
- * TitleActivityのHandlerクラス。
- */
 interface TitleActivityHandlers {
     fun onClickStartButton(view: View)
 

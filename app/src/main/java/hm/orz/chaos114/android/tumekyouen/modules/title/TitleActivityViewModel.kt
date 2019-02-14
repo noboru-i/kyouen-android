@@ -9,9 +9,6 @@ import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager
 
-/**
- * TitleActivity用のViewModel。
- */
 class TitleActivityViewModel internal constructor(
         private val context: Context,
         private val stageCountModel: StageCountModel,
