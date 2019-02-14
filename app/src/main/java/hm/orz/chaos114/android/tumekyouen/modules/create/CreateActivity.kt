@@ -11,8 +11,8 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
-import com.uber.autodispose.AutoDispose
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
+import com.uber.autodispose.autoDisposable
 import dagger.android.support.DaggerAppCompatActivity
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityCreateBinding
@@ -40,6 +40,8 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
         DataBindingUtil.setContentView<ActivityCreateBinding>(this, R.layout.activity_create)
     }
 
+    private val scopeProvider by lazy { AndroidLifecycleScopeProvider.from(this) }
+
     companion object {
         @JvmStatic
         fun start(activity: Activity) {
@@ -47,7 +49,7 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
             activity.startActivity(intent)
         }
 
-        val INITIAL_STAGE_6 = TumeKyouenModel.create(0, 6, "000000000000000000000000000000", "", 0, Date())
+        val INITIAL_STAGE_6 = TumeKyouenModel(0, 6, "000000000000000000000000000000", "", 0, Date())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,7 +68,7 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
         binding.overlayView.visibility = View.VISIBLE
         binding.overlayView.setData(6, kyouenData)
 
-        if (binding.kyouenView.getGameModel().blackStoneCount == 4) {
+        if (binding.kyouenView.gameModel.blackStoneCount == 4) {
             AlertDialog.Builder(this)
                     .setTitle(R.string.create_send_title)
                     .setPositiveButton(android.R.string.ok, null)
@@ -125,8 +127,8 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
     }
 
     private fun sendState(creator: String) {
-        val size = binding.kyouenView.gameModel.size()
-        val stage = binding.kyouenView.gameModel.getStageStateForSend()
+        val size = binding.kyouenView.gameModel.size
+        val stage = binding.kyouenView.gameModel.stageStateForSend
         val data = TextUtils.join(",", arrayOf(size, stage, creator))
         Timber.d("data = %s", data)
 
@@ -139,7 +141,7 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
         tumeKyouenService.postStage(data)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .`as`(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .autoDisposable(scopeProvider)
                 .subscribe(
                         { response ->
                             val responseString = response.body()?.string()

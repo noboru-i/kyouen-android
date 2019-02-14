@@ -112,9 +112,9 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:${retrofitLibVersion}"
     implementation 'io.reactivex.rxjava2:rxjava:2.2.2'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
-    implementation 'com.uber.autodispose:autodispose:1.0.0'
-    implementation 'com.uber.autodispose:autodispose-android:1.0.0'
-    implementation 'com.uber.autodispose:autodispose-android-archcomponents:1.0.0'
+    implementation 'com.uber.autodispose:autodispose-ktx:1.0.0'
+    implementation 'com.uber.autodispose:autodispose-android-ktx:1.0.0'
+    implementation 'com.uber.autodispose:autodispose-android-archcomponents-ktx:1.0.0'
 
     // Icepick
     implementation "frankiesardo:icepick:${icepickVersion}"
@@ -127,12 +127,6 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
-
-    // AutoValue
-    implementation "com.google.auto.value:auto-value-annotations:1.6.2"
-    kapt "com.google.auto.value:auto-value:1.6.2"
-    implementation 'com.ryanharter.auto.value:auto-value-gson-annotations:0.8.0'
-    kapt 'com.ryanharter.auto.value:auto-value-gson:0.8.0'
 
     testImplementation 'junit:junit:4.12'
     testImplementation "org.robolectric:robolectric:4.0.1"

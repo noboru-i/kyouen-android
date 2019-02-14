@@ -9,8 +9,13 @@ import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
 import java.util.Date
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class TumeKyouenRepository(private val appDatabase: AppDatabase) {
+@Singleton
+class TumeKyouenRepository @Inject constructor(
+        private val appDatabase: AppDatabase
+) {
     fun insertByCSV(csvString: String): Completable {
         val splitString = csvString.split(",".toRegex()).toTypedArray()
         if (splitString.size != 4) {
@@ -35,14 +40,14 @@ class TumeKyouenRepository(private val appDatabase: AppDatabase) {
 
     fun selectStageCount(): Single<StageCountModel> {
         return appDatabase.tumeKyouenDao().selectStageCount()
-                .map { StageCountModel.create(it.count, it.clearCount) }
+                .map { StageCountModel(it.count, it.clearCount) }
     }
 
     fun findStage(stageNo: Int): Maybe<TumeKyouenModel> {
 
         return appDatabase.tumeKyouenDao().findStage(stageNo)
                 .map {
-                    TumeKyouenModel.create(
+                    TumeKyouenModel(
                             it.stageNo,
                             it.size,
                             it.stage,
@@ -56,7 +61,7 @@ class TumeKyouenRepository(private val appDatabase: AppDatabase) {
         return appDatabase.tumeKyouenDao().selectAllClearStage()
                 .map {
                     it.map { tumeKyouen ->
-                        TumeKyouenModel.create(
+                        TumeKyouenModel(
                                 tumeKyouen.stageNo,
                                 tumeKyouen.size,
                                 tumeKyouen.stage,
@@ -82,7 +87,7 @@ class TumeKyouenRepository(private val appDatabase: AppDatabase) {
     fun updateSyncClearData(clearList: List<AddAllResponse.Stage>): Completable {
         return Completable.merge(
                 clearList.map {
-                    updateClearFlag(it.stageNo(), it.clearDate())
+                    updateClearFlag(it.stageNo, it.clearDate)
                 }
         )
     }

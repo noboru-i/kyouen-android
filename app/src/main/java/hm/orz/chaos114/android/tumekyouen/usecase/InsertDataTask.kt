@@ -4,7 +4,9 @@ import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
 import io.reactivex.Single
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class InsertDataTask @Inject constructor(
         private val tumeKyouenService: TumeKyouenService,
         private val tumeKyouenRepository: TumeKyouenRepository
