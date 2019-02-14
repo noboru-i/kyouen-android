@@ -33,9 +33,6 @@ import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
-/**
- * 詰め共円のプレイ画面。
- */
 class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
 
     @Inject
@@ -74,19 +71,15 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
         }
         binding.stageModel = KyouenActivityViewModel(stageModel!!, this)
 
-        // 音量ボタンの動作変更
         volumeControlStream = AudioManager.STREAM_MUSIC
 
-        // 詰め共円領域の追加
         tumeKyouenView = TumeKyouenView(this)
         tumeKyouenView.inject(soundManager, firebaseAnalytics)
         binding.fragmentContainer.addView(tumeKyouenView)
         tumeKyouenView.setData(stageModel!!)
 
-        // 広告の表示
         binding.adView.loadAd(AdRequestFactory.createAdRequest())
 
-        // 初期化
         init()
     }
 
@@ -96,20 +89,13 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
     }
 
     private fun init() {
-        // プリファレンスに設定
         preferenceUtil.putInt(PreferenceUtil.KEY_LAST_STAGE_NO, stageModel!!.stageNo)
 
-        // 共円ボタンの設定
         binding.kyouenButton.isClickable = true
-
         binding.kyouenOverlay.visibility = View.GONE
-
         binding.stageModel = KyouenActivityViewModel(stageModel!!, this)
     }
 
-    /**
-     * 共円状態を設定します。
-     */
     private fun setKyouen() {
         binding.kyouenButton.isClickable = false
         tumeKyouenView.isClickable = false
@@ -135,14 +121,11 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
         var stageRequest: Maybe<TumeKyouenModel>? = null
         when (direction) {
             KyouenActivity.Direction.PREV ->
-                // prev選択時
                 stageRequest = tumeKyouenRepository.findStage(stageModel!!.stageNo - 1)
             KyouenActivity.Direction.NEXT ->
-                // next選択時
                 stageRequest = tumeKyouenRepository.findStage(stageModel!!.stageNo + 1)
             KyouenActivity.Direction.NONE ->
-                // 想定外の引数
-                throw IllegalArgumentException("引数がNONE")
+                throw IllegalArgumentException("illegal direction: $direction")
         }
 
         stageRequest
@@ -160,7 +143,6 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
     }
 
     private fun loadNextStages(direction: Direction) {
-        // 次のステージが存在しない場合、APIより取得する
         val dialog = ProgressDialog(this)
         dialog.setMessage("Loading...")
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER)
@@ -178,7 +160,7 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
                             stageModel = model
                             showOtherStage(direction)
                         },
-                        { throwable1 ->
+                        {
                             // no-op
                         },
                         {
@@ -188,11 +170,6 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
                 )
     }
 
-    /**
-     * stageModelのデータに合わせて画面を変更する。
-     *
-     * @param direction 移動するステージの方向（PREV/NEXT/NONE）
-     */
     private fun showOtherStage(direction: Direction) {
         val oldView = tumeKyouenView
         tumeKyouenView = TumeKyouenView(this)
@@ -254,16 +231,14 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
         }
         val data = tumeKyouenView.gameModel.isKyouen
         if (data == null) {
-            // 共円でない場合
+            // not kyouen
             AlertDialog.Builder(this@KyouenActivity)
                     .setTitle(R.string.alert_not_kyouen)
                     .setPositiveButton("OK", null).create().show()
-            // 全ての石を未選択状態に戻す
             tumeKyouenView.reset()
             return
         }
 
-        // 共円の場合
         soundManager.play(R.raw.se_maoudamashii_onepoint23)
         AlertDialog.Builder(this@KyouenActivity)
                 .setTitle(R.string.kyouen)
@@ -278,10 +253,8 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
 
         val direction: Direction
         if (v === binding.prevButton) {
-            // prevボタン押下時
             direction = Direction.PREV
         } else {
-            // nextボタン押下時
             direction = Direction.NEXT
         }
 
@@ -289,8 +262,7 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
     }
 
     override fun showSelectStageDialog(view: View) {
-        val dialog = StageSelectDialog(
-                this@KyouenActivity,
+        val dialog = StageSelectDialog(this@KyouenActivity,
                 object : StageSelectDialog.OnSuccessListener {
                     override fun onSuccess(count: Int) {
                         tumeKyouenRepository.selectMaxStageNo()
@@ -327,9 +299,6 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
         dialog.show()
     }
 
-    /**
-     * 方向を表すenum
-     */
     private enum class Direction {
         PREV, NEXT, NONE
     }

@@ -7,9 +7,6 @@ import androidx.core.content.ContextCompat
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel
 
-/**
- * KyouenActivity用のViewModel。
- */
 class KyouenActivityViewModel internal constructor(
         private val tumeKyouenModel: TumeKyouenModel,
         private val context: Context

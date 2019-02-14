@@ -2,9 +2,6 @@ package hm.orz.chaos114.android.tumekyouen.modules.kyouen
 
 import android.view.View
 
-/**
- * KyouenActivityのHandlerクラス。
- */
 interface KyouenActivityHandlers {
     fun onClickCheckKyouen(view: View)
 

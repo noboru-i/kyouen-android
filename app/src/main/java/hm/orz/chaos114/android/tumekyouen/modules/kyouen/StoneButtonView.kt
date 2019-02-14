@@ -14,9 +14,6 @@ class StoneButtonView @JvmOverloads constructor(context: Context, attrs: Attribu
 
     private val paint = Paint()
 
-    /**
-     * ボタン色を表すenum
-     */
     enum class ButtonState {
         NONE, BLACK, WHITE
     }
