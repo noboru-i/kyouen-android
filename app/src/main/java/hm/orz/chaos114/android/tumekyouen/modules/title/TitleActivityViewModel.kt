@@ -23,7 +23,7 @@ class TitleActivityViewModel internal constructor(
     val soundResource: Drawable?
         get() {
             val playable = soundManager.isPlayable
-            @DrawableRes val imageRes = if (playable) R.drawable.sound_on else R.drawable.sound_off
+            @DrawableRes val imageRes = if (playable) R.drawable.ic_volume_up_black else R.drawable.ic_volume_off_black
             return ContextCompat.getDrawable(context, imageRes)
         }
 }
