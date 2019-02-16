@@ -143,6 +143,6 @@ dependencies {
     testImplementation "org.robolectric:shadows-multidex:4.0.1"
 }
 
-apply from: '../tasks/ci.gradle'
-apply from: '../tasks/jacoco.gradle'
+//apply from: '../tasks/ci.gradle'
+//apply from: '../tasks/jacoco.gradle'
 apply plugin: 'com.google.gms.google-services'
