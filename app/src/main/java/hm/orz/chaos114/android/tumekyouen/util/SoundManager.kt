@@ -5,6 +5,8 @@ import android.media.AudioManager
 import android.media.SoundPool
 import android.util.SparseIntArray
 import hm.orz.chaos114.android.tumekyouen.R
+import io.reactivex.Observable
+import io.reactivex.subjects.BehaviorSubject
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,9 +20,14 @@ class SoundManager @Inject constructor(
 
     private val soundIds: SparseIntArray = SparseIntArray()
 
-    var isPlayable: Boolean
-        get() = preferenceUtil.getBoolean(PreferenceUtil.KEY_SOUND)
-        private set(playable) = preferenceUtil.putBoolean(PreferenceUtil.KEY_SOUND, playable)
+    private val isPlayableSubject = BehaviorSubject.createDefault(preferenceUtil.getBoolean(PreferenceUtil.KEY_SOUND)).apply {
+        doOnNext {
+            // save value to shared preferences when updated.
+            preferenceUtil.putBoolean(PreferenceUtil.KEY_SOUND, it)
+        }
+    }
+
+    val isPlayable: Observable<Boolean> = isPlayableSubject
 
     init {
         soundIds.put(R.raw.se_maoudamashii_se_finger01,
@@ -29,15 +36,12 @@ class SoundManager @Inject constructor(
                 soundPool.load(context, R.raw.se_maoudamashii_onepoint23, 1))
     }
 
-    /**
-     * Toggle flag of playing sound.
-     */
     fun togglePlayable() {
-        isPlayable = !isPlayable
+        isPlayableSubject.onNext(!isPlayableSubject.value!!)
     }
 
     fun play(id: Int) {
-        if (!isPlayable) {
+        if (isPlayableSubject.value == false) {
             return
         }
 

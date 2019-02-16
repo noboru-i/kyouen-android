@@ -101,6 +101,7 @@ dependencies {
     // https://developer.android.com/jetpack/androidx/releases/lifecycle (ViewModel and LiveData)
     def lifecycle_version = "2.0.0"
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
 
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
 

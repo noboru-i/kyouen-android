@@ -11,7 +11,7 @@
 
         <variable
             name="model"
-            type="hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivityViewModel" />
+            type="hm.orz.chaos114.android.tumekyouen.modules.title.TitleViewModel" />
     </data>
 
     <LinearLayout

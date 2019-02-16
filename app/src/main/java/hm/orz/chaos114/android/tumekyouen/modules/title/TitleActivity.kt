@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.MainThread
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProviders
 import com.twitter.sdk.android.core.Callback
 import com.twitter.sdk.android.core.Result
 import com.twitter.sdk.android.core.TwitterAuthToken
@@ -55,6 +56,13 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
     @Inject
     internal lateinit var insertDataTask: InsertDataTask
 
+    @Inject
+    lateinit var factory: TitleViewModelFactory
+
+    private val viewModel: TitleViewModel by lazy {
+        ViewModelProviders.of(this, factory).get(TitleViewModel::class.java)
+    }
+
     private lateinit var binding: ActivityTitleBinding
 
     private val twitterAuthClient = TwitterAuthClient()
@@ -81,7 +89,9 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_title)
+        binding.lifecycleOwner = this
         binding.handlers = this
+        binding.model = viewModel
 
         volumeControlStream = AudioManager.STREAM_MUSIC
 
@@ -147,7 +157,7 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
                                             Toast.makeText(this@TitleActivity,
                                                     getString(R.string.toast_get_stage, successCount),
                                                     Toast.LENGTH_SHORT).show()
-                                            refresh()
+                                            viewModel.refresh()
                                         },
                                         {
                                             Toast.makeText(this@TitleActivity,
@@ -195,8 +205,7 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
     }
 
     override fun switchPlayable(view: View) {
-        soundManager.togglePlayable()
-        refresh()
+        viewModel.toggleSoundPlayable()
     }
 
     override fun onClickPrivacyPolicy(view: View) {
@@ -234,7 +243,7 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
                 .subscribe(
                         {
                             enableSyncButton()
-                            refresh()
+                            viewModel.refresh()
                         },
                         { throwable ->
                             Timber.e(throwable, "クリア情報の送信に失敗")
@@ -267,7 +276,7 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
 
     private fun refreshAll() {
         refreshGetStageButton()
-        refresh()
+        viewModel.refresh()
     }
 
     private fun refreshGetStageButton() {
@@ -278,12 +287,5 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
             binding.getStageButton.isClickable = true
             binding.getStageButton.text = getString(R.string.get_more)
         }
-    }
-
-    private fun refresh() {
-        tumeKyouenRepository.selectStageCount()
-                .subscribeOn(Schedulers.io())
-                .autoDisposable(scopeProvider)
-                .subscribe { stageCountModel -> binding.model = TitleActivityViewModel(this, stageCountModel, soundManager) }
     }
 }
