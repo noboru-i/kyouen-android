@@ -1,16 +1,22 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+
+// https://firebase.google.com/docs/crashlytics/get-started
 apply plugin: 'io.fabric'
+
+// https://docs.deploygate.com/docs/gradle-plugin
 apply plugin: 'deploygate'
+
+// https://github.com/ben-manes/gradle-versions-plugin
 apply plugin: 'com.github.ben-manes.versions'
+
+// https://firebase.google.com/docs/perf-mon/get-started-android
 apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
-
-    testOptions.unitTests.includeAndroidResources true
 
     dataBinding {
         enabled = true
@@ -101,8 +107,12 @@ dependencies {
     implementation "androidx.room:room-rxjava2:$room_version"
     androidTestImplementation "android.arch.persistence.room:testing"
 
+    // Twitter SDK
     implementation 'com.twitter.sdk.android:twitter-core:3.3.0'
+
+    // Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
+
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation "com.squareup.okhttp3:okhttp:${okhttpLibVersion}"
     implementation "com.squareup.okhttp3:logging-interceptor:${okhttpLibVersion}"
