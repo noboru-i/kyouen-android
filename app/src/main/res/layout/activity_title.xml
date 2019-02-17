@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="handlers"
             type="hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivityHandlers" />
@@ -100,11 +102,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/title_button"
+                    android:enabled="@{model.connectButtonEnabled}"
                     android:gravity="center"
                     android:onClick="@{handlers::onClickConnectButton}"
                     android:padding="5dp"
                     android:text="@string/twitter_connect"
-                    android:textColor="#eeeeee" />
+                    android:textColor="#eeeeee"
+                    android:visibility="@{model.connectButtonShow ? View.VISIBLE : View.GONE}" />
 
                 <Button
                     android:id="@+id/sync_button"
@@ -112,12 +116,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/title_button"
+                    android:enabled="@{model.syncButtonEnabled}"
                     android:gravity="center"
                     android:onClick="@{handlers::onClickSyncButton}"
                     android:padding="5dp"
                     android:text="@string/sync_stage_user"
                     android:textColor="#eeeeee"
-                    android:visibility="invisible" />
+                    android:visibility="@{model.connectButtonShow ? View.GONE : View.VISIBLE}" />
             </FrameLayout>
 
             <ImageView
