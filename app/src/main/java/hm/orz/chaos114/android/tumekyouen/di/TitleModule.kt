@@ -6,6 +6,7 @@ import dagger.Provides
 import hm.orz.chaos114.android.tumekyouen.modules.title.TitleViewModelFactory
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
+import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager
 
@@ -17,14 +18,16 @@ class TitleModule {
             loginUtil: LoginUtil,
             tumeKyouenService: TumeKyouenService,
             tumeKyouenRepository: TumeKyouenRepository,
-            soundManager: SoundManager
+            soundManager: SoundManager,
+            insertDataTask: InsertDataTask
     ): TitleViewModelFactory {
         return TitleViewModelFactory(
                 context,
                 loginUtil,
                 tumeKyouenService,
                 tumeKyouenRepository,
-                soundManager
+                soundManager,
+                insertDataTask
         )
     }
 }

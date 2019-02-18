@@ -1,7 +1,6 @@
 package hm.orz.chaos114.android.tumekyouen.modules.title
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
@@ -19,11 +18,16 @@ import com.twitter.sdk.android.core.TwitterException
 import com.twitter.sdk.android.core.TwitterSession
 import com.twitter.sdk.android.core.identity.TwitterAuthClient
 import hm.orz.chaos114.android.tumekyouen.R
+import hm.orz.chaos114.android.tumekyouen.model.AddAllResponse
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
+import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask
+import hm.orz.chaos114.android.tumekyouen.util.Event
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil
+import hm.orz.chaos114.android.tumekyouen.util.ServerUtil
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager
+import hm.orz.chaos114.android.tumekyouen.util.StringResource
 import io.reactivex.BackpressureStrategy
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -36,7 +40,8 @@ class TitleViewModel @Inject constructor(
         private val loginUtil: LoginUtil,
         private val tumeKyouenService: TumeKyouenService,
         private val tumeKyouenRepository: TumeKyouenRepository,
-        private val soundManager: SoundManager
+        private val soundManager: SoundManager,
+        private val insertDataTask: InsertDataTask
 ) : ViewModel() {
 
     enum class ConnectStatus {
@@ -77,8 +82,20 @@ class TitleViewModel @Inject constructor(
     }
 
     val showLoading: LiveData<Boolean> = Transformations.map(mutableConnectStatus) { status ->
-        status == ConnectStatus.CONNECTING
+        status == ConnectStatus.CONNECTING || status == ConnectStatus.SYNCING
     }
+
+    private val _isRunningInsertTask = MutableLiveData<Boolean>()
+    val isRunningInsertTask: LiveData<Boolean>
+        get() = _isRunningInsertTask
+
+    private val _alertMessage = MutableLiveData<Event<Int>>()
+    val alertMessage: LiveData<Event<Int>>
+        get() = _alertMessage
+
+    private val _toastMessage = MutableLiveData<Event<StringResource>>()
+    val toastMessage: LiveData<Event<StringResource>>
+        get() = _toastMessage
 
     fun onCreate() {
         val loginInfo = loginUtil.loadLoginInfo()
@@ -109,6 +126,7 @@ class TitleViewModel @Inject constructor(
     }
 
     fun refresh() {
+        _isRunningInsertTask.value = insertDataTask.running
         disposable.add(
                 tumeKyouenRepository.selectStageCount()
                         .subscribeOn(Schedulers.io())
@@ -125,6 +143,7 @@ class TitleViewModel @Inject constructor(
 
     // FIXME remove activity reference
     fun requestConnectTwitter(activity: Activity) {
+        mutableConnectStatus.value = ConnectStatus.CONNECTING
         twitterAuthClient.authorize(activity, object : Callback<TwitterSession>() {
             override fun success(result: Result<TwitterSession>) {
                 Timber.d("success")
@@ -133,14 +152,52 @@ class TitleViewModel @Inject constructor(
 
             override fun failure(e: TwitterException) {
                 Timber.d("failure")
-                // FIXME show alert by View
-                AlertDialog.Builder(activity)
-                        .setMessage(R.string.alert_error_authenticate_twitter)
-                        .setPositiveButton(android.R.string.ok, null)
-                        .show()
+                _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
                 mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
             }
         })
+    }
+
+    fun requestSync() {
+        mutableConnectStatus.value = ConnectStatus.SYNCING
+        disposable.add(
+                tumeKyouenRepository.selectAllClearStage()
+                        .subscribeOn(Schedulers.io())
+                        .flatMap<AddAllResponse> { stages -> ServerUtil.addAll(tumeKyouenService, stages) }
+                        .flatMapCompletable { addAllResponse ->
+                            tumeKyouenRepository.updateSyncClearData(addAllResponse.data)
+                        }
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                {
+                                    mutableConnectStatus.value = ConnectStatus.CONNECTED
+                                    refresh()
+                                },
+                                {
+                                    mutableConnectStatus.value = ConnectStatus.CONNECTED
+                                    _alertMessage.value = Event(R.string.alert_error_sync)
+                                }
+                        )
+        )
+    }
+
+    fun requestStages(count: Int) {
+        val taskCount = if (count == -1) Integer.MAX_VALUE else count
+        disposable.add(
+                tumeKyouenRepository.selectMaxStageNo()
+                        .subscribeOn(Schedulers.io())
+                        .flatMap { maxStageNo -> insertDataTask.run(maxStageNo, taskCount) }
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                { successCount ->
+                                    _toastMessage.value = Event(StringResource(R.string.toast_get_stage, arrayOf(successCount)))
+                                    refresh()
+                                },
+                                {
+                                    _toastMessage.value = Event(StringResource(R.string.toast_no_stage))
+                                }
+                        )
+        )
     }
 
     private fun sendAuthToken(authToken: TwitterAuthToken) {
@@ -155,16 +212,11 @@ class TitleViewModel @Inject constructor(
                                 },
                                 {
                                     mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
-                                    // FIXME show alert by View
-                                    AlertDialog.Builder(context)
-                                            .setMessage(R.string.alert_error_authenticate_twitter)
-                                            .setPositiveButton(android.R.string.ok, null).show()
-
+                                    _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
                                 }
                         )
         )
     }
-
 
     override fun onCleared() {
         super.onCleared()

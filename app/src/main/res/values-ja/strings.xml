@@ -23,6 +23,7 @@
     <string name="alert_not_kyouen">共円ではありません</string>
     <string name="alert_install_kyouenchecker">共円チェッカーをインストールしますか？</string>
     <string name="alert_error_authenticate_twitter">twitter認証に失敗しました</string>
+    <string name="alert_error_sync">同期に失敗しました。</string>
 
     <string name="dialog_title_stage_get">ステージ取得</string>
     <string name="dialog_title_stage_select">ステージ選択</string>

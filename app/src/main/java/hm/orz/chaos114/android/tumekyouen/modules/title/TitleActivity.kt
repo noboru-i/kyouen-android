@@ -8,9 +8,6 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.Toast
-import androidx.annotation.MainThread
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -20,35 +17,22 @@ import dagger.android.support.DaggerAppCompatActivity
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.app.StageGetDialog
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityTitleBinding
-import hm.orz.chaos114.android.tumekyouen.model.AddAllResponse
 import hm.orz.chaos114.android.tumekyouen.modules.create.CreateActivity
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity
-import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
-import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask
 import hm.orz.chaos114.android.tumekyouen.util.AdRequestFactory
-import hm.orz.chaos114.android.tumekyouen.util.LoginUtil
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil
-import hm.orz.chaos114.android.tumekyouen.util.ServerUtil
-import hm.orz.chaos114.android.tumekyouen.util.SoundManager
-import io.reactivex.android.schedulers.AndroidSchedulers
+import hm.orz.chaos114.android.tumekyouen.util.setupAlertDialog
+import hm.orz.chaos114.android.tumekyouen.util.setupToast
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
 class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
     @Inject
-    internal lateinit var loginUtil: LoginUtil
-    @Inject
     internal lateinit var preferenceUtil: PreferenceUtil
     @Inject
-    internal lateinit var soundManager: SoundManager
-    @Inject
     internal lateinit var tumeKyouenRepository: TumeKyouenRepository
-    @Inject
-    internal lateinit var tumeKyouenService: TumeKyouenService
-    @Inject
-    internal lateinit var insertDataTask: InsertDataTask
 
     @Inject
     lateinit var factory: TitleViewModelFactory
@@ -91,11 +75,12 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
 
         binding.adView.loadAd(AdRequestFactory.createAdRequest())
 
-        dialog = ProgressDialog(this@TitleActivity)
+        dialog = ProgressDialog(this)
 
         viewModel.onCreate()
 
         viewModel.showLoading.observe(this, Observer { showLoading ->
+            Timber.d("showLoading: %s", showLoading)
             if (showLoading) {
                 dialog.setMessage("Now Loading...")
                 dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER)
@@ -105,7 +90,10 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
             }
         })
 
-        refreshAll()
+        binding.root.setupAlertDialog(this, viewModel.alertMessage)
+        binding.root.setupToast(this, viewModel.toastMessage)
+
+        viewModel.refresh()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -113,10 +101,11 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
 
         viewModel.onActivityResult(requestCode, resultCode, data)
 
-        refreshAll()
+        viewModel.refresh()
     }
 
     override fun onClickStartButton(view: View) {
+        // TODO make router class
         val stageNo = lastStageNo
         tumeKyouenRepository.findStage(stageNo)
                 .subscribeOn(Schedulers.io())
@@ -127,34 +116,13 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
     }
 
     override fun onClickGetStage(v: View) {
-        v.isClickable = false
-        (v as Button).text = getString(R.string.get_more_loading)
-
         val dialog = StageGetDialog(this,
                 object : StageGetDialog.OnSuccessListener {
                     override fun onSuccess(count: Int) {
-                        val taskCount = if (count == -1) Integer.MAX_VALUE else count
-                        tumeKyouenRepository.selectMaxStageNo()
-                                .subscribeOn(Schedulers.io())
-                                .flatMap { maxStageNo -> insertDataTask.run(maxStageNo, taskCount) }
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .autoDisposable(scopeProvider)
-                                .subscribe(
-                                        { successCount ->
-                                            Toast.makeText(this@TitleActivity,
-                                                    getString(R.string.toast_get_stage, successCount),
-                                                    Toast.LENGTH_SHORT).show()
-                                            viewModel.refresh()
-                                        },
-                                        {
-                                            Toast.makeText(this@TitleActivity,
-                                                    R.string.toast_no_stage,
-                                                    Toast.LENGTH_SHORT).show()
-                                        }
-                                )
+                        viewModel.requestStages(count)
                     }
                 },
-                DialogInterface.OnCancelListener { refreshAll() })
+                DialogInterface.OnCancelListener { viewModel.refresh() })
         dialog.show()
     }
 
@@ -163,13 +131,11 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
     }
 
     override fun onClickConnectButton(view: View) {
-        // FIXME refactor
         viewModel.requestConnectTwitter(this)
     }
 
     override fun onClickSyncButton(view: View) {
-        binding.syncButton.isEnabled = false
-        syncClearDataInBackground()
+        viewModel.requestSync()
     }
 
     override fun switchPlayable(view: View) {
@@ -180,47 +146,5 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
         val uri = Uri.parse("https://my-android-server.appspot.com/html/privacy.html")
         val intent = Intent(Intent.ACTION_VIEW, uri)
         startActivity(intent)
-    }
-
-    private fun syncClearDataInBackground() {
-        tumeKyouenRepository.selectAllClearStage()
-                .subscribeOn(Schedulers.io())
-                .flatMap<AddAllResponse> { stages -> ServerUtil.addAll(tumeKyouenService, stages) }
-                .flatMapCompletable { addAllResponse ->
-                    tumeKyouenRepository.updateSyncClearData(addAllResponse.data)
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-                .autoDisposable(scopeProvider)
-                .subscribe(
-                        {
-                            enableSyncButton()
-                            viewModel.refresh()
-                        },
-                        { throwable ->
-                            Timber.e(throwable, "クリア情報の送信に失敗")
-                            enableSyncButton()
-                        }
-                )
-    }
-
-    @MainThread
-    private fun enableSyncButton() {
-        binding.syncButton.isEnabled = true
-        refreshAll()
-    }
-
-    private fun refreshAll() {
-        refreshGetStageButton()
-        viewModel.refresh()
-    }
-
-    private fun refreshGetStageButton() {
-        if (insertDataTask.running) {
-            binding.getStageButton.isClickable = false
-            binding.getStageButton.text = getString(R.string.get_more_loading)
-        } else {
-            binding.getStageButton.isClickable = true
-            binding.getStageButton.text = getString(R.string.get_more)
-        }
     }
 }

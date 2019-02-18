@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
+import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager
 import javax.inject.Inject
@@ -14,7 +15,8 @@ class TitleViewModelFactory @Inject constructor(
         private val loginUtil: LoginUtil,
         private val tumeKyouenService: TumeKyouenService,
         private val tumeKyouenRepository: TumeKyouenRepository,
-        private val soundManager: SoundManager
+        private val soundManager: SoundManager,
+        private val insertDataTask: InsertDataTask
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -24,7 +26,8 @@ class TitleViewModelFactory @Inject constructor(
                 loginUtil,
                 tumeKyouenService,
                 tumeKyouenRepository,
-                soundManager
+                soundManager,
+                insertDataTask
         ) as T
     }
 }

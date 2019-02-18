@@ -74,11 +74,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/title_button"
+                android:clickable="@{!model.isRunningInsertTask}"
                 android:gravity="center"
                 android:onClick="@{handlers::onClickGetStage}"
                 android:padding="5dp"
-                android:text="@string/get_more"
-                android:textColor="#eeeeee" />
+                android:text="@{model.isRunningInsertTask ? @string/get_more_loading : @string/get_more}"
+                android:textColor="#eeeeee"
+                tools:text="@string/get_more" />
 
             <Button
                 android:id="@+id/create_stage_button"
