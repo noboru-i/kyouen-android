@@ -8,7 +8,12 @@ import hm.orz.chaos114.android.tumekyouen.App
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AndroidSupportInjectionModule::class, AppModule::class, ActivityModule::class])
+@Component(modules = [
+    AndroidSupportInjectionModule::class,
+    AppModule::class,
+    ActivityModule::class,
+    TitleModule::class
+])
 interface AppComponent : AndroidInjector<App> {
     @Component.Builder
     interface Builder {

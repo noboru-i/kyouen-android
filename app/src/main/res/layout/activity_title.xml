@@ -5,13 +5,15 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="handlers"
             type="hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivityHandlers" />
 
         <variable
             name="model"
-            type="hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivityViewModel" />
+            type="hm.orz.chaos114.android.tumekyouen.modules.title.TitleViewModel" />
     </data>
 
     <LinearLayout
@@ -72,11 +74,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/title_button"
+                android:clickable="@{!model.isRunningInsertTask}"
                 android:gravity="center"
                 android:onClick="@{handlers::onClickGetStage}"
                 android:padding="5dp"
-                android:text="@string/get_more"
-                android:textColor="#eeeeee" />
+                android:text="@{model.isRunningInsertTask ? @string/get_more_loading : @string/get_more}"
+                android:textColor="#eeeeee"
+                tools:text="@string/get_more" />
 
             <Button
                 android:id="@+id/create_stage_button"
@@ -100,11 +104,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/title_button"
+                    android:enabled="@{model.connectButtonEnabled}"
                     android:gravity="center"
                     android:onClick="@{handlers::onClickConnectButton}"
                     android:padding="5dp"
                     android:text="@string/twitter_connect"
-                    android:textColor="#eeeeee" />
+                    android:textColor="#eeeeee"
+                    android:visibility="@{model.connectButtonShow ? View.VISIBLE : View.GONE}" />
 
                 <Button
                     android:id="@+id/sync_button"
@@ -112,12 +118,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/title_button"
+                    android:enabled="@{model.syncButtonEnabled}"
                     android:gravity="center"
                     android:onClick="@{handlers::onClickSyncButton}"
                     android:padding="5dp"
                     android:text="@string/sync_stage_user"
                     android:textColor="#eeeeee"
-                    android:visibility="invisible" />
+                    android:visibility="@{model.connectButtonShow ? View.GONE : View.VISIBLE}" />
             </FrameLayout>
 
             <ImageView
