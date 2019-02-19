@@ -36,7 +36,7 @@ jobs:
           command: ./gradlew clean :app:testDebugUnitTest
       - run:
           name: Check lint
-          command: ./gradlew :app:check -x test
+          command: ./gradlew --stacktrace :app:check detekt
       - run:
           name: Run danger
           command: bundle exec danger
@@ -45,6 +45,8 @@ jobs:
           command: |
             ARTIFACTS="/tmp/circle_artifacts"
             mkdir -p "$ARTIFACTS"
+            cp -v "app/build/reports/ktlint/ktlintMainSourceSetCheck.xml" "$ARTIFACTS/"
+            cp -v "build/reports/detekt/detekt.xml" "$ARTIFACTS/"
             cp -v "app/build/reports/lint-results.xml" "$ARTIFACTS/"
       - store_artifacts:
           path: "/tmp/circle_artifacts"
