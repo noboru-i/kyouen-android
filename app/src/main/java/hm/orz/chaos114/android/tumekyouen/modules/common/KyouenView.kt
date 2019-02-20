@@ -13,8 +13,8 @@ import hm.orz.chaos114.android.tumekyouen.modules.kyouen.StoneButtonView
 import java.util.ArrayList
 
 open class KyouenView @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null
+    context: Context,
+    attrs: AttributeSet? = null
 ) : TableLayout(context, attrs) {
 
     private var maxScreenWidth: Int = 0
@@ -28,18 +28,18 @@ open class KyouenView @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        var widthMeasureSpec = widthMeasureSpec
-        var heightMeasureSpec = heightMeasureSpec
-        val widthSize = View.MeasureSpec.getSize(widthMeasureSpec)
+        var widthSpec = widthMeasureSpec
+        var heightSpec = heightMeasureSpec
+        val widthSize = View.MeasureSpec.getSize(widthSpec)
 
         setMeasuredDimension(widthSize, widthSize)
 
-        val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
-        val heightMode = View.MeasureSpec.getMode(heightMeasureSpec)
-        widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(widthSize, widthMode)
-        heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(widthSize, heightMode)
+        val widthMode = View.MeasureSpec.getMode(widthSpec)
+        val heightMode = View.MeasureSpec.getMode(heightSpec)
+        widthSpec = View.MeasureSpec.makeMeasureSpec(widthSize, widthMode)
+        heightSpec = View.MeasureSpec.makeMeasureSpec(widthSize, heightMode)
 
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        super.onMeasure(widthSpec, heightSpec)
     }
 
     private fun setWindowSize() {

@@ -12,8 +12,8 @@ import javax.inject.Singleton
 
 @Singleton
 class SoundManager @Inject constructor(
-        val preferenceUtil: PreferenceUtil,
-        context: Context
+    val preferenceUtil: PreferenceUtil,
+    context: Context
 ) {
 
     private val soundPool: SoundPool = SoundPool(2, AudioManager.STREAM_MUSIC, 0)
@@ -31,9 +31,9 @@ class SoundManager @Inject constructor(
 
     init {
         soundIds.put(R.raw.se_maoudamashii_se_finger01,
-                soundPool.load(context, R.raw.se_maoudamashii_se_finger01, 1))
+            soundPool.load(context, R.raw.se_maoudamashii_se_finger01, 1))
         soundIds.put(R.raw.se_maoudamashii_onepoint23,
-                soundPool.load(context, R.raw.se_maoudamashii_onepoint23, 1))
+            soundPool.load(context, R.raw.se_maoudamashii_onepoint23, 1))
     }
 
     fun togglePlayable() {

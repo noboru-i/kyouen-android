@@ -7,8 +7,8 @@ import javax.inject.Singleton
 
 @Singleton
 class LoginUtil @Inject constructor(
-        private val preferenceUtil: PreferenceUtil,
-        private val encryptionUtil: EncryptionUtil
+    private val preferenceUtil: PreferenceUtil,
+    private val encryptionUtil: EncryptionUtil
 ) {
 
     fun saveLoginInfo(authToken: TwitterAuthToken?) {
@@ -19,9 +19,9 @@ class LoginUtil @Inject constructor(
         }
 
         preferenceUtil.putString(PreferenceUtil.KEY_TOKEN,
-                encryptionUtil.encrypt(authToken.token)!!)
+            encryptionUtil.encrypt(authToken.token)!!)
         preferenceUtil.putString(PreferenceUtil.KEY_TOKEN_SECRET,
-                encryptionUtil.encrypt(authToken.secret)!!)
+            encryptionUtil.encrypt(authToken.secret)!!)
     }
 
     fun loadLoginInfo(): TwitterAuthToken? {

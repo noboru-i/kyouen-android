@@ -11,7 +11,7 @@ object AdRequestFactory {
         val extras = Bundle()
         extras.putString("max_ad_content_rating", "G")
         return AdRequest.Builder()
-                .addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
-                .build()
+            .addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
+            .build()
     }
 }

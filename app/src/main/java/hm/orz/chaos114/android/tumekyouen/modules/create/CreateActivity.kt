@@ -70,9 +70,9 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
 
         if (binding.kyouenView.gameModel.blackStoneCount == 4) {
             AlertDialog.Builder(this)
-                    .setTitle(R.string.create_send_title)
-                    .setPositiveButton(android.R.string.ok, null)
-                    .show()
+                .setTitle(R.string.create_send_title)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
             return
         }
 
@@ -113,17 +113,17 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
         editText.inputType = InputType.TYPE_CLASS_TEXT
         editText.setText(preferenceUtil.getString(PreferenceUtil.KEY_CREATOR_NAME), TextView.BufferType.NORMAL)
         AlertDialog.Builder(this)
-                .setTitle(R.string.create_send_title)
-                .setMessage(R.string.create_send_message)
-                .setView(editText)
-                .setPositiveButton(android.R.string.ok) { dialog, which ->
-                    val name = editText.text.toString()
-                    preferenceUtil.putString(PreferenceUtil.KEY_CREATOR_NAME, name)
-                    Timber.d("name: %s", name)
-                    sendState(name)
-                }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
+            .setTitle(R.string.create_send_title)
+            .setMessage(R.string.create_send_message)
+            .setView(editText)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val name = editText.text.toString()
+                preferenceUtil.putString(PreferenceUtil.KEY_CREATOR_NAME, name)
+                Timber.d("name: %s", name)
+                sendState(name)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun sendState(creator: String) {
@@ -139,29 +139,29 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
         }
 
         tumeKyouenService.postStage(data)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .autoDisposable(scopeProvider)
-                .subscribe(
-                        { response ->
-                            val responseString = response.body()?.string()
-                            Timber.d("sucess : %s", responseString);
-                            progressDialog.dismiss()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .autoDisposable(scopeProvider)
+            .subscribe(
+                { response ->
+                    val responseString = response.body()?.string()
+                    Timber.d("sucess : %s", responseString)
+                    progressDialog.dismiss()
 
-                            val message = convertResponseToMessage(responseString)
-                            AlertDialog.Builder(this)
-                                    .setMessage(message)
-                                    .setPositiveButton(android.R.string.ok, null)
-                                    .show()
-                        },
-                        { throwable ->
-                            Timber.d(throwable, "fail");
-                            AlertDialog.Builder(this)
-                                    .setMessage(R.string.create_result_failure)
-                                    .setPositiveButton(android.R.string.ok, null)
-                                    .show()
-                        }
-                )
+                    val message = convertResponseToMessage(responseString)
+                    AlertDialog.Builder(this)
+                        .setMessage(message)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                },
+                { throwable ->
+                    Timber.d(throwable, "fail")
+                    AlertDialog.Builder(this)
+                        .setMessage(R.string.create_result_failure)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show()
+                }
+            )
     }
 
     private fun convertResponseToMessage(response: String?): String {

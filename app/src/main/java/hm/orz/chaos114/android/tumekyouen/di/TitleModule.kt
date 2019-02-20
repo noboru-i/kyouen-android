@@ -14,20 +14,20 @@ import hm.orz.chaos114.android.tumekyouen.util.SoundManager
 class TitleModule {
     @Provides
     fun provideTitleViewModelFactory(
-            context: Context,
-            loginUtil: LoginUtil,
-            tumeKyouenService: TumeKyouenService,
-            tumeKyouenRepository: TumeKyouenRepository,
-            soundManager: SoundManager,
-            insertDataTask: InsertDataTask
+        context: Context,
+        loginUtil: LoginUtil,
+        tumeKyouenService: TumeKyouenService,
+        tumeKyouenRepository: TumeKyouenRepository,
+        soundManager: SoundManager,
+        insertDataTask: InsertDataTask
     ): TitleViewModelFactory {
         return TitleViewModelFactory(
-                context,
-                loginUtil,
-                tumeKyouenService,
-                tumeKyouenRepository,
-                soundManager,
-                insertDataTask
+            context,
+            loginUtil,
+            tumeKyouenService,
+            tumeKyouenRepository,
+            soundManager,
+            insertDataTask
         )
     }
 }

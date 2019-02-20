@@ -14,7 +14,7 @@ import javax.inject.Singleton
 
 @Singleton
 class EncryptionUtil @Inject constructor(
-        val preferenceUtil: PreferenceUtil
+    val preferenceUtil: PreferenceUtil
 ) {
     // encryption key
     private val key: Key

@@ -3,11 +3,11 @@ package hm.orz.chaos114.android.tumekyouen.model
 import java.util.ArrayList
 
 data class KyouenData(
-        val points: List<Point>,
-        val lineKyouen: Boolean,
-        val center: Point?,
-        val radius: Double,
-        val line: Line?
+    val points: List<Point>,
+    val lineKyouen: Boolean,
+    val center: Point?,
+    val radius: Double,
+    val line: Line?
 ) {
     companion object {
 

@@ -3,10 +3,10 @@ package hm.orz.chaos114.android.tumekyouen.model
 import java.util.ArrayList
 
 data class GameModel(
-        val size: Int,
-        val startState: String,
-        val stonePoints: MutableList<Point>,
-        val whiteStonePoints: MutableList<Point>
+    val size: Int,
+    val startState: String,
+    val stonePoints: MutableList<Point>,
+    val whiteStonePoints: MutableList<Point>
 ) {
 
     val blackStoneCount: Int
@@ -108,8 +108,7 @@ data class GameModel(
             val l34 = getMidperpendicular(p3, p4)
             // p2,p3,p4が直線上に存在する場合
             val intersection234 = getIntersection(l23, l34)
-                    ?:
-                    return KyouenData.create(p1, p2, p3, p4, Line.create(p1, p2))
+                ?: return KyouenData.create(p1, p2, p3, p4, Line.create(p1, p2))
         } else {
             val dist1 = getDistance(p1, intersection123)
             val dist2 = getDistance(p4, intersection123)
