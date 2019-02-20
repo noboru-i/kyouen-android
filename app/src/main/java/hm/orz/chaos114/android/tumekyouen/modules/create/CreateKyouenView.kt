@@ -10,8 +10,8 @@ import hm.orz.chaos114.android.tumekyouen.util.SoundManager
 import timber.log.Timber
 
 class CreateKyouenView @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null
+    context: Context,
+    attrs: AttributeSet? = null
 ) : KyouenView(context, attrs) {
 
     private lateinit var soundManager: SoundManager

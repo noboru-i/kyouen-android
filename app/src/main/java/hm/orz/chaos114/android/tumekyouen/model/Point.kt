@@ -1,8 +1,8 @@
 package hm.orz.chaos114.android.tumekyouen.model
 
 data class Point(
-        val x: Double,
-        val y: Double
+    val x: Double,
+    val y: Double
 ) {
 
     internal val abs: Double

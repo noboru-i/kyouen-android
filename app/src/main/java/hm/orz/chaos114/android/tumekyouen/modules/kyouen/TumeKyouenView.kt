@@ -12,8 +12,8 @@ import hm.orz.chaos114.android.tumekyouen.modules.common.KyouenView
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager
 
 class TumeKyouenView @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null
+    context: Context,
+    attrs: AttributeSet? = null
 ) : KyouenView(context, attrs) {
 
     private var soundManager: SoundManager? = null

@@ -22,9 +22,9 @@ object NotificationUtil {
 
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.createNotificationChannel(NotificationChannel(
-                CHANNEL_ID_DEFAULT,
-                context.getString(R.string.channel_name_default),
-                NotificationManager.IMPORTANCE_DEFAULT
+            CHANNEL_ID_DEFAULT,
+            context.getString(R.string.channel_name_default),
+            NotificationManager.IMPORTANCE_DEFAULT
         ))
     }
 
@@ -35,17 +35,17 @@ object NotificationUtil {
         val contentIntent = PendingIntent.getActivity(context, 0, newIntent, 0)
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID_DEFAULT)
-                .setAutoCancel(true)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setSmallIcon(R.drawable.icon_notification)
-                .setColor(ContextCompat.getColor(context, android.R.color.white))
-                .setContentIntent(contentIntent)
-                .build()
+            .setAutoCancel(true)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setSmallIcon(R.drawable.icon_notification)
+            .setColor(ContextCompat.getColor(context, android.R.color.white))
+            .setContentIntent(contentIntent)
+            .build()
 
         NotificationManagerCompat.from(context).notify(
-                0,
-                notification
+            0,
+            notification
         )
     }
 }

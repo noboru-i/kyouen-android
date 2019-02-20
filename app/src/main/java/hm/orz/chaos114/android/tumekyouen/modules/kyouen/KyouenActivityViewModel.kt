@@ -8,8 +8,8 @@ import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel
 
 class KyouenActivityViewModel internal constructor(
-        private val tumeKyouenModel: TumeKyouenModel,
-        private val context: Context
+    private val tumeKyouenModel: TumeKyouenModel,
+    private val context: Context
 ) {
 
     val titleStageNo: String

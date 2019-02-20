@@ -6,12 +6,12 @@ import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.databinding.StageGetDialogBinding
 
 class StageGetDialog(
-        context: Context,
-        successListener: OnSuccessListener?,
-        cancelListener: DialogInterface.OnCancelListener
+    context: Context,
+    successListener: OnSuccessListener?,
+    cancelListener: DialogInterface.OnCancelListener
 ) : ValidationDialog(context) {
 
-    private val binding: StageGetDialogBinding = StageGetDialogBinding.inflate(layoutInflater, null, false)
+    private val binding = StageGetDialogBinding.inflate(layoutInflater, null, false)
 
     private val count: Int
         get() {

@@ -25,8 +25,8 @@ interface TumeKyouenDao {
     fun selectMaxStageNo(): Single<Int>
 
     data class CountTuple(
-            @ColumnInfo(name = "count") var count: Int,
-            @ColumnInfo(name = "clear_count") var clearCount: Int
+        @ColumnInfo(name = "count") var count: Int,
+        @ColumnInfo(name = "clear_count") var clearCount: Int
     )
 
     @Query("SELECT COUNT(*) AS count, SUM(clear_flag) AS clear_count FROM tume_kyouen")

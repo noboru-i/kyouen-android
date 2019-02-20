@@ -42,13 +42,13 @@ class AppModule {
     @Provides
     internal fun provideAppDatabase(context: Context): AppDatabase {
         return Room
-                .databaseBuilder(
-                        context,
-                        AppDatabase::class.java,
-                        "irokae.db"
-                )
-                .addMigrations(MIGRATION_2_3)
-                .build()
+            .databaseBuilder(
+                context,
+                AppDatabase::class.java,
+                "irokae.db"
+            )
+            .addMigrations(MIGRATION_2_3)
+            .build()
     }
 
     @Provides
@@ -63,19 +63,19 @@ class AppModule {
         val logging = HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }
         logging.level = HttpLoggingInterceptor.Level.BODY
         val client = OkHttpClient.Builder()
-                .addInterceptor(logging)
-                .cookieJar(JavaNetCookieJar(CookieManager()))
-                .build()
+            .addInterceptor(logging)
+            .cookieJar(JavaNetCookieJar(CookieManager()))
+            .build()
 
         val gson = GsonBuilder()
-                .setDateFormat("yyyy-MM-dd HH:mm:ss")
-                .create()
+            .setDateFormat("yyyy-MM-dd HH:mm:ss")
+            .create()
         val retrofit = Retrofit.Builder()
-                .baseUrl(context.getString(R.string.server_url))
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build()
+            .baseUrl(context.getString(R.string.server_url))
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .build()
         return retrofit.create(TumeKyouenService::class.java)
     }
 
@@ -85,14 +85,14 @@ class AppModule {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE tume_kyouen RENAME TO old_tume_kyouen")
                 database.execSQL("CREATE TABLE IF NOT EXISTS tume_kyouen (" +
-                        " `uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-                        " `stage_no` INTEGER NOT NULL," +
-                        " `size` INTEGER NOT NULL," +
-                        " `stage` TEXT NOT NULL," +
-                        " `creator` TEXT NOT NULL," +
-                        " `clear_flag` INTEGER NOT NULL," +
-                        " `clear_date` INTEGER NOT NULL" +
-                        ")")
+                    " `uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                    " `stage_no` INTEGER NOT NULL," +
+                    " `size` INTEGER NOT NULL," +
+                    " `stage` TEXT NOT NULL," +
+                    " `creator` TEXT NOT NULL," +
+                    " `clear_flag` INTEGER NOT NULL," +
+                    " `clear_date` INTEGER NOT NULL" +
+                    ")")
                 database.execSQL("CREATE UNIQUE INDEX `index_tume_kyouen_stage_no` ON `tume_kyouen` (`stage_no`)")
                 database.execSQL("INSERT INTO tume_kyouen" + " SELECT _id, stage_no, size, stage, creator, clear_flag, clear_date FROM old_tume_kyouen")
                 database.execSQL("DROP TABLE old_tume_kyouen")

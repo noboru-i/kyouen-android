@@ -8,8 +8,8 @@ import javax.inject.Singleton
 
 @Singleton
 class InsertDataTask @Inject constructor(
-        private val tumeKyouenService: TumeKyouenService,
-        private val tumeKyouenRepository: TumeKyouenRepository
+    private val tumeKyouenService: TumeKyouenService,
+    private val tumeKyouenRepository: TumeKyouenRepository
 ) {
     var running = false
         private set

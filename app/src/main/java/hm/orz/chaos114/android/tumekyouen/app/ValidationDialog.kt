@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.DialogInterface
 
 abstract class ValidationDialog(
-        context: Context
+    context: Context
 ) : AlertDialog(context) {
 
     private var reshow: Boolean = false
@@ -28,9 +28,11 @@ abstract class ValidationDialog(
         }
     }
 
-    fun setCancelButton(text: CharSequence,
-                        listener: DialogInterface.OnCancelListener?) {
-        setButton(DialogInterface.BUTTON_NEUTRAL, text) { dialog, which -> cancel() }
+    fun setCancelButton(
+        text: CharSequence,
+        listener: DialogInterface.OnCancelListener?
+    ) {
+        setButton(DialogInterface.BUTTON_NEUTRAL, text) { _, _ -> cancel() }
 
         setOnCancelListener { dialog ->
             if (reshow) {

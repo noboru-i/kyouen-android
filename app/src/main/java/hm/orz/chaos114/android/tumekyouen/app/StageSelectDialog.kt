@@ -6,12 +6,12 @@ import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.databinding.StageSelectDialogBinding
 
 class StageSelectDialog(
-        context: Context,
-        successListener: OnSuccessListener?,
-        cancelListener: DialogInterface.OnCancelListener?
+    context: Context,
+    successListener: OnSuccessListener?,
+    cancelListener: DialogInterface.OnCancelListener?
 ) : ValidationDialog(context) {
 
-    private val binding: StageSelectDialogBinding = StageSelectDialogBinding.inflate(layoutInflater, null, false)
+    private val binding = StageSelectDialogBinding.inflate(layoutInflater, null, false)
 
     private val count: Int
         get() {
@@ -31,7 +31,6 @@ class StageSelectDialog(
             } catch (e: NumberFormatException) {
                 return 0
             }
-
         }
 
     init {
@@ -46,11 +45,11 @@ class StageSelectDialog(
         val cancelStr = context.getString(R.string.dialog_cancel)
         setCancelButton(cancelStr, cancelListener)
 
-        binding.dialogFirst.setOnCheckedChangeListener { buttonView, isChecked ->
+        binding.dialogFirst.setOnCheckedChangeListener { _, isChecked ->
             binding.dialogNumber.isEnabled = !isChecked
             binding.dialogLast.isEnabled = !isChecked
         }
-        binding.dialogLast.setOnCheckedChangeListener { buttonView, isChecked ->
+        binding.dialogLast.setOnCheckedChangeListener { _, isChecked ->
             binding.dialogNumber.isEnabled = !isChecked
             binding.dialogFirst.isEnabled = !isChecked
         }

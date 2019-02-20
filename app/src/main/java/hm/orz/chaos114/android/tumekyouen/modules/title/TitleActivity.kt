@@ -108,21 +108,21 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
         // TODO make router class
         val stageNo = lastStageNo
         tumeKyouenRepository.findStage(stageNo)
-                .subscribeOn(Schedulers.io())
-                .autoDisposable(scopeProvider)
-                .subscribe { item ->
-                    KyouenActivity.start(this, item)
-                }
+            .subscribeOn(Schedulers.io())
+            .autoDisposable(scopeProvider)
+            .subscribe { item ->
+                KyouenActivity.start(this, item)
+            }
     }
 
     override fun onClickGetStage(v: View) {
         val dialog = StageGetDialog(this,
-                object : StageGetDialog.OnSuccessListener {
-                    override fun onSuccess(count: Int) {
-                        viewModel.requestStages(count)
-                    }
-                },
-                DialogInterface.OnCancelListener { viewModel.refresh() })
+            object : StageGetDialog.OnSuccessListener {
+                override fun onSuccess(count: Int) {
+                    viewModel.requestStages(count)
+                }
+            },
+            DialogInterface.OnCancelListener { viewModel.refresh() })
         dialog.show()
     }
 

@@ -26,12 +26,12 @@ class App : DaggerApplication() {
         MobileAds.initialize(this, getString(R.string.admob_app_id))
 
         val authConfig = TwitterAuthConfig(
-                getString(R.string.twitter_key),
-                getString(R.string.twitter_secret)
+            getString(R.string.twitter_key),
+            getString(R.string.twitter_secret)
         )
         val config = TwitterConfig.Builder(this)
-                .twitterAuthConfig(authConfig)
-                .build()
+            .twitterAuthConfig(authConfig)
+            .build()
         Twitter.initialize(config)
 
         if (!FirebaseApp.getApps(this).isEmpty()) {
@@ -50,8 +50,8 @@ class App : DaggerApplication() {
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
         return DaggerAppComponent.builder()
-                .application(this)
-                .build()
+            .application(this)
+            .build()
     }
 
     override fun attachBaseContext(base: Context) {

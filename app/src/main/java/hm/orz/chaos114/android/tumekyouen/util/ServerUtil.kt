@@ -17,15 +17,15 @@ object ServerUtil {
                stages: List<TumeKyouenModel>): Single<AddAllResponse> {
         val sendData = JSONArray()
         val simpleDateFormat = SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss",
-                Locale.US)
+            "yyyy-MM-dd HH:mm:ss",
+            Locale.US)
         simpleDateFormat.timeZone = TimeZone.getTimeZone("GMT")
         for (stageModel in stages) {
             val map = JSONObject()
             try {
                 map.put("stageNo", Integer.toString(stageModel.stageNo))
                 map.put("clearDate",
-                        simpleDateFormat.format(stageModel.clearDate))
+                    simpleDateFormat.format(stageModel.clearDate))
             } catch (e: JSONException) {
                 continue
             }

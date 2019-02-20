@@ -36,12 +36,12 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class TitleViewModel @Inject constructor(
-        private val context: Context,
-        private val loginUtil: LoginUtil,
-        private val tumeKyouenService: TumeKyouenService,
-        private val tumeKyouenRepository: TumeKyouenRepository,
-        private val soundManager: SoundManager,
-        private val insertDataTask: InsertDataTask
+    private val context: Context,
+    private val loginUtil: LoginUtil,
+    private val tumeKyouenService: TumeKyouenService,
+    private val tumeKyouenRepository: TumeKyouenRepository,
+    private val soundManager: SoundManager,
+    private val insertDataTask: InsertDataTask
 ) : ViewModel() {
 
     enum class ConnectStatus {
@@ -60,8 +60,8 @@ class TitleViewModel @Inject constructor(
 
     val displayStageCount: LiveData<String> = Transformations.map(stageCountModel) { stageCountModel ->
         context.getString(R.string.stage_count,
-                stageCountModel.clearStageCount,
-                stageCountModel.stageCount)
+            stageCountModel.clearStageCount,
+            stageCountModel.stageCount)
     }
 
     val soundResource: LiveData<Drawable> = Transformations.map(soundManager.isPlayable.toFlowable(BackpressureStrategy.BUFFER).toLiveData()) { isPlayable ->
@@ -103,18 +103,18 @@ class TitleViewModel @Inject constructor(
         if (loginInfo != null) {
             mutableConnectStatus.value = ConnectStatus.CONNECTING
             disposable.add(
-                    tumeKyouenService.login(loginInfo.token, loginInfo.secret)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(
-                                    { s ->
-                                        Timber.d("sucess : %s", s)
-                                        mutableConnectStatus.value = ConnectStatus.CONNECTED
-                                    },
-                                    { throwable ->
-                                        Timber.d(throwable, "fail")
-                                        mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
-                                    })
+                tumeKyouenService.login(loginInfo.token, loginInfo.secret)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { s ->
+                            Timber.d("sucess : %s", s)
+                            mutableConnectStatus.value = ConnectStatus.CONNECTED
+                        },
+                        { throwable ->
+                            Timber.d(throwable, "fail")
+                            mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+                        })
             )
         } else {
             mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
@@ -128,12 +128,12 @@ class TitleViewModel @Inject constructor(
     fun refresh() {
         _isRunningInsertTask.value = insertDataTask.running
         disposable.add(
-                tumeKyouenRepository.selectStageCount()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { stageCountModel ->
-                            this.stageCountModel.value = stageCountModel
-                        }
+            tumeKyouenRepository.selectStageCount()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { stageCountModel ->
+                    this.stageCountModel.value = stageCountModel
+                }
         )
     }
 
@@ -161,60 +161,60 @@ class TitleViewModel @Inject constructor(
     fun requestSync() {
         mutableConnectStatus.value = ConnectStatus.SYNCING
         disposable.add(
-                tumeKyouenRepository.selectAllClearStage()
-                        .subscribeOn(Schedulers.io())
-                        .flatMap<AddAllResponse> { stages -> ServerUtil.addAll(tumeKyouenService, stages) }
-                        .flatMapCompletable { addAllResponse ->
-                            tumeKyouenRepository.updateSyncClearData(addAllResponse.data)
-                        }
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                {
-                                    mutableConnectStatus.value = ConnectStatus.CONNECTED
-                                    refresh()
-                                },
-                                {
-                                    mutableConnectStatus.value = ConnectStatus.CONNECTED
-                                    _alertMessage.value = Event(R.string.alert_error_sync)
-                                }
-                        )
+            tumeKyouenRepository.selectAllClearStage()
+                .subscribeOn(Schedulers.io())
+                .flatMap<AddAllResponse> { stages -> ServerUtil.addAll(tumeKyouenService, stages) }
+                .flatMapCompletable { addAllResponse ->
+                    tumeKyouenRepository.updateSyncClearData(addAllResponse.data)
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        mutableConnectStatus.value = ConnectStatus.CONNECTED
+                        refresh()
+                    },
+                    {
+                        mutableConnectStatus.value = ConnectStatus.CONNECTED
+                        _alertMessage.value = Event(R.string.alert_error_sync)
+                    }
+                )
         )
     }
 
     fun requestStages(count: Int) {
         val taskCount = if (count == -1) Integer.MAX_VALUE else count
         disposable.add(
-                tumeKyouenRepository.selectMaxStageNo()
-                        .subscribeOn(Schedulers.io())
-                        .flatMap { maxStageNo -> insertDataTask.run(maxStageNo, taskCount) }
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                { successCount ->
-                                    _toastMessage.value = Event(StringResource(R.string.toast_get_stage, arrayOf(successCount)))
-                                    refresh()
-                                },
-                                {
-                                    _toastMessage.value = Event(StringResource(R.string.toast_no_stage))
-                                }
-                        )
+            tumeKyouenRepository.selectMaxStageNo()
+                .subscribeOn(Schedulers.io())
+                .flatMap { maxStageNo -> insertDataTask.run(maxStageNo, taskCount) }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { successCount ->
+                        _toastMessage.value = Event(StringResource(R.string.toast_get_stage, arrayOf(successCount)))
+                        refresh()
+                    },
+                    {
+                        _toastMessage.value = Event(StringResource(R.string.toast_no_stage))
+                    }
+                )
         )
     }
 
     private fun sendAuthToken(authToken: TwitterAuthToken) {
         disposable.add(
-                tumeKyouenService.login(authToken.token, authToken.secret)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                {
-                                    loginUtil.saveLoginInfo(authToken)
-                                    mutableConnectStatus.value = ConnectStatus.CONNECTED
-                                },
-                                {
-                                    mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
-                                    _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
-                                }
-                        )
+            tumeKyouenService.login(authToken.token, authToken.secret)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        loginUtil.saveLoginInfo(authToken)
+                        mutableConnectStatus.value = ConnectStatus.CONNECTED
+                    },
+                    {
+                        mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+                        _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
+                    }
+                )
         )
     }
 

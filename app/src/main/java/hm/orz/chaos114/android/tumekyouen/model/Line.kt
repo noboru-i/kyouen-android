@@ -4,11 +4,11 @@ package hm.orz.chaos114.android.tumekyouen.model
  * a*x + b*y + c = 0
  */
 data class Line(
-        val p1: Point,
-        val p2: Point,
-        val a: Double,
-        val b: Double,
-        val c: Double
+    val p1: Point,
+    val p2: Point,
+    val a: Double,
+    val b: Double,
+    val c: Double
 ) {
     fun getY(x: Double): Double {
         return -1 * (a * x + c) / b

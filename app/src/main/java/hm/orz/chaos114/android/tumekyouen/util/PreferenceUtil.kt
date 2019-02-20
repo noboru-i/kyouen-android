@@ -6,7 +6,7 @@ import javax.inject.Singleton
 
 @Singleton
 class PreferenceUtil @Inject constructor(
-        private val sp: SharedPreferences
+    private val sp: SharedPreferences
 ) {
 
     fun putString(key: String, value: String) {
