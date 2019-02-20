@@ -190,7 +190,9 @@ class TitleViewModel @Inject constructor(
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     { successCount ->
-                        _toastMessage.value = Event(StringResource(R.string.toast_get_stage, arrayOf(successCount)))
+                        _toastMessage.value = Event(
+                            StringResource(R.string.toast_get_stage, arrayOf(successCount))
+                        )
                         refresh()
                     },
                     {

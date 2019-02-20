@@ -145,7 +145,7 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
             .subscribe(
                 { response ->
                     val responseString = response.body()?.string()
-                    Timber.d("sucess : %s", responseString);
+                    Timber.d("sucess : %s", responseString)
                     progressDialog.dismiss()
 
                     val message = convertResponseToMessage(responseString)
@@ -155,7 +155,7 @@ class CreateActivity : DaggerAppCompatActivity(), CreateKyouenView.CreateKyouenV
                         .show()
                 },
                 { throwable ->
-                    Timber.d(throwable, "fail");
+                    Timber.d(throwable, "fail")
                     AlertDialog.Builder(this)
                         .setMessage(R.string.create_result_failure)
                         .setPositiveButton(android.R.string.ok, null)

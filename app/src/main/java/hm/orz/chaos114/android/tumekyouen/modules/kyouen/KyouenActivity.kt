@@ -137,7 +137,9 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
                     stageModel = newStage
                     showOtherStage(direction)
                 },
-                { throwable -> throw RuntimeException("I think, we are not called this.", throwable) },
+                { throwable ->
+                    throw RuntimeException("I think, we are not called this.", throwable)
+                },
                 { loadNextStages(direction) }
             )
     }
@@ -202,7 +204,6 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
             .setInterpolator(AccelerateInterpolator())
             .setListener(object : Animator.AnimatorListener {
                 override fun onAnimationStart(animation: Animator) {
-
                 }
 
                 override fun onAnimationEnd(animation: Animator) {
@@ -210,11 +211,9 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
                 }
 
                 override fun onAnimationCancel(animation: Animator) {
-
                 }
 
                 override fun onAnimationRepeat(animation: Animator) {
-
                 }
             })
 
@@ -294,7 +293,8 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
                             }
                         )
                 }
-            }, null)
+            }, null
+        )
         dialog.setStageNo(stageModel!!.stageNo)
         dialog.show()
     }
