@@ -34,6 +34,10 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -210,21 +214,20 @@ class TitleViewModel @Inject constructor(
     }
 
     private fun sendAuthToken(authToken: TwitterAuthToken) {
-        disposable.add(
-            tumeKyouenV2Service.login(LoginParam(authToken.token, authToken.secret))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        loginUtil.saveLoginInfo(authToken)
-                        mutableConnectStatus.value = ConnectStatus.CONNECTED
-                    },
-                    {
-                        mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
-                        _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
-                    }
-                )
-        )
+        GlobalScope.launch {
+            val response = tumeKyouenV2Service.login(LoginParam(authToken.token, authToken.secret))
+            withContext(Dispatchers.Main) {
+                if (response.isSuccessful) {
+                    Timber.d("loginResult: %s", response.body())
+                    loginUtil.saveLoginInfo(authToken)
+                    mutableConnectStatus.value = ConnectStatus.CONNECTED
+                } else {
+                    Timber.d("error body: %s", response.errorBody()?.string())
+                    mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+                    _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
+                }
+            }
+        }
     }
 
     override fun onCleared() {
