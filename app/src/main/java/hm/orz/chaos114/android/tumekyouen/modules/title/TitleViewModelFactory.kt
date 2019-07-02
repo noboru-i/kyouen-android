@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
+import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenV2Service
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
 import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil
@@ -14,6 +15,7 @@ class TitleViewModelFactory @Inject constructor(
     private val context: Context,
     private val loginUtil: LoginUtil,
     private val tumeKyouenService: TumeKyouenService,
+    private val tumeKyouenV2Service: TumeKyouenV2Service,
     private val tumeKyouenRepository: TumeKyouenRepository,
     private val soundManager: SoundManager,
     private val insertDataTask: InsertDataTask
@@ -25,6 +27,7 @@ class TitleViewModelFactory @Inject constructor(
             context,
             loginUtil,
             tumeKyouenService,
+            tumeKyouenV2Service,
             tumeKyouenRepository,
             soundManager,
             insertDataTask

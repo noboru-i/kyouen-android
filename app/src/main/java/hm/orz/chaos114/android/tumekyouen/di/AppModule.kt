@@ -8,18 +8,22 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.GsonBuilder
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import hm.orz.chaos114.android.tumekyouen.App
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.db.AppDatabase
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
+import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenV2Service
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import timber.log.Timber
 import java.net.CookieManager
 import javax.inject.Singleton
@@ -77,6 +81,25 @@ class AppModule {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
         return retrofit.create(TumeKyouenService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    internal fun provideTumeKyouenV2Service(context: Context): TumeKyouenV2Service {
+        val logging = HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }
+        logging.level = HttpLoggingInterceptor.Level.BODY
+        val client = OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .build()
+
+        val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+        val retrofit = Retrofit.Builder()
+            .baseUrl(context.getString(R.string.server_v2_url))
+            .client(client)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .build()
+        return retrofit.create(TumeKyouenV2Service::class.java)
     }
 
     companion object {

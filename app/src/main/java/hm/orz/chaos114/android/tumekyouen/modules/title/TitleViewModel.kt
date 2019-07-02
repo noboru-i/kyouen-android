@@ -21,6 +21,8 @@ import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.model.AddAllResponse
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
+import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenV2Service
+import hm.orz.chaos114.android.tumekyouen.network.models.LoginParam
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
 import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask
 import hm.orz.chaos114.android.tumekyouen.util.Event
@@ -39,6 +41,7 @@ class TitleViewModel @Inject constructor(
     private val context: Context,
     private val loginUtil: LoginUtil,
     private val tumeKyouenService: TumeKyouenService,
+    private val tumeKyouenV2Service: TumeKyouenV2Service,
     private val tumeKyouenRepository: TumeKyouenRepository,
     private val soundManager: SoundManager,
     private val insertDataTask: InsertDataTask
@@ -59,15 +62,19 @@ class TitleViewModel @Inject constructor(
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     val displayStageCount: LiveData<String> = Transformations.map(stageCountModel) { stageCountModel ->
-        context.getString(R.string.stage_count,
+        context.getString(
+            R.string.stage_count,
             stageCountModel.clearStageCount,
-            stageCountModel.stageCount)
+            stageCountModel.stageCount
+        )
     }
 
-    val soundResource: LiveData<Drawable> = Transformations.map(soundManager.isPlayable.toFlowable(BackpressureStrategy.BUFFER).toLiveData()) { isPlayable ->
-        @DrawableRes val imageRes = if (isPlayable) R.drawable.ic_volume_up_black else R.drawable.ic_volume_off_black
-        ContextCompat.getDrawable(context, imageRes)
-    }
+    val soundResource: LiveData<Drawable> =
+        Transformations.map(soundManager.isPlayable.toFlowable(BackpressureStrategy.BUFFER).toLiveData()) { isPlayable ->
+            @DrawableRes val imageRes =
+                if (isPlayable) R.drawable.ic_volume_up_black else R.drawable.ic_volume_off_black
+            ContextCompat.getDrawable(context, imageRes)
+        }
 
     val connectButtonEnabled: LiveData<Boolean> = Transformations.map(mutableConnectStatus) { status ->
         status == ConnectStatus.BEFORE_CONNECT
@@ -204,7 +211,7 @@ class TitleViewModel @Inject constructor(
 
     private fun sendAuthToken(authToken: TwitterAuthToken) {
         disposable.add(
-            tumeKyouenService.login(authToken.token, authToken.secret)
+            tumeKyouenV2Service.login(LoginParam(authToken.token, authToken.secret))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
