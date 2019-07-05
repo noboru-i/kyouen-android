@@ -16,10 +16,13 @@ import com.squareup.moshi.Json
 /**
  * 
  * @param screenName 
+ * @param token 
  */
 data class LoginResult (
     @Json(name = "screen_name")
-    val screenName: kotlin.String
+    val screenName: kotlin.String,
+    @Json(name = "token")
+    val token: kotlin.String
 ) {
 
 }
