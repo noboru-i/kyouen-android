@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.toLiveData
+import com.google.firebase.auth.FirebaseAuth
 import com.twitter.sdk.android.core.Callback
 import com.twitter.sdk.android.core.Result
 import com.twitter.sdk.android.core.TwitterAuthToken
@@ -60,18 +61,21 @@ class TitleViewModel @Inject constructor(
 
     private val twitterAuthClient = TwitterAuthClient()
 
+    private lateinit var auth: FirebaseAuth
+
     private val stageCountModel = MutableLiveData<StageCountModel>()
     private val mutableConnectStatus = MutableLiveData<ConnectStatus>()
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    val displayStageCount: LiveData<String> = Transformations.map(stageCountModel) { stageCountModel ->
-        context.getString(
-            R.string.stage_count,
-            stageCountModel.clearStageCount,
-            stageCountModel.stageCount
-        )
-    }
+    val displayStageCount: LiveData<String> =
+        Transformations.map(stageCountModel) { stageCountModel ->
+            context.getString(
+                R.string.stage_count,
+                stageCountModel.clearStageCount,
+                stageCountModel.stageCount
+            )
+        }
 
     val soundResource: LiveData<Drawable> =
         Transformations.map(soundManager.isPlayable.toFlowable(BackpressureStrategy.BUFFER).toLiveData()) { isPlayable ->
@@ -80,9 +84,10 @@ class TitleViewModel @Inject constructor(
             ContextCompat.getDrawable(context, imageRes)
         }
 
-    val connectButtonEnabled: LiveData<Boolean> = Transformations.map(mutableConnectStatus) { status ->
-        status == ConnectStatus.BEFORE_CONNECT
-    }
+    val connectButtonEnabled: LiveData<Boolean> =
+        Transformations.map(mutableConnectStatus) { status ->
+            status == ConnectStatus.BEFORE_CONNECT
+        }
 
     val connectButtonShow: LiveData<Boolean> = Transformations.map(mutableConnectStatus) { status ->
         status == ConnectStatus.BEFORE_CONNECT || status == ConnectStatus.CONNECTING
@@ -109,27 +114,23 @@ class TitleViewModel @Inject constructor(
         get() = _toastMessage
 
     fun onCreate() {
-        val loginInfo = loginUtil.loadLoginInfo()
-        Timber.d("loginInfo = %s", loginInfo)
-        if (loginInfo != null) {
-            mutableConnectStatus.value = ConnectStatus.CONNECTING
-            disposable.add(
-                tumeKyouenService.login(loginInfo.token, loginInfo.secret)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { s ->
-                            Timber.d("sucess : %s", s)
-                            mutableConnectStatus.value = ConnectStatus.CONNECTED
-                        },
-                        { throwable ->
-                            Timber.d(throwable, "fail")
-                            mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
-                        })
-            )
-        } else {
-            mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+        auth = FirebaseAuth.getInstance()
+
+        if (auth.currentUser != null) {
+            // already logged in
+            mutableConnectStatus.value = ConnectStatus.CONNECTED
+            return
         }
+
+        // migration authentication
+        val loginInfo = loginUtil.loadLoginInfo()
+        if (loginInfo == null) {
+            mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+            return
+        }
+
+        mutableConnectStatus.value = ConnectStatus.CONNECTING
+        sendAuthToken(TwitterAuthToken(loginInfo.token, loginInfo.secret))
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -217,15 +218,25 @@ class TitleViewModel @Inject constructor(
         GlobalScope.launch {
             val response = tumeKyouenV2Service.login(LoginParam(authToken.token, authToken.secret))
             withContext(Dispatchers.Main) {
-                if (response.isSuccessful) {
-                    Timber.d("loginResult: %s", response.body())
-                    loginUtil.saveLoginInfo(authToken)
-                    mutableConnectStatus.value = ConnectStatus.CONNECTED
-                } else {
+                if (!response.isSuccessful) {
                     Timber.d("error body: %s", response.errorBody()?.string())
                     mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
                     _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
+                    return@withContext
                 }
+
+                auth.signInWithCustomToken(response.body()!!.token)
+                    .addOnCompleteListener { task ->
+                        if (!task.isSuccessful) {
+                            mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+                            _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
+                            return@addOnCompleteListener
+                        }
+
+                        val user = auth.currentUser;
+                        Timber.d("Firebase auth user: %s", user?.uid)
+                        mutableConnectStatus.value = ConnectStatus.CONNECTED
+                    }
             }
         }
     }
