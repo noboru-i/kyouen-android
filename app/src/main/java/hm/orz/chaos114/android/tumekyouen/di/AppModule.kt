@@ -15,6 +15,7 @@ import dagger.Provides
 import hm.orz.chaos114.android.tumekyouen.App
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.db.AppDatabase
+import hm.orz.chaos114.android.tumekyouen.network.AuthInterceptor
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenV2Service
 import okhttp3.JavaNetCookieJar
@@ -90,6 +91,7 @@ class AppModule {
         logging.level = HttpLoggingInterceptor.Level.BODY
         val client = OkHttpClient.Builder()
             .addInterceptor(logging)
+            .addInterceptor(AuthInterceptor())
             .build()
 
         val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()

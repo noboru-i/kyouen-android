@@ -15,6 +15,25 @@ data class GameModel(
     val whiteStoneCount: Int
         get() = whiteStonePoints.size
 
+    val stageState: String
+        get() {
+            val builder = StringBuilder()
+            for (i in 0 until size * size) {
+                val col = i % size
+                val row = i / size
+                if (hasStone(col, row)) {
+                    if (isSelected(col, row)) {
+                        builder.append("2")
+                    } else {
+                        builder.append("1")
+                    }
+                } else {
+                    builder.append("0")
+                }
+            }
+            return builder.toString()
+        }
+
     val stageStateForSend: String
         get() {
             val builder = StringBuilder()
@@ -38,7 +57,6 @@ data class GameModel(
             val (p1, p2, p3, p4) = whiteStonePoints
 
             return isKyouen(p1, p2, p3, p4)
-
         }
 
     fun switchColor(x: Int, y: Int) {

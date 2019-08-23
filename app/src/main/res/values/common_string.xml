@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="server_url" translatable="false">https://my-android-server.appspot.com</string>
+    <!-- local -->
+<!--    <string name="server_v2_url" translatable="false">http://10.0.2.2:8080</string>-->
+    <!-- production -->
     <string name="server_v2_url" translatable="false">https://v2-dot-my-android-server.appspot.com</string>
 
     <string name="twitter_key" translatable="false">7o7Mn96LxBHSPomoXdK8Yw</string>

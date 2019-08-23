@@ -19,6 +19,8 @@ import hm.orz.chaos114.android.tumekyouen.app.StageSelectDialog
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityKyouenBinding
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
+import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenV2Service
+import hm.orz.chaos114.android.tumekyouen.network.models.ClearStage
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
 import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask
 import hm.orz.chaos114.android.tumekyouen.util.AdRequestFactory
@@ -29,6 +31,8 @@ import icepick.State
 import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
@@ -43,6 +47,8 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
     internal lateinit var tumeKyouenRepository: TumeKyouenRepository
     @Inject
     internal lateinit var tumeKyouenService: TumeKyouenService
+    @Inject
+    internal lateinit var tumeKyouenV2Service: TumeKyouenV2Service
     @Inject
     internal lateinit var firebaseAnalytics: FirebaseAnalytics
     @Inject
@@ -100,10 +106,13 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
         binding.kyouenButton.isClickable = false
         tumeKyouenView.isClickable = false
 
+        GlobalScope.launch {
+            val param = ClearStage(tumeKyouenView.gameModel.stageState)
+            tumeKyouenV2Service.putStagesClear(stageModel!!.stageNo, param)
+        }
         Maybe
             .concat(
                 tumeKyouenRepository.updateClearFlag(stageModel!!.stageNo, Date()).toMaybe(),
-                tumeKyouenService.add(stageModel!!.stageNo),
                 tumeKyouenRepository.findStage(stageModel!!.stageNo)
             )
             .subscribeOn(Schedulers.io())
