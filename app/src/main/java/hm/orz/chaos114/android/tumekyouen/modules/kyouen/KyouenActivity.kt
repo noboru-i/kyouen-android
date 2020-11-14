@@ -46,8 +46,6 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
     @Inject
     internal lateinit var tumeKyouenRepository: TumeKyouenRepository
     @Inject
-    internal lateinit var tumeKyouenService: TumeKyouenService
-    @Inject
     internal lateinit var tumeKyouenV2Service: TumeKyouenV2Service
     @Inject
     internal lateinit var firebaseAnalytics: FirebaseAnalytics

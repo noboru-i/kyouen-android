@@ -1,13 +1,18 @@
 package hm.orz.chaos114.android.tumekyouen.repository
 
+import com.google.gson.internal.bind.util.ISO8601Utils
 import hm.orz.chaos114.android.tumekyouen.db.AppDatabase
 import hm.orz.chaos114.android.tumekyouen.db.entities.TumeKyouen
-import hm.orz.chaos114.android.tumekyouen.model.AddAllResponse
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel
+import hm.orz.chaos114.android.tumekyouen.network.models.ClearedStage
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
+import timber.log.Timber
+import java.text.ParsePosition
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,7 +28,8 @@ class TumeKyouenRepository @Inject constructor(
         }
 
         var i = 0
-        val entity = TumeKyouen(0,
+        val entity = TumeKyouen(
+            0,
             splitString[i++].toInt(),
             splitString[i++].toInt(),
             splitString[i++],
@@ -53,7 +59,8 @@ class TumeKyouenRepository @Inject constructor(
                     it.stage,
                     it.creator,
                     it.clearFlag,
-                    Date(it.clearDate))
+                    Date(it.clearDate)
+                )
             }
     }
 
@@ -67,7 +74,8 @@ class TumeKyouenRepository @Inject constructor(
                         tumeKyouen.stage,
                         tumeKyouen.creator,
                         tumeKyouen.clearFlag,
-                        Date(tumeKyouen.clearDate))
+                        Date(tumeKyouen.clearDate)
+                    )
                 }
             }
     }
@@ -84,10 +92,10 @@ class TumeKyouenRepository @Inject constructor(
             .ignoreElement()
     }
 
-    fun updateSyncClearData(clearList: List<AddAllResponse.Stage>): Completable {
+    fun updateSyncClearData(clearList: List<ClearedStage>): Completable {
         return Completable.merge(
             clearList.map {
-                updateClearFlag(it.stageNo, it.clearDate)
+                updateClearFlag(it.stageNo.toInt(), ISO8601Utils.parse(it.clearDate, ParsePosition(0)))
             }
         )
     }

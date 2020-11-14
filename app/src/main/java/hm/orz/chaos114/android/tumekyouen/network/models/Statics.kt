@@ -18,13 +18,12 @@ import com.squareup.moshi.Json
  * @param count 
  * @param lastUpdatedAt date in UTC
  */
+
 data class Statics (
     @Json(name = "count")
     val count: kotlin.Long,
     /* date in UTC */
     @Json(name = "last_updated_at")
-    val lastUpdatedAt: java.time.LocalDateTime
-) {
-
-}
+    val lastUpdatedAt: kotlin.String
+)
 

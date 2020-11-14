@@ -18,13 +18,12 @@ import com.squareup.moshi.Json
  * @param stageNo 
  * @param clearDate date in UTC
  */
+
 data class ClearedStage (
     @Json(name = "stage_no")
     val stageNo: kotlin.Long,
     /* date in UTC */
     @Json(name = "clear_date")
-    val clearDate: java.time.LocalDateTime
-) {
-
-}
+    val clearDate: kotlin.String
+)
 

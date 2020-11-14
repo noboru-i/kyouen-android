@@ -15,12 +15,12 @@ package hm.orz.chaos114.android.tumekyouen.network.models
 import com.squareup.moshi.Json
 /**
  * 
- * @param stage 
+ * @param stage 0: no stone<br>1: black stone<br>2: white stone (selected)
  */
+
 data class ClearStage (
+    /* 0: no stone<br>1: black stone<br>2: white stone (selected) */
     @Json(name = "stage")
     val stage: kotlin.String
-) {
-
-}
+)
 

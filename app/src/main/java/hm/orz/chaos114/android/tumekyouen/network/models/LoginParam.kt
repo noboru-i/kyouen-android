@@ -18,12 +18,11 @@ import com.squareup.moshi.Json
  * @param token 
  * @param tokenSecret 
  */
+
 data class LoginParam (
     @Json(name = "token")
     val token: kotlin.String,
     @Json(name = "token_secret")
     val tokenSecret: kotlin.String
-) {
-
-}
+)
 

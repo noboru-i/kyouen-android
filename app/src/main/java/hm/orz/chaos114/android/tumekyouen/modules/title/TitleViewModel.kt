@@ -12,6 +12,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.toLiveData
 import com.google.firebase.auth.FirebaseAuth
+import com.google.gson.internal.bind.util.ISO8601Utils
 import com.twitter.sdk.android.core.Callback
 import com.twitter.sdk.android.core.Result
 import com.twitter.sdk.android.core.TwitterAuthToken
@@ -19,16 +20,14 @@ import com.twitter.sdk.android.core.TwitterException
 import com.twitter.sdk.android.core.TwitterSession
 import com.twitter.sdk.android.core.identity.TwitterAuthClient
 import hm.orz.chaos114.android.tumekyouen.R
-import hm.orz.chaos114.android.tumekyouen.model.AddAllResponse
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel
-import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenV2Service
+import hm.orz.chaos114.android.tumekyouen.network.models.ClearedStage
 import hm.orz.chaos114.android.tumekyouen.network.models.LoginParam
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
 import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask
 import hm.orz.chaos114.android.tumekyouen.util.Event
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil
-import hm.orz.chaos114.android.tumekyouen.util.ServerUtil
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager
 import hm.orz.chaos114.android.tumekyouen.util.StringResource
 import io.reactivex.BackpressureStrategy
@@ -45,7 +44,6 @@ import javax.inject.Inject
 class TitleViewModel @Inject constructor(
     private val context: Context,
     private val loginUtil: LoginUtil,
-    private val tumeKyouenService: TumeKyouenService,
     private val tumeKyouenV2Service: TumeKyouenV2Service,
     private val tumeKyouenRepository: TumeKyouenRepository,
     private val soundManager: SoundManager,
@@ -78,7 +76,9 @@ class TitleViewModel @Inject constructor(
         }
 
     val soundResource: LiveData<Drawable> =
-        Transformations.map(soundManager.isPlayable.toFlowable(BackpressureStrategy.BUFFER).toLiveData()) { isPlayable ->
+        Transformations.map(
+            soundManager.isPlayable.toFlowable(BackpressureStrategy.BUFFER).toLiveData()
+        ) { isPlayable ->
             @DrawableRes val imageRes =
                 if (isPlayable) R.drawable.ic_volume_up_black else R.drawable.ic_volume_off_black
             ContextCompat.getDrawable(context, imageRes)
@@ -172,25 +172,34 @@ class TitleViewModel @Inject constructor(
 
     fun requestSync() {
         mutableConnectStatus.value = ConnectStatus.SYNCING
-        disposable.add(
-            tumeKyouenRepository.selectAllClearStage()
+        GlobalScope.launch {
+            val clearedStages = tumeKyouenRepository.selectAllClearStage()
                 .subscribeOn(Schedulers.io())
-                .flatMap<AddAllResponse> { stages -> ServerUtil.addAll(tumeKyouenService, stages) }
-                .flatMapCompletable { addAllResponse ->
-                    tumeKyouenRepository.updateSyncClearData(addAllResponse.data)
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        mutableConnectStatus.value = ConnectStatus.CONNECTED
-                        refresh()
-                    },
-                    {
-                        mutableConnectStatus.value = ConnectStatus.CONNECTED
-                        _alertMessage.value = Event(R.string.alert_error_sync)
+                .map { stages ->
+                    stages.map { s ->
+                        ClearedStage(
+                            stageNo = s.stageNo.toLong(),
+                            clearDate = ISO8601Utils.format(s.clearDate)
+                        )
                     }
-                )
-        )
+                }
+                .blockingGet()
+            val response = tumeKyouenV2Service.postSync(clearedStages)
+            response.body()?.let {
+                tumeKyouenRepository.updateSyncClearData(it)
+                    .subscribe()
+            }
+
+            withContext(Dispatchers.Main) {
+                mutableConnectStatus.value = ConnectStatus.CONNECTED
+
+                if (response.isSuccessful) {
+                    refresh()
+                } else {
+                    _alertMessage.value = Event(R.string.alert_error_sync)
+                }
+            }
+        }
     }
 
     fun requestStages(count: Int) {
@@ -219,7 +228,13 @@ class TitleViewModel @Inject constructor(
             val response = tumeKyouenV2Service.login(LoginParam(authToken.token, authToken.secret))
             withContext(Dispatchers.Main) {
                 if (!response.isSuccessful) {
-                    Timber.d("error body: %s", response.errorBody()?.string())
+                    withContext(Dispatchers.IO) {
+                        Timber.d(
+                            "error body: %s",
+                            response.errorBody()?.string()
+                        )
+                    }
+
                     mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
                     _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
                     return@withContext
@@ -233,7 +248,7 @@ class TitleViewModel @Inject constructor(
                             return@addOnCompleteListener
                         }
 
-                        val user = auth.currentUser;
+                        val user = auth.currentUser
                         Timber.d("Firebase auth user: %s", user?.uid)
                         mutableConnectStatus.value = ConnectStatus.CONNECTED
                     }

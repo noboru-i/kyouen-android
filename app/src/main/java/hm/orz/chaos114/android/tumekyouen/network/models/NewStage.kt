@@ -19,6 +19,7 @@ import com.squareup.moshi.Json
  * @param stage 
  * @param creator 
  */
+
 data class NewStage (
     @Json(name = "size")
     val size: kotlin.Long,
@@ -26,7 +27,5 @@ data class NewStage (
     val stage: kotlin.String,
     @Json(name = "creator")
     val creator: kotlin.String
-) {
-
-}
+)
 

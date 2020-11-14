@@ -18,12 +18,11 @@ import com.squareup.moshi.Json
  * @param code 
  * @param message 
  */
+
 data class Error (
     @Json(name = "code")
     val code: kotlin.Long,
     @Json(name = "message")
     val message: kotlin.String
-) {
-
-}
+)
 

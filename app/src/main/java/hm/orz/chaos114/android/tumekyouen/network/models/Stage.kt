@@ -21,6 +21,7 @@ import com.squareup.moshi.Json
  * @param creator 
  * @param registDate date in UTC
  */
+
 data class Stage (
     @Json(name = "stage_no")
     val stageNo: kotlin.Long,
@@ -32,8 +33,6 @@ data class Stage (
     val creator: kotlin.String,
     /* date in UTC */
     @Json(name = "regist_date")
-    val registDate: java.time.LocalDateTime
-) {
-
-}
+    val registDate: kotlin.String
+)
 

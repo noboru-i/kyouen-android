@@ -6,6 +6,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GetTokenResult
 import hm.orz.chaos114.android.tumekyouen.network.models.ClearStage
+import hm.orz.chaos114.android.tumekyouen.network.models.ClearedStage
 import hm.orz.chaos114.android.tumekyouen.network.models.LoginParam
 import hm.orz.chaos114.android.tumekyouen.network.models.LoginResult
 import kotlinx.coroutines.runBlocking
@@ -26,6 +27,10 @@ interface TumeKyouenV2Service {
     @RequireAuth
     @PUT("/v2/stages/{stageNo}/clear")
     suspend fun putStagesClear(@Path("stageNo") stageNo: Int, @Body clearStage: ClearStage): Response<Void>
+
+    @RequireAuth
+    @POST("/v2/stages/sync")
+    suspend fun postSync(@Body clearStage: List<ClearedStage>): Response<List<ClearedStage>>
 }
 
 annotation class RequireAuth
