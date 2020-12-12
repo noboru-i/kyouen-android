@@ -7,7 +7,6 @@ import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.gson.GsonBuilder
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -16,17 +15,13 @@ import hm.orz.chaos114.android.tumekyouen.App
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.db.AppDatabase
 import hm.orz.chaos114.android.tumekyouen.network.AuthInterceptor
-import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenV2Service
-import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import timber.log.Timber
-import java.net.CookieManager
 import javax.inject.Singleton
 
 @Module
@@ -60,28 +55,6 @@ class AppModule {
     @Singleton
     internal fun provideFirebaseAnalytics(context: Context): FirebaseAnalytics {
         return FirebaseAnalytics.getInstance(context)
-    }
-
-    @Provides
-    @Singleton
-    internal fun provideTumeKyouenService(context: Context): TumeKyouenService {
-        val logging = HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }
-        logging.level = HttpLoggingInterceptor.Level.BODY
-        val client = OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .cookieJar(JavaNetCookieJar(CookieManager()))
-            .build()
-
-        val gson = GsonBuilder()
-            .setDateFormat("yyyy-MM-dd HH:mm:ss")
-            .create()
-        val retrofit = Retrofit.Builder()
-            .baseUrl(context.getString(R.string.server_url))
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .build()
-        return retrofit.create(TumeKyouenService::class.java)
     }
 
     @Provides

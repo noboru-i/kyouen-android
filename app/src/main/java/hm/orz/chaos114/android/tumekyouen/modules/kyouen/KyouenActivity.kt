@@ -18,7 +18,6 @@ import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.app.StageSelectDialog
 import hm.orz.chaos114.android.tumekyouen.databinding.ActivityKyouenBinding
 import hm.orz.chaos114.android.tumekyouen.model.TumeKyouenModel
-import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenV2Service
 import hm.orz.chaos114.android.tumekyouen.network.models.ClearStage
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository

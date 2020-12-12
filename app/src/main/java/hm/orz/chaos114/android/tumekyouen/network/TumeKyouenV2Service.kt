@@ -9,6 +9,7 @@ import hm.orz.chaos114.android.tumekyouen.network.models.ClearStage
 import hm.orz.chaos114.android.tumekyouen.network.models.ClearedStage
 import hm.orz.chaos114.android.tumekyouen.network.models.LoginParam
 import hm.orz.chaos114.android.tumekyouen.network.models.LoginResult
+import hm.orz.chaos114.android.tumekyouen.network.models.NewStage
 import hm.orz.chaos114.android.tumekyouen.network.models.Stage
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
@@ -32,6 +33,9 @@ interface TumeKyouenV2Service {
         @Query("start_stage_no") startStageNo: Int,
         @Query("limit") limit: Int
     ): Response<List<Stage>>
+
+    @POST("/v2/stages")
+    suspend fun postStage(@Body stage: NewStage): Response<Stage>
 
     @RequireAuth
     @PUT("/v2/stages/{stageNo}/clear")
