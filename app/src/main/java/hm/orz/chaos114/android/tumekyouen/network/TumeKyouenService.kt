@@ -14,22 +14,6 @@ import retrofit2.http.Query
 
 interface TumeKyouenService {
     @FormUrlEncoded
-    @POST("/page/api_login")
-    fun login(@Field("token") token: String,
-              @Field("token_secret") tokenSecret: String): Single<LoginResult>
-
-    @FormUrlEncoded
-    @POST("/page/add_all")
-    fun addAll(@Field("data") data: String): Single<AddAllResponse>
-
-    @FormUrlEncoded
-    @POST("/page/add")
-    fun add(@Field("stageNo") stageNo: Int): Maybe<Void>
-
-    @GET("/kyouen/get")
-    fun getStage(@Query("stageNo") stageNo: Int): Single<Response<ResponseBody>>
-
-    @FormUrlEncoded
     @POST("/kyouen/regist")
     fun postStage(@Field("data") data: String): Single<Response<ResponseBody>>
 }

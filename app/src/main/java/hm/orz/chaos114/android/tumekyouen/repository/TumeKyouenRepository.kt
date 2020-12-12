@@ -9,10 +9,7 @@ import hm.orz.chaos114.android.tumekyouen.network.models.ClearedStage
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
-import timber.log.Timber
 import java.text.ParsePosition
-import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,23 +18,10 @@ import javax.inject.Singleton
 class TumeKyouenRepository @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
-    fun insertByCSV(csvString: String): Completable {
-        val splitString = csvString.split(",".toRegex()).toTypedArray()
-        if (splitString.size != 4) {
-            throw RuntimeException("illegal csv: $csvString")
-        }
-
-        var i = 0
-        val entity = TumeKyouen(
-            0,
-            splitString[i++].toInt(),
-            splitString[i++].toInt(),
-            splitString[i++],
-            splitString[i],
-            0,
-            0
-        )
-        return appDatabase.tumeKyouenDao().insertAll(entity)
+    fun insertStages(stages: List<TumeKyouen>): Completable {
+        return Completable.merge(stages.map {
+            appDatabase.tumeKyouenDao().insertAll(it)
+        })
     }
 
     fun selectMaxStageNo(): Single<Int> {
@@ -95,7 +79,10 @@ class TumeKyouenRepository @Inject constructor(
     fun updateSyncClearData(clearList: List<ClearedStage>): Completable {
         return Completable.merge(
             clearList.map {
-                updateClearFlag(it.stageNo.toInt(), ISO8601Utils.parse(it.clearDate, ParsePosition(0)))
+                updateClearFlag(
+                    it.stageNo.toInt(),
+                    ISO8601Utils.parse(it.clearDate, ParsePosition(0))
+                )
             }
         )
     }

@@ -9,14 +9,17 @@ import hm.orz.chaos114.android.tumekyouen.network.models.ClearStage
 import hm.orz.chaos114.android.tumekyouen.network.models.ClearedStage
 import hm.orz.chaos114.android.tumekyouen.network.models.LoginParam
 import hm.orz.chaos114.android.tumekyouen.network.models.LoginResult
+import hm.orz.chaos114.android.tumekyouen.network.models.Stage
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import retrofit2.Invocation
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -24,9 +27,18 @@ interface TumeKyouenV2Service {
     @POST("/v2/users/login")
     suspend fun login(@Body loginParam: LoginParam): Response<LoginResult>
 
+    @GET("/v2/stages")
+    suspend fun getStages(
+        @Query("start_stage_no") startStageNo: Int,
+        @Query("limit") limit: Int
+    ): Response<List<Stage>>
+
     @RequireAuth
     @PUT("/v2/stages/{stageNo}/clear")
-    suspend fun putStagesClear(@Path("stageNo") stageNo: Int, @Body clearStage: ClearStage): Response<Void>
+    suspend fun putStagesClear(
+        @Path("stageNo") stageNo: Int,
+        @Body clearStage: ClearStage
+    ): Response<Void>
 
     @RequireAuth
     @POST("/v2/stages/sync")

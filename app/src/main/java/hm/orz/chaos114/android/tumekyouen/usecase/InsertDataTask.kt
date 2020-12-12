@@ -1,49 +1,55 @@
 package hm.orz.chaos114.android.tumekyouen.usecase
 
-import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
+import hm.orz.chaos114.android.tumekyouen.db.entities.TumeKyouen
+import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenV2Service
+import hm.orz.chaos114.android.tumekyouen.network.models.Stage
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
 import io.reactivex.Single
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class InsertDataTask @Inject constructor(
-    private val tumeKyouenService: TumeKyouenService,
+    private val tumeKyouenV2Service: TumeKyouenV2Service,
     private val tumeKyouenRepository: TumeKyouenRepository
 ) {
     var running = false
         private set
 
-    fun run(startStageNo: Int, count: Int): Single<Int> {
+    fun run(currentMaxStageNo: Int, count: Int): Single<Int> {
         if (running) {
             return Single.error(ExclusiveException())
         }
         running = true
         return Single.create { emitter ->
-            var stageNo = startStageNo
-            for (i in 1..count) {
-                val response = tumeKyouenService.getStage(stageNo).blockingGet()
-                val responseString = response.body()?.string()
-                if (responseString == null || "no_data" == responseString) {
-                    emitter.onSuccess(stageNo)
-                    return@create
+            GlobalScope.launch {
+                val response = tumeKyouenV2Service.getStages(currentMaxStageNo + 1, count * 10)
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        insertData(it)
+                        emitter.onSuccess(it.size)
+                    }
                 }
-
-                stageNo += insertData(responseString)
+                running = false
             }
-
-            emitter.onSuccess(stageNo - startStageNo)
-            running = false
         }
     }
 
-    private fun insertData(responseString: String): Int {
-        var count = 0
-        responseString.split("\n").forEach { csvString ->
-            tumeKyouenRepository.insertByCSV(csvString).blockingAwait()
-            count++
+    private fun insertData(stages: List<Stage>) {
+        val dbStages = stages.map {
+            TumeKyouen(
+                0,
+                it.stageNo.toInt(),
+                it.size.toInt(),
+                it.stage,
+                it.creator,
+                0,
+                0
+            )
         }
-        return count
+        tumeKyouenRepository.insertStages(dbStages).subscribe()
     }
 }
 
