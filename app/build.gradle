@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
-// https://firebase.google.com/docs/crashlytics/get-started
-apply plugin: 'io.fabric'
-
 // https://docs.deploygate.com/docs/gradle-plugin
 apply plugin: 'deploygate'
 
 // https://github.com/ben-manes/gradle-versions-plugin
 apply plugin: 'com.github.ben-manes.versions'
+
+// https://firebase.google.com/docs/crashlytics/get-started?platform=android
+apply plugin: 'com.google.firebase.crashlytics'
 
 // https://firebase.google.com/docs/perf-mon/get-started-android
 apply plugin: 'com.google.firebase.firebase-perf'
@@ -18,16 +18,15 @@ apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: "org.jlleitschuh.gradle.ktlint"
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 30
 
-    dataBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding true
     }
     defaultConfig {
         applicationId "hm.orz.chaos114.android.tumekyouen"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode 25
         versionName "0.12.0"
         multiDexEnabled true
@@ -111,7 +110,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
 
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
+    implementation 'com.google.firebase:firebase-analytics:18.0.0'
+    implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
 
     // room
     def room_version = "2.1.0"
@@ -161,12 +161,15 @@ dependencies {
 }
 
 ktlint {
-    version = "0.33.0"
+    version = "0.40.0"
     android = true
-    reporters = [org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE]
+    reporters {
+        reporter "checkstyle"
+    }
     ignoreFailures = true
     filter {
         exclude("**/generated/**")
+        exclude("**/network/models/**")
         include("**/java/**")
     }
 }
@@ -174,8 +177,10 @@ ktlint {
 detekt {
     version = "1.0.0-RC16"
     input = files("src/main/java")
-    filters = ".*/resources/.*,.*/build/.*"
     config = files("$rootDir/detekt.yml")
+}
+tasks.withType(io.gitlab.arturbosch.detekt.Detekt).configureEach {
+    exclude("**/network/models/**")
 }
 
 apply plugin: 'com.google.gms.google-services'

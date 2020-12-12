@@ -3,7 +3,6 @@ package hm.orz.chaos114.android.tumekyouen
 import android.content.Context
 import android.util.Log
 
-import com.crashlytics.android.Crashlytics
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
@@ -12,6 +11,7 @@ import com.twitter.sdk.android.core.TwitterAuthConfig
 import com.twitter.sdk.android.core.TwitterConfig
 
 import androidx.multidex.MultiDex
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
 import hm.orz.chaos114.android.tumekyouen.di.DaggerAppComponent
@@ -62,9 +62,9 @@ class App : DaggerApplication() {
     private class FirebaseTree : Timber.Tree() {
 
         override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-            Crashlytics.log(priority, tag, message)
+            FirebaseCrashlytics.getInstance().log("${priority}/${tag}: ${message}")
             if (t != null && priority >= Log.ERROR) {
-                Crashlytics.logException(t)
+                FirebaseCrashlytics.getInstance().recordException(t)
             }
         }
     }
