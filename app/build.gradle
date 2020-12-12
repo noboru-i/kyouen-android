@@ -80,33 +80,34 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 ext {
-    coroutinesVersion = '1.2.1'
-    okhttpLibVersion = '3.11.0'
-    retrofitLibVersion = '2.6.0'
-    moshiLibVersion = '1.8.0'
+    coroutinesVersion = '1.4.2'
+    okhttpLibVersion = '4.9.0'
+    retrofitLibVersion = '2.9.0'
+    moshiLibVersion = '1.11.0'
     icepickVersion = '3.2.0'
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}"
     implementation 'androidx.multidex:multidex:2.0.1'
 
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.browser:browser:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
 
-    implementation 'com.google.firebase:firebase-core:17.0.0'
-    implementation 'com.google.firebase:firebase-auth:18.0.0'
-    implementation 'com.google.firebase:firebase-messaging:19.0.1'
-    implementation 'com.google.firebase:firebase-ads:18.0.0'
-    implementation 'com.google.firebase:firebase-perf:18.0.1'
+    implementation 'com.google.firebase:firebase-core:18.0.0'
+    implementation 'com.google.firebase:firebase-auth:20.0.1'
+    implementation 'com.google.firebase:firebase-messaging:21.0.0'
+    implementation 'com.google.firebase:firebase-ads:19.6.0'
+    implementation 'com.google.firebase:firebase-perf:19.0.10'
 
     // https://developer.android.com/jetpack/androidx/releases/lifecycle (ViewModel and LiveData)
-    def lifecycle_version = "2.0.0"
+    def lifecycle_version = "2.2.0"
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version"
 
@@ -114,7 +115,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics:17.3.0'
 
     // room
-    def room_version = "2.1.0"
+    def room_version = "2.2.5"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-rxjava2:$room_version"
@@ -126,7 +127,7 @@ dependencies {
     // Timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.8.6'
     implementation "com.squareup.okhttp3:okhttp:${okhttpLibVersion}"
     implementation "com.squareup.okhttp3:logging-interceptor:${okhttpLibVersion}"
     implementation "com.squareup.okhttp3:okhttp-urlconnection:${okhttpLibVersion}"
@@ -134,11 +135,11 @@ dependencies {
     implementation "com.squareup.retrofit2:adapter-rxjava2:${retrofitLibVersion}"
     implementation "com.squareup.retrofit2:converter-gson:${retrofitLibVersion}"
     implementation "com.squareup.retrofit2:converter-moshi:${retrofitLibVersion}"
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.2'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
-    implementation 'com.uber.autodispose:autodispose-ktx:1.0.0'
-    implementation 'com.uber.autodispose:autodispose-android-ktx:1.0.0'
-    implementation 'com.uber.autodispose:autodispose-android-archcomponents-ktx:1.0.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.20'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'com.uber.autodispose:autodispose-ktx:1.2.0'
+    implementation 'com.uber.autodispose:autodispose-android-ktx:1.2.0'
+    implementation 'com.uber.autodispose:autodispose-android-archcomponents-ktx:1.2.0'
     implementation "com.squareup.moshi:moshi:${moshiLibVersion}"
     implementation "com.squareup.moshi:moshi-kotlin:${moshiLibVersion}"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:${moshiLibVersion}"
@@ -148,16 +149,16 @@ dependencies {
     kapt "frankiesardo:icepick-processor:${icepickVersion}"
 
     // Dagger2
-    def dagger_version = "2.23.2"
+    def dagger_version = "2.30.1"
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation "com.google.dagger:dagger-android:$dagger_version"
     implementation "com.google.dagger:dagger-android-support:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
 
-    testImplementation 'junit:junit:4.12'
-    testImplementation "org.robolectric:robolectric:4.0.1"
-    testImplementation "org.robolectric:shadows-multidex:4.0.1"
+    testImplementation 'junit:junit:4.13.1'
+    testImplementation "org.robolectric:robolectric:4.4"
+    testImplementation "org.robolectric:shadows-multidex:4.4"
 }
 
 ktlint {
