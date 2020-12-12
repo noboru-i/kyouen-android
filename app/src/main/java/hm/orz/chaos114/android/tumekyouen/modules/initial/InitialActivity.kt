@@ -8,6 +8,7 @@ import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 import com.uber.autodispose.autoDisposable
 import dagger.android.support.DaggerAppCompatActivity
 import hm.orz.chaos114.android.tumekyouen.R
+import hm.orz.chaos114.android.tumekyouen.db.entities.TumeKyouen
 import hm.orz.chaos114.android.tumekyouen.modules.kyouen.KyouenActivity
 import hm.orz.chaos114.android.tumekyouen.modules.title.TitleActivity
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
@@ -53,9 +54,19 @@ class InitialActivity : DaggerAppCompatActivity() {
             "9,6,000000001000010000000010000100001000,noboru",
             "10,6,000100000010010000000100000010010000,noboru"
         )
-        for (data in initData) {
-            tumeKyouenRepository.insertByCSV(data).blockingAwait()
+        val stages = initData.map {
+            val items = it.split(",")
+            TumeKyouen(
+                0,
+                Integer.parseInt(items[0]),
+                Integer.parseInt(items[1]),
+                items[2],
+                items[3],
+                0,
+                0
+            )
         }
+        tumeKyouenRepository.insertStages(stages).subscribe()
     }
 
     private fun goNextActivity() {
@@ -101,6 +112,5 @@ class InitialActivity : DaggerAppCompatActivity() {
         } catch (e: NumberFormatException) {
             return null
         }
-
     }
 }

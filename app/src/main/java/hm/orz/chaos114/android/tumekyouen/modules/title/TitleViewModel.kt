@@ -11,6 +11,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.toLiveData
+import com.google.firebase.auth.FirebaseAuth
+import com.google.gson.internal.bind.util.ISO8601Utils
 import com.twitter.sdk.android.core.Callback
 import com.twitter.sdk.android.core.Result
 import com.twitter.sdk.android.core.TwitterAuthToken
@@ -18,27 +20,31 @@ import com.twitter.sdk.android.core.TwitterException
 import com.twitter.sdk.android.core.TwitterSession
 import com.twitter.sdk.android.core.identity.TwitterAuthClient
 import hm.orz.chaos114.android.tumekyouen.R
-import hm.orz.chaos114.android.tumekyouen.model.AddAllResponse
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel
-import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenService
+import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenV2Service
+import hm.orz.chaos114.android.tumekyouen.network.models.ClearedStage
+import hm.orz.chaos114.android.tumekyouen.network.models.LoginParam
 import hm.orz.chaos114.android.tumekyouen.repository.TumeKyouenRepository
 import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask
 import hm.orz.chaos114.android.tumekyouen.util.Event
 import hm.orz.chaos114.android.tumekyouen.util.LoginUtil
-import hm.orz.chaos114.android.tumekyouen.util.ServerUtil
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager
 import hm.orz.chaos114.android.tumekyouen.util.StringResource
 import io.reactivex.BackpressureStrategy
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
 class TitleViewModel @Inject constructor(
     private val context: Context,
     private val loginUtil: LoginUtil,
-    private val tumeKyouenService: TumeKyouenService,
+    private val tumeKyouenV2Service: TumeKyouenV2Service,
     private val tumeKyouenRepository: TumeKyouenRepository,
     private val soundManager: SoundManager,
     private val insertDataTask: InsertDataTask
@@ -53,25 +59,35 @@ class TitleViewModel @Inject constructor(
 
     private val twitterAuthClient = TwitterAuthClient()
 
+    private lateinit var auth: FirebaseAuth
+
     private val stageCountModel = MutableLiveData<StageCountModel>()
     private val mutableConnectStatus = MutableLiveData<ConnectStatus>()
 
     private val disposable: CompositeDisposable = CompositeDisposable()
 
-    val displayStageCount: LiveData<String> = Transformations.map(stageCountModel) { stageCountModel ->
-        context.getString(R.string.stage_count,
-            stageCountModel.clearStageCount,
-            stageCountModel.stageCount)
-    }
+    val displayStageCount: LiveData<String> =
+        Transformations.map(stageCountModel) { stageCountModel ->
+            context.getString(
+                R.string.stage_count,
+                stageCountModel.clearStageCount,
+                stageCountModel.stageCount
+            )
+        }
 
-    val soundResource: LiveData<Drawable> = Transformations.map(soundManager.isPlayable.toFlowable(BackpressureStrategy.BUFFER).toLiveData()) { isPlayable ->
-        @DrawableRes val imageRes = if (isPlayable) R.drawable.ic_volume_up_black else R.drawable.ic_volume_off_black
-        ContextCompat.getDrawable(context, imageRes)
-    }
+    val soundResource: LiveData<Drawable> =
+        Transformations.map(
+            soundManager.isPlayable.toFlowable(BackpressureStrategy.BUFFER).toLiveData()
+        ) { isPlayable ->
+            @DrawableRes val imageRes =
+                if (isPlayable) R.drawable.ic_volume_up_black else R.drawable.ic_volume_off_black
+            ContextCompat.getDrawable(context, imageRes)
+        }
 
-    val connectButtonEnabled: LiveData<Boolean> = Transformations.map(mutableConnectStatus) { status ->
-        status == ConnectStatus.BEFORE_CONNECT
-    }
+    val connectButtonEnabled: LiveData<Boolean> =
+        Transformations.map(mutableConnectStatus) { status ->
+            status == ConnectStatus.BEFORE_CONNECT
+        }
 
     val connectButtonShow: LiveData<Boolean> = Transformations.map(mutableConnectStatus) { status ->
         status == ConnectStatus.BEFORE_CONNECT || status == ConnectStatus.CONNECTING
@@ -98,27 +114,23 @@ class TitleViewModel @Inject constructor(
         get() = _toastMessage
 
     fun onCreate() {
-        val loginInfo = loginUtil.loadLoginInfo()
-        Timber.d("loginInfo = %s", loginInfo)
-        if (loginInfo != null) {
-            mutableConnectStatus.value = ConnectStatus.CONNECTING
-            disposable.add(
-                tumeKyouenService.login(loginInfo.token, loginInfo.secret)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { s ->
-                            Timber.d("sucess : %s", s)
-                            mutableConnectStatus.value = ConnectStatus.CONNECTED
-                        },
-                        { throwable ->
-                            Timber.d(throwable, "fail")
-                            mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
-                        })
-            )
-        } else {
-            mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+        auth = FirebaseAuth.getInstance()
+
+        if (auth.currentUser != null) {
+            // already logged in
+            mutableConnectStatus.value = ConnectStatus.CONNECTED
+            return
         }
+
+        // migration authentication
+        val loginInfo = loginUtil.loadLoginInfo()
+        if (loginInfo == null) {
+            mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+            return
+        }
+
+        mutableConnectStatus.value = ConnectStatus.CONNECTING
+        sendAuthToken(TwitterAuthToken(loginInfo.token, loginInfo.secret))
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -160,25 +172,34 @@ class TitleViewModel @Inject constructor(
 
     fun requestSync() {
         mutableConnectStatus.value = ConnectStatus.SYNCING
-        disposable.add(
-            tumeKyouenRepository.selectAllClearStage()
+        GlobalScope.launch {
+            val clearedStages = tumeKyouenRepository.selectAllClearStage()
                 .subscribeOn(Schedulers.io())
-                .flatMap<AddAllResponse> { stages -> ServerUtil.addAll(tumeKyouenService, stages) }
-                .flatMapCompletable { addAllResponse ->
-                    tumeKyouenRepository.updateSyncClearData(addAllResponse.data)
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        mutableConnectStatus.value = ConnectStatus.CONNECTED
-                        refresh()
-                    },
-                    {
-                        mutableConnectStatus.value = ConnectStatus.CONNECTED
-                        _alertMessage.value = Event(R.string.alert_error_sync)
+                .map { stages ->
+                    stages.map { s ->
+                        ClearedStage(
+                            stageNo = s.stageNo.toLong(),
+                            clearDate = ISO8601Utils.format(s.clearDate)
+                        )
                     }
-                )
-        )
+                }
+                .blockingGet()
+            val response = tumeKyouenV2Service.postSync(clearedStages)
+            response.body()?.let {
+                tumeKyouenRepository.updateSyncClearData(it)
+                    .subscribe()
+            }
+
+            withContext(Dispatchers.Main) {
+                mutableConnectStatus.value = ConnectStatus.CONNECTED
+
+                if (response.isSuccessful) {
+                    refresh()
+                } else {
+                    _alertMessage.value = Event(R.string.alert_error_sync)
+                }
+            }
+        }
     }
 
     fun requestStages(count: Int) {
@@ -203,21 +224,36 @@ class TitleViewModel @Inject constructor(
     }
 
     private fun sendAuthToken(authToken: TwitterAuthToken) {
-        disposable.add(
-            tumeKyouenService.login(authToken.token, authToken.secret)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        loginUtil.saveLoginInfo(authToken)
-                        mutableConnectStatus.value = ConnectStatus.CONNECTED
-                    },
-                    {
-                        mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
-                        _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
+        GlobalScope.launch {
+            val response = tumeKyouenV2Service.login(LoginParam(authToken.token, authToken.secret))
+            withContext(Dispatchers.Main) {
+                if (!response.isSuccessful) {
+                    withContext(Dispatchers.IO) {
+                        Timber.d(
+                            "error body: %s",
+                            response.errorBody()?.string()
+                        )
                     }
-                )
-        )
+
+                    mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+                    _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
+                    return@withContext
+                }
+
+                auth.signInWithCustomToken(response.body()!!.token)
+                    .addOnCompleteListener { task ->
+                        if (!task.isSuccessful) {
+                            mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+                            _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
+                            return@addOnCompleteListener
+                        }
+
+                        val user = auth.currentUser
+                        Timber.d("Firebase auth user: %s", user?.uid)
+                        mutableConnectStatus.value = ConnectStatus.CONNECTED
+                    }
+            }
+        }
     }
 
     override fun onCleared() {
