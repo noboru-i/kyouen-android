@@ -10,7 +10,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 import com.uber.autodispose.autoDisposable
 import dagger.android.support.DaggerAppCompatActivity
@@ -38,7 +38,7 @@ class TitleActivity : DaggerAppCompatActivity(), TitleActivityHandlers {
     lateinit var factory: TitleViewModelFactory
 
     private val viewModel: TitleViewModel by lazy {
-        ViewModelProviders.of(this, factory).get(TitleViewModel::class.java)
+        ViewModelProvider(this, factory).get(TitleViewModel::class.java)
     }
 
     private lateinit var binding: ActivityTitleBinding

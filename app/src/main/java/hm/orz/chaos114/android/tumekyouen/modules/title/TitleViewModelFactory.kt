@@ -17,10 +17,10 @@ class TitleViewModelFactory @Inject constructor(
     private val tumeKyouenRepository: TumeKyouenRepository,
     private val soundManager: SoundManager,
     private val insertDataTask: InsertDataTask
-) : ViewModelProvider.Factory {
+) : ViewModelProvider.NewInstanceFactory() {
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return TitleViewModel(
             context,
             loginUtil,

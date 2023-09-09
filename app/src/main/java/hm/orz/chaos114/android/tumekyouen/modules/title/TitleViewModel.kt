@@ -8,17 +8,17 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 import androidx.lifecycle.toLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.internal.bind.util.ISO8601Utils
-import com.twitter.sdk.android.core.Callback
-import com.twitter.sdk.android.core.Result
-import com.twitter.sdk.android.core.TwitterAuthToken
-import com.twitter.sdk.android.core.TwitterException
-import com.twitter.sdk.android.core.TwitterSession
-import com.twitter.sdk.android.core.identity.TwitterAuthClient
+//import com.twitter.sdk.android.core.Callback
+//import com.twitter.sdk.android.core.Result
+//import com.twitter.sdk.android.core.TwitterAuthToken
+//import com.twitter.sdk.android.core.TwitterException
+//import com.twitter.sdk.android.core.TwitterSession
+//import com.twitter.sdk.android.core.identity.TwitterAuthClient
 import hm.orz.chaos114.android.tumekyouen.R
 import hm.orz.chaos114.android.tumekyouen.model.StageCountModel
 import hm.orz.chaos114.android.tumekyouen.network.TumeKyouenV2Service
@@ -57,7 +57,7 @@ class TitleViewModel @Inject constructor(
         SYNCING,
     }
 
-    private val twitterAuthClient = TwitterAuthClient()
+//    private val twitterAuthClient = TwitterAuthClient()
 
     private lateinit var auth: FirebaseAuth
 
@@ -67,7 +67,7 @@ class TitleViewModel @Inject constructor(
     private val disposable: CompositeDisposable = CompositeDisposable()
 
     val displayStageCount: LiveData<String> =
-        Transformations.map(stageCountModel) { stageCountModel ->
+        stageCountModel.map { stageCountModel ->
             context.getString(
                 R.string.stage_count,
                 stageCountModel.clearStageCount,
@@ -76,28 +76,26 @@ class TitleViewModel @Inject constructor(
         }
 
     val soundResource: LiveData<Drawable> =
-        Transformations.map(
-            soundManager.isPlayable.toFlowable(BackpressureStrategy.BUFFER).toLiveData()
-        ) { isPlayable ->
+        soundManager.isPlayable.toFlowable(BackpressureStrategy.BUFFER).toLiveData().map { isPlayable ->
             @DrawableRes val imageRes =
                 if (isPlayable) R.drawable.ic_volume_up_black else R.drawable.ic_volume_off_black
-            ContextCompat.getDrawable(context, imageRes)
+            ContextCompat.getDrawable(context, imageRes)!!
         }
 
     val connectButtonEnabled: LiveData<Boolean> =
-        Transformations.map(mutableConnectStatus) { status ->
+        mutableConnectStatus.map { status ->
             status == ConnectStatus.BEFORE_CONNECT
         }
 
-    val connectButtonShow: LiveData<Boolean> = Transformations.map(mutableConnectStatus) { status ->
+    val connectButtonShow: LiveData<Boolean> = mutableConnectStatus.map { status ->
         status == ConnectStatus.BEFORE_CONNECT || status == ConnectStatus.CONNECTING
     }
 
-    val syncButtonEnabled: LiveData<Boolean> = Transformations.map(mutableConnectStatus) { status ->
+    val syncButtonEnabled: LiveData<Boolean> = mutableConnectStatus.map { status ->
         status == ConnectStatus.CONNECTED
     }
 
-    val showLoading: LiveData<Boolean> = Transformations.map(mutableConnectStatus) { status ->
+    val showLoading: LiveData<Boolean> = mutableConnectStatus.map { status ->
         status == ConnectStatus.CONNECTING || status == ConnectStatus.SYNCING
     }
 
@@ -123,18 +121,18 @@ class TitleViewModel @Inject constructor(
         }
 
         // migration authentication
-        val loginInfo = loginUtil.loadLoginInfo()
-        if (loginInfo == null) {
-            mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
-            return
-        }
+//        val loginInfo = loginUtil.loadLoginInfo()
+//        if (loginInfo == null) {
+//            mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+//            return
+//        }
 
         mutableConnectStatus.value = ConnectStatus.CONNECTING
-        sendAuthToken(TwitterAuthToken(loginInfo.token, loginInfo.secret))
+//        sendAuthToken(TwitterAuthToken(loginInfo.token, loginInfo.secret))
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        twitterAuthClient.onActivityResult(requestCode, resultCode, data)
+//        twitterAuthClient.onActivityResult(requestCode, resultCode, data)
     }
 
     fun refresh() {
@@ -156,18 +154,18 @@ class TitleViewModel @Inject constructor(
     // FIXME remove activity reference
     fun requestConnectTwitter(activity: Activity) {
         mutableConnectStatus.value = ConnectStatus.CONNECTING
-        twitterAuthClient.authorize(activity, object : Callback<TwitterSession>() {
-            override fun success(result: Result<TwitterSession>) {
-                Timber.d("success")
-                sendAuthToken(result.data.authToken)
-            }
-
-            override fun failure(e: TwitterException) {
-                Timber.d("failure")
-                _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
-                mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
-            }
-        })
+//        twitterAuthClient.authorize(activity, object : Callback<TwitterSession>() {
+//            override fun success(result: Result<TwitterSession>) {
+//                Timber.d("success")
+//                sendAuthToken(result.data.authToken)
+//            }
+//
+//            override fun failure(e: TwitterException) {
+//                Timber.d("failure")
+//                _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
+//                mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+//            }
+//        })
     }
 
     fun requestSync() {
@@ -223,38 +221,38 @@ class TitleViewModel @Inject constructor(
         )
     }
 
-    private fun sendAuthToken(authToken: TwitterAuthToken) {
-        GlobalScope.launch {
-            val response = tumeKyouenV2Service.login(LoginParam(authToken.token, authToken.secret))
-            withContext(Dispatchers.Main) {
-                if (!response.isSuccessful) {
-                    withContext(Dispatchers.IO) {
-                        Timber.d(
-                            "error body: %s",
-                            response.errorBody()?.string()
-                        )
-                    }
-
-                    mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
-                    _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
-                    return@withContext
-                }
-
-                auth.signInWithCustomToken(response.body()!!.token)
-                    .addOnCompleteListener { task ->
-                        if (!task.isSuccessful) {
-                            mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
-                            _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
-                            return@addOnCompleteListener
-                        }
-
-                        val user = auth.currentUser
-                        Timber.d("Firebase auth user: %s", user?.uid)
-                        mutableConnectStatus.value = ConnectStatus.CONNECTED
-                    }
-            }
-        }
-    }
+//    private fun sendAuthToken(authToken: TwitterAuthToken) {
+//        GlobalScope.launch {
+//            val response = tumeKyouenV2Service.login(LoginParam(authToken.token, authToken.secret))
+//            withContext(Dispatchers.Main) {
+//                if (!response.isSuccessful) {
+//                    withContext(Dispatchers.IO) {
+//                        Timber.d(
+//                            "error body: %s",
+//                            response.errorBody()?.string()
+//                        )
+//                    }
+//
+//                    mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+//                    _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
+//                    return@withContext
+//                }
+//
+//                auth.signInWithCustomToken(response.body()!!.token)
+//                    .addOnCompleteListener { task ->
+//                        if (!task.isSuccessful) {
+//                            mutableConnectStatus.value = ConnectStatus.BEFORE_CONNECT
+//                            _alertMessage.value = Event(R.string.alert_error_authenticate_twitter)
+//                            return@addOnCompleteListener
+//                        }
+//
+//                        val user = auth.currentUser
+//                        Timber.d("Firebase auth user: %s", user?.uid)
+//                        mutableConnectStatus.value = ConnectStatus.CONNECTED
+//                    }
+//            }
+//        }
+//    }
 
     override fun onCleared() {
         super.onCleared()

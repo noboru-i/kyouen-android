@@ -14,7 +14,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".modules.initial.InitialActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,8 +30,7 @@
                 <data android:scheme="tumekyouen" />
             </intent-filter>
             <intent-filter
-                android:autoVerify="true"
-                tools:targetApi="m">
+                android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />

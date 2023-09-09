@@ -25,8 +25,8 @@ import hm.orz.chaos114.android.tumekyouen.usecase.InsertDataTask
 import hm.orz.chaos114.android.tumekyouen.util.AdRequestFactory
 import hm.orz.chaos114.android.tumekyouen.util.PreferenceUtil
 import hm.orz.chaos114.android.tumekyouen.util.SoundManager
-import icepick.Icepick
-import icepick.State
+//import icepick.Icepick
+//import icepick.State
 import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -51,7 +51,7 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
     @Inject
     internal lateinit var insertDataTask: InsertDataTask
 
-    @State
+//    @State
     @JvmField
     internal var stageModel: TumeKyouenModel? = null
 
@@ -66,7 +66,7 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_kyouen)
         binding.handlers = this
 
-        Icepick.restoreInstanceState(this, savedInstanceState)
+//        Icepick.restoreInstanceState(this, savedInstanceState)
 
         val intent = intent
         if (intent != null) {
@@ -88,7 +88,7 @@ class KyouenActivity : DaggerAppCompatActivity(), KyouenActivityHandlers {
 
     public override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        Icepick.saveInstanceState(this, outState)
+//        Icepick.saveInstanceState(this, outState)
     }
 
     private fun init() {

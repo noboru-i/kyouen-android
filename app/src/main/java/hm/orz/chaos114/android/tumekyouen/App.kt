@@ -6,9 +6,9 @@ import android.util.Log
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
-import com.twitter.sdk.android.core.Twitter
-import com.twitter.sdk.android.core.TwitterAuthConfig
-import com.twitter.sdk.android.core.TwitterConfig
+//import com.twitter.sdk.android.core.Twitter
+//import com.twitter.sdk.android.core.TwitterAuthConfig
+//import com.twitter.sdk.android.core.TwitterConfig
 
 import androidx.multidex.MultiDex
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -23,16 +23,16 @@ class App : DaggerApplication() {
     override fun onCreate() {
         super.onCreate()
 
-        MobileAds.initialize(this, getString(R.string.admob_app_id))
+        MobileAds.initialize(this)
 
-        val authConfig = TwitterAuthConfig(
-            getString(R.string.twitter_key),
-            getString(R.string.twitter_secret)
-        )
-        val config = TwitterConfig.Builder(this)
-            .twitterAuthConfig(authConfig)
-            .build()
-        Twitter.initialize(config)
+//        val authConfig = TwitterAuthConfig(
+//            getString(R.string.twitter_key),
+//            getString(R.string.twitter_secret)
+//        )
+//        val config = TwitterConfig.Builder(this)
+//            .twitterAuthConfig(authConfig)
+//            .build()
+//        Twitter.initialize(config)
 
         if (!FirebaseApp.getApps(this).isEmpty()) {
             // only execute foreground process
